@@ -338,3 +338,17 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# Library Manager restored components
+/src/wwwroot/lib/ace
+/src/wwwroot/lib/bootstrap
+/src/wwwroot/lib/d3
+/src/wwwroot/lib/datatables
+/src/wwwroot/lib/editor-md
+/src/wwwroot/lib/font-awesome
+/src/wwwroot/lib/jquery
+/src/wwwroot/lib/jquery-validation
+/src/wwwroot/lib/jquery-validation-unobtrusive
+/src/wwwroot/lib/jscolor
+/src/wwwroot/lib/katex
+/src/wwwroot/lib/nvd3
