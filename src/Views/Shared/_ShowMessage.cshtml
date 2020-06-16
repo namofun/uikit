@@ -1,0 +1,9 @@
+﻿@{
+    Layout = "_WindowLayout";
+}
+
+<p>@ViewData["Message"]</p>
+
+@section Footer {
+    <button type="button" class="btn btn-@ViewData["MsgType"]" data-dismiss="modal">Ok</button>
+}

@@ -1,0 +1,13 @@
+﻿@{
+    Layout = "_WindowLayout";
+}
+
+<p>@ViewData["Message"]</p>
+
+@section Footer {
+    <button asp-area="@ViewData["AreaName"]"
+            asp-controller="@ViewData["ControllerName"]"
+            asp-action="@ViewData["ActionName"]"
+            asp-all-route-data="@((Dictionary<string,string>)ViewData["RouteValues"])"
+            type="submit" class="btn btn-@ViewData["MsgType"]">Ok</button>
+}

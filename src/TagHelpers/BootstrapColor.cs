@@ -1,4 +1,4 @@
-﻿namespace Microsoft.AspNetCore.Mvc.TagHelpers
+﻿namespace Microsoft.AspNetCore.Mvc
 {
     public enum BootstrapColor
     {
