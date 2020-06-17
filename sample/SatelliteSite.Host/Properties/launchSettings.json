@@ -1,0 +1,12 @@
+﻿{
+  "profiles": {
+    "SatelliteSite.Host": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "applicationUrl": "https://localhost:44384;http://localhost:59662",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
