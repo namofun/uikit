@@ -10,3 +10,21 @@ This repository contains the following components:
 - Validation attributes
 - ClaimsPrincipal helpers
 
+
+
+# Application Modules
+
+This section provide guides to write Application Modules.
+
+- /Apis/SomeApiController.cs
+- /Controllers/SomeActivityController.cs
+- /Dashboards/SomePanelController.cs
+- /Views/SomeActivity/SomeAction.cshtml
+- /Panels/SomePanel/SomeAction.cshtml
+- /Models/SomeModel.cs
+- /Services/SomeService.cs
+
+There are several rules to obey.
+
+- The controllers in `Controllers` should `[Area("ThisAreaName")]`
+- The controllers in `Dashboards` should `[Area("Dashboard")]`

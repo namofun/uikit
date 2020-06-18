@@ -11,6 +11,16 @@ namespace Microsoft.AspNetCore.Mvc
     public abstract class AbstractModule
     {
         /// <summary>
+        /// The real area name
+        /// </summary>
+        public abstract string Area { get; }
+
+        /// <summary>
+        /// Initialize this module, add some claims and conventions by calling protected class methods.
+        /// </summary>
+        public abstract void Initialize();
+
+        /// <summary>
         /// Register the endpoints with some more configurations.
         /// </summary>
         /// <param name="endpoints">The endpoint route builder</param>
@@ -24,6 +34,16 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="services">The dependency injection builder</param>
         public virtual void RegisterServices(IServiceCollection services)
         {
+        }
+
+        /// <summary>
+        /// Claims that the status code page in this root should fallback to this endpoint.
+        /// </summary>
+        /// <param name="pattern">The url pattern</param>
+        /// <param name="endpoint">The endpoint to fallback, or no status page if null</param>
+        protected void ClaimsStatusCodePage(string pattern, RouteEndpoint? endpoint)
+        {
+
         }
     }
 

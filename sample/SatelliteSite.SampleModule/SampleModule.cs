@@ -8,6 +8,12 @@ namespace SatelliteSite.SampleModule
 {
     public class SampleModule : AbstractModule
     {
+        public override string Area => "Sample";
+
+        public override void Initialize()
+        {
+        }
+
         public override void RegisterEndpoints(IEndpointRouteBuilder endpoints)
         {
             endpoints.Map("/", async context =>

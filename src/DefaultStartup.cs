@@ -138,12 +138,21 @@ namespace Microsoft.AspNetCore.Mvc
                     UnicodeRanges.BasicLatin,
                     UnicodeRanges.CjkUnifiedIdeographs));
 
+            Modules.ApplyServices(services);
+            var (parts, razors) = Modules.GetParts();
+
             services.AddControllersWithViews()
                 .AddTimeSpanJsonConverter()
                 .UseSlugifyParameterTransformer()
                 .ReplaceDefaultLinkGenerator()
                 .AddSessionStateTempDataProvider()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+                .ConfigureApplicationPartManager(apm => parts.ForEach(a => apm.ApplicationParts.Add(a)));
+
+            if (Environment.IsDevelopment())
+                services.AddControllersWithViews()
+                    .AddRazorRuntimeCompilation(options =>
+                        options.FileProviders.Add(razors));
 
             services.AddSession(options => options.Cookie.IsEssential = true);
 
@@ -209,7 +218,7 @@ namespace Microsoft.AspNetCore.Mvc
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.Apply(Modules);
+                Modules.ApplyEndpoints(endpoints);
                 //endpoints.MapControllers();
 
                 //endpoints.MapSwaggerUI("/api/doc")
