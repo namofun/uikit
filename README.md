@@ -26,5 +26,6 @@ This section provide guides to write Application Modules.
 
 There are several rules to obey.
 
-- The controllers in `Controllers` should `[Area("ThisAreaName")]`
+- The controllers in `Controllers` should `[Area("ThisModuleName")]`
 - The controllers in `Dashboards` should `[Area("Dashboard")]`
+- The controllers in `Apis` should `[Area("Api")]`

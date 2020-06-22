@@ -10,7 +10,7 @@ namespace Microsoft.AspNetCore.Mvc
     /// <summary>
     /// A base class for an MVC controller with view and ajax support.
     /// </summary>
-    public abstract class Controller2 : Controller
+    public abstract class ViewControllerBase : Controller
     {
         /// <summary>
         /// Gets or sets the message to display on the page.

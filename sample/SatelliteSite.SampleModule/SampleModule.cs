@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace SatelliteSite.SampleModule
@@ -14,9 +13,15 @@ namespace SatelliteSite.SampleModule
         {
         }
 
-        public override void RegisterEndpoints(IEndpointRouteBuilder endpoints)
+        public override void RegisterEndpoints(IEndpointBuilder endpoints)
         {
-            endpoints.Map("/", async context =>
+            endpoints.MapControllers();
+
+            endpoints.WithErrorHandler("Sample", "Main", "Error")
+                .MapFallbackNotFound("/sample/{**slug}")
+                .MapStatusCode("/sample/{**slug}");
+
+            endpoints.MapRequestDelegate("/weather/checker", async context =>
             {
                 await context.Response.WriteAsync("Hello World!");
             });

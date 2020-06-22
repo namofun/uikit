@@ -20,7 +20,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <inheritdoc />
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            if (!(context.Controller is Controller2 controller))
+            if (!(context.Controller is ViewControllerBase controller))
                 throw new InvalidOperationException();
             if (!controller.IsWindowAjax)
                 context.Result = controller.BadRequest();

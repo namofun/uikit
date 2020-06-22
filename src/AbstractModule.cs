@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Routing;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -24,7 +25,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// Register the endpoints with some more configurations.
         /// </summary>
         /// <param name="endpoints">The endpoint route builder</param>
-        public virtual void RegisterEndpoints(IEndpointRouteBuilder endpoints)
+        public virtual void RegisterEndpoints(IEndpointBuilder endpoints)
         {
         }
 

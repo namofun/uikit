@@ -4,7 +4,7 @@ namespace SatelliteSite.SampleModule.Controllers
 {
     [Area("Sample")]
     [Route("[area]/[controller]/[action]")]
-    public class MainController : Controller2
+    public class MainController : ViewControllerBase
     {
         public IActionResult Home()
         {
