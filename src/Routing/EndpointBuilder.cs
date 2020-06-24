@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.SignalR;
 using System;
@@ -55,7 +56,7 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="controller">The name of controller.</param>
         /// <param name="action">The name of action.</param>
         /// <returns>A <see cref="IErrorHandlerBuilder"/> that can be used to further customize the error handler.</returns>
-        IErrorHandlerBuilder WithErrorHandler(string area, string controller, string action);
+        IErrorHandlerBuilder WithErrorHandler(string area, string controller, string action = nameof(ViewControllerBase.StatusCodePage));
 
         /// <summary>
         /// Adds a specialized <see cref="RouteEndpoint"/> to the <see cref="IEndpointRouteBuilder"/>

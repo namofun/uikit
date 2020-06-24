@@ -235,7 +235,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// </summary>
         /// <param name="statusCode">The status code</param>
         /// <returns>A <see cref="ActionResult"/> representing the action result.</returns>
-        [NonAction]
+        [SuppressLink]
         public ActionResult StatusCodePage(int? statusCode = null)
         {
             ViewBag.RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
