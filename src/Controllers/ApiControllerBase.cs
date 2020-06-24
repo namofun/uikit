@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Routing;
 using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Mvc
@@ -6,6 +7,7 @@ namespace Microsoft.AspNetCore.Mvc
     /// <summary>
     /// The base controller class for APIs.
     /// </summary>
+    [ApiExplorerVisibility(true)]
     public abstract class ApiControllerBase : ControllerBase, IAsyncActionFilter
     {
         /// <summary>

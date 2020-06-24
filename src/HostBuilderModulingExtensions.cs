@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -25,6 +26,8 @@ namespace Microsoft.AspNetCore.Mvc
         public static IHostBuilder AddModule<TModule>(this IHostBuilder builder) where TModule : AbstractModule, new()
         {
             Startup.Modules.Add(new TModule());
+            var module = typeof(TModule);
+            ApiExplorerVisibilityAttribute.DeclaredAssemblyModule.Add(module.Assembly.FullName!, module.FullName!);
             return builder;
         }
 
@@ -38,7 +41,7 @@ namespace Microsoft.AspNetCore.Mvc
         {
             foreach (var module in modules)
             {
-                module.RegisterEndpoints(builder);
+                module.RegisterEndpoints(ModuleEndpointDataSourceBase.Factory(module, builder));
             }
         }
 
@@ -51,6 +54,8 @@ namespace Microsoft.AspNetCore.Mvc
         {
             foreach (var module in modules)
             {
+                var type = typeof(ModuleEndpointDataSource<>).MakeGenericType(module.GetType());
+                builder.AddSingleton(type);
                 module.RegisterServices(builder);
             }
         }
@@ -97,7 +102,7 @@ namespace Microsoft.AspNetCore.Mvc
                 foreach (var rel in assembly.GetCustomAttributes<RelatedAssemblyAttribute>())
                 {
                     if (AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name == rel.AssemblyFileName).Any()) return;
-                    if (!TryLoad(rel.AssemblyFileName, out var ass))
+                    if (!TryLoad(rel.AssemblyFileName + ".dll", out var ass))
                         throw new TypeLoadException("The assembly is invalid.");
                     Add(ass!, areaName);
                 }

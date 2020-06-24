@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -149,7 +150,7 @@ namespace Microsoft.AspNetCore.Mvc
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                 .ConfigureApplicationPartManager(apm => parts.ForEach(a => apm.ApplicationParts.Add(a)));
 
-            if (Environment.IsDevelopment())
+            if (false && Environment.IsDevelopment())
                 services.AddControllersWithViews()
                     .AddRazorRuntimeCompilation(options =>
                         options.FileProviders.Add(razors));
@@ -219,18 +220,12 @@ namespace Microsoft.AspNetCore.Mvc
             app.UseEndpoints(endpoints =>
             {
                 Modules.ApplyEndpoints(endpoints);
-                //endpoints.MapControllers();
 
-                //endpoints.MapSwaggerUI("/api/doc")
-                //    .RequireRoles("Administrator,Problem");
+                endpoints.MapNotFound("/api/{**slug}");
 
-                endpoints.MapFallbackNotFound("/api/{**slug}");
+                endpoints.MapNotFound("/lib/{**slug}");
 
-                endpoints.MapFallbackNotFound("/lib/{**slug}");
-
-                //endpoints.MapFallbackToAreaController(
-                //    pattern: "/dashboard/{**slug}",
-                //    "NotFound2", "Root", "Dashboard");
+                endpoints.MapNotFound("/images/{**slug}");
             });
         }
     }

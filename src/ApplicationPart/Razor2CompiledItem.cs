@@ -26,7 +26,7 @@ namespace Microsoft.AspNetCore.Razor.Hosting
         /// <returns>The correct identifier</returns>
         private static string IdentifierProbing(string fileName, string areaName)
         {
-            if (fileName.StartsWith("/Views"))
+            if (fileName.StartsWith("/Views/"))
                 return "/Areas/" + areaName + fileName;
             else if (fileName.StartsWith("/Panels/"))
                 return "/Areas/Dashboard/" + fileName["/Panels".Length..];

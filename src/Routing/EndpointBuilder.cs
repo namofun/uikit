@@ -39,6 +39,14 @@ namespace Microsoft.AspNetCore.Builder
 
         /// <summary>
         /// Adds a specialized <see cref="RouteEndpoint"/> to the <see cref="IEndpointRouteBuilder"/>
+        /// that will match the provided pattern with the lowest possible priority.
+        /// </summary>
+        /// <param name="pattern">The route pattern.</param>
+        /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
+        IEndpointConventionBuilder MapFallNotFound(string pattern);
+
+        /// <summary>
+        /// Adds a specialized <see cref="RouteEndpoint"/> to the <see cref="IEndpointRouteBuilder"/>
         /// that will match the provided pattern with the lowest possible priority. <br />
         /// If such error handler is set up, the routes registered by <see cref="MapErrorNotFound(string)"/>
         /// will be handled with this handler.
@@ -55,9 +63,10 @@ namespace Microsoft.AspNetCore.Builder
         /// </summary>
         /// <param name="name">The name of API document.</param>
         /// <param name="title">The title of API.</param>
+        /// <param name="description">The description of API.</param>
         /// <param name="version">The version of API.</param>
         /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
-        IEndpointConventionBuilder MapApiDocument(string name, string title, string version);
+        IEndpointConventionBuilder MapApiDocument(string name, string title, string description, string version);
 
         /// <summary>
         /// Maps incoming requests with the specified path to the specified <see cref="Hub"/> type.
