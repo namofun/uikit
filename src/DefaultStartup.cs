@@ -155,6 +155,8 @@ namespace Microsoft.AspNetCore.Mvc
                     .AddRazorRuntimeCompilation(options =>
                         options.FileProviders.Add(razors));
 
+            services.AddSingleton<ReExecuteEndpointMatcher>();
+
             services.AddSession(options => options.Cookie.IsEssential = true);
 
             /*
@@ -226,6 +228,10 @@ namespace Microsoft.AspNetCore.Mvc
                 endpoints.MapNotFound("/lib/{**slug}");
 
                 endpoints.MapNotFound("/images/{**slug}");
+
+                app.ApplicationServices
+                    .GetRequiredService<ReExecuteEndpointMatcher>()
+                    .BuildPassOne();
             });
         }
     }

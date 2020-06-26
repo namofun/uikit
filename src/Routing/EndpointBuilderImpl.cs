@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -196,7 +197,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
                 .Where(s => s.ControllerName.Equals(controller, StringComparison.OrdinalIgnoreCase))
                 .Where(s => s.ActionName.Equals(action, StringComparison.OrdinalIgnoreCase))
                 .Where(s => s.RouteValues.TryGetValue("area", out var AreaName) && AreaName.Equals(area, StringComparison.OrdinalIgnoreCase))
-                .SingleOrDefault();
+                .Single();
             return new DefaultErrorHandlerBuilder(ad, Builder);
         }
 
@@ -223,8 +224,8 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
     internal class DefaultErrorHandlerBuilder : IErrorHandlerBuilder
     {
-        public static readonly List<(string RoutePattern, ActionDescriptor ActionDescriptor)> _fallbacks
-            = new List<(string RoutePattern, ActionDescriptor ActionDescriptor)>();
+        public static readonly List<(string, RoutePattern, ActionDescriptor)> _fallbacks
+            = new List<(string, RoutePattern, ActionDescriptor)>();
 
         public ActionDescriptor ActionDescriptor { get; }
 
@@ -258,7 +259,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
         public IErrorHandlerBuilder MapStatusCode(string pattern)
         {
-            _fallbacks.Add((pattern, ActionDescriptor));
+            _fallbacks.Add((pattern, RoutePatternFactory.Parse(pattern), ActionDescriptor));
             return this;
         }
     }

@@ -15,7 +15,7 @@ namespace Microsoft.AspNetCore.Mvc
             var selectors = action.Selectors;
             for (int i = 0; i < selectors.Count; i++)
             {
-                var arm = selectors[i].AttributeRouteModel;
+                var arm = selectors[i].AttributeRouteModel ??= new AttributeRouteModel();
                 arm.SuppressLinkGeneration = true;
                 arm.SuppressPathMatching = true;
             }
