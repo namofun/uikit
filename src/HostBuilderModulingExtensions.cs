@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ApplicationParts;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +30,31 @@ namespace Microsoft.AspNetCore.Mvc
             var module = typeof(TModule);
             ApiExplorerVisibilityAttribute.DeclaredAssemblyModule.Add(module.Assembly.FullName!, module.FullName!);
             return builder;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IWebHostBuilder"/> class with pre-configured defaults.
+        /// </summary>
+        /// <remarks>
+        /// The following defaults are applied to the <see cref="IWebHostBuilder"/>: <br />
+        /// - Use Kestrel as the web server and configure it using the application's configuration providers. <br />
+        /// - Adds the HostFiltering middleware. <br />
+        /// - Adds the ForwardedHeaders middleware if <c>ASPNETCORE_FORWARDEDHEADERS_ENABLED</c>=true. <br />
+        /// - Enable IIS integration. <br />
+        /// - Use the moduled built-in <see cref="Startup"/> configurations.
+        /// </remarks>
+        /// <param name="builder">The <see cref="IHostBuilder"/> instance to configure.</param>
+        /// <param name="further">The configure callback.</param>
+        /// <returns>The <see cref="IHostBuilder"/> for chaining.</returns>
+        public static IHostBuilder ConfigureModuleWebHostDefaults(this IHostBuilder builder, Action<IWebHostBuilder>? further = null)
+        {
+            return builder.ConfigureWebHostDefaults(builder =>
+            {
+                builder.UseStaticWebAssets();
+                builder.UseStartup<Startup>();
+                builder.UseSetting(WebHostDefaults.ApplicationKey, AppDomain.CurrentDomain.FriendlyName);
+                further?.Invoke(builder);
+            });
         }
 
         /// <summary>

@@ -7,6 +7,10 @@
     <RootNamespace>Microsoft.AspNetCore.Mvc</RootNamespace>
   </PropertyGroup>
 
+  <Import Project="NugetPackageConfig.props" />
+  <Import Project="StaticWebAssetsBathPath.targets" />
+  <Import Project="build\Microsoft.AspNetCore.Hosting.GitVersions.props" />
+
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="MediatR" Version="8.0.1" />
@@ -15,6 +19,16 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.5" />
     <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.76" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="build\*" Pack="true" PackagePath="build\" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Content Update="libman.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

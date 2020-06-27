@@ -17,7 +17,6 @@ namespace SatelliteSite
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .AddModule<SampleModule.SampleModule>()
-                .ConfigureWebHostDefaults(webBuilder =>
-                    webBuilder.UseStartup<Startup>());
+                .ConfigureModuleWebHostDefaults();
     }
 }

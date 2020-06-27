@@ -1,0 +1,18 @@
+<Project>
+  
+  <PropertyGroup>
+    <StaticWebAssetsDisableProjectBuildPropsFileGeneration>true</StaticWebAssetsDisableProjectBuildPropsFileGeneration>
+    
+    <ResolveCurrentProjectStaticWebAssetsInputsDependsOn>
+      SetStaticWebAssetsBasePath;
+      $(ResolveCurrentProjectStaticWebAssetsInputsDependsOn)
+    </ResolveCurrentProjectStaticWebAssetsInputsDependsOn>
+  </PropertyGroup>
+
+  <Target Name="SetStaticWebAssetsBasePath">
+    <PropertyGroup>
+      <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
+    </PropertyGroup>
+  </Target>
+
+</Project>

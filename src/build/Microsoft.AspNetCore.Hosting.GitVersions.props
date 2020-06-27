@@ -1,0 +1,86 @@
+﻿<Project>
+
+  <UsingTask TaskName="_ReadGitInfo" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Folder ParameterType="System.String" Required="true" />
+      <Branch ParameterType="System.String" Output="true" />
+      <CommitId ParameterType="System.String" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System"/>
+      <Using Namespace="System.IO"/>
+      <Using Namespace="System.Linq"/>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+            Branch = "unknown";
+            CommitId = "UNKNOWN";
+            if (Directory.Exists(Folder))
+            {
+                var head = Path.Combine(Folder, "logs", "HEAD");
+                if (File.Exists(head))
+                {
+                    var lines = File.ReadAllText(head).Trim();
+                    var line = lines.Split('\n').LastOrDefault()?.Trim();
+                    if (!string.IsNullOrEmpty(line))
+                    {
+                        CommitId = line.Split(' ')[1];
+                    }
+                }
+
+                head = Path.Combine(Folder, "HEAD");
+                if (File.Exists(head))
+                {
+                    var lines = File.ReadAllText(head).Trim();
+                    var line = lines.Split('\n').FirstOrDefault()?.Trim() ?? "";
+                    const string starts = "ref: refs/heads/";
+                    if (line.StartsWith(starts))
+                    {
+                        Branch = line.Substring(starts.Length);
+                    }
+                }
+            }
+]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="GetGitVersionAndDebugPath" BeforeTargets="GenerateAssemblyInfo">
+    <PropertyGroup Condition="$(RazorDebugPath) == ''">
+      <RazorDebugPath>$(MSBuildProjectDirectory)</RazorDebugPath>
+    </PropertyGroup>
+    <ItemGroup Condition="$(Configuration) == 'Debug'">
+      <AssemblyAttribute Include="Microsoft.AspNetCore.Razor.RazorDebugPathAttribute">
+        <_Parameter1>$(RazorDebugPath)</_Parameter1>
+      </AssemblyAttribute>
+    </ItemGroup>
+
+    <_ReadGitInfo Condition="$(GitRepositoryDirectory) != ''" Folder="$(GitRepositoryDirectory)">
+      <Output TaskParameter="Branch" PropertyName="_GitBranchRead" />
+      <Output TaskParameter="CommitId" PropertyName="_GitVersionRead" />
+    </_ReadGitInfo>
+    <PropertyGroup Condition="$(_GitVersionRead) == ''">
+      <_GitVersionRead>UNKNOWN</_GitVersionRead>
+    </PropertyGroup>
+    <PropertyGroup Condition="$(_GitBranchRead) == ''">
+      <_GitBranchRead>unknown</_GitBranchRead>
+    </PropertyGroup>
+    <ItemGroup>
+      <AssemblyAttribute Include="System.GitVersionAttribute">
+        <_Parameter1>$(_GitVersionRead)</_Parameter1>
+        <_Parameter2>$(_GitBranchRead)</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="ForbidPackInDebugMode" BeforeTargets="GenerateNuspec">
+    <Error Text="Packing in debug mode is forbidden." Condition="$(Configuration) == 'Debug'" />
+  </Target>
+
+  <PropertyGroup>
+    <PrepareForBuildDependsOn>
+      GetGitVersionAndDebugPath;
+      $(PrepareForBuildDependsOn)
+    </PrepareForBuildDependsOn>
+  </PropertyGroup>
+
+</Project>

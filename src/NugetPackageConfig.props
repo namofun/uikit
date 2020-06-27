@@ -1,0 +1,16 @@
+<Project>
+
+  <PropertyGroup>
+    <Title>UIKit for ASP.NET Core</Title>
+    <Authors>yang-er</Authors>
+    <Description>UI kit for ASP.NET Core with moduling support</Description>
+    <PackageProjectUrl>https://github.com/namofun/uikit</PackageProjectUrl>
+    <Company />
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>bootstrap,razor,module,aspnet</PackageTags>
+    <PackageReleaseNotes>Support moduling in ASP.NET Core</PackageReleaseNotes>
+    <RepositoryUrl>https://github.com/namofun/uikit</RepositoryUrl>
+    <PackageVersion>1.0.4</PackageVersion>
+  </PropertyGroup>
+
+</Project>
