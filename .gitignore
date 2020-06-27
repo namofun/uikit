@@ -352,3 +352,6 @@ healthchecksdb
 /src/wwwroot/lib/jscolor
 /src/wwwroot/lib/katex
 /src/wwwroot/lib/nvd3
+/src/wwwroot/lib/file-saver
+/src/wwwroot/lib/select2
+/src/wwwroot/lib/qrcodejs

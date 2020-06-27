@@ -36,16 +36,6 @@ namespace Microsoft.AspNetCore.Mvc
         public virtual void RegisterServices(IServiceCollection services)
         {
         }
-
-        /// <summary>
-        /// Claims that the status code page in this root should fallback to this endpoint.
-        /// </summary>
-        /// <param name="pattern">The url pattern</param>
-        /// <param name="endpoint">The endpoint to fallback, or no status page if null</param>
-        protected void ClaimsStatusCodePage(string pattern, RouteEndpoint? endpoint)
-        {
-
-        }
     }
 
     /// <summary>

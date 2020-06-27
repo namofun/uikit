@@ -26,10 +26,12 @@ namespace Microsoft.AspNetCore.Razor.Hosting
         /// <returns>The correct identifier</returns>
         private static string IdentifierProbing(string fileName, string areaName)
         {
-            if (fileName.StartsWith("/Views/"))
+            if (fileName.StartsWith("/Panels/"))
+                return "/Areas/Dashboard/Views" + fileName["/Panels".Length..];
+            else if (fileName.StartsWith("/Views/") && areaName == null)
+                return fileName;
+            else if (fileName.StartsWith("/Views/"))
                 return "/Areas/" + areaName + fileName;
-            else if (fileName.StartsWith("/Panels/"))
-                return "/Areas/Dashboard/" + fileName["/Panels".Length..];
             else
                 throw new ArgumentException($"The file {fileName} violates the discovery rules.");
         }

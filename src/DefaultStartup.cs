@@ -221,6 +221,8 @@ namespace Microsoft.AspNetCore.Mvc
 
             app.UseEndpoints(endpoints =>
             {
+                endpoints.DataSources.Add(new RootEndpointDataSource(endpoints.ServiceProvider));
+
                 Modules.ApplyEndpoints(endpoints);
 
                 endpoints.MapNotFound("/api/{**slug}");
