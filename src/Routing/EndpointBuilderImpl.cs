@@ -250,6 +250,8 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
             Builder.MapFallback(pattern, context =>
             {
+                context.Response.StatusCode = 404;
+
                 var routeData = new RouteData();
                 routeData.PushState(router: null, context.Request.RouteValues, new RouteValueDictionary());
                 var actionContext = new ActionContext(context, routeData, action);

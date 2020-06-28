@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Razor;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -92,9 +93,10 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="apm">The application part manager</param>
         /// <param name="modules">The application parts list</param>
         /// <returns>The application part manager</returns>
-        internal static (List<ApplicationPart>, IFileProvider) GetParts(this ICollection<AbstractModule> modules)
+        internal static (List<ApplicationPart>, PeerFileProvider?) GetParts(this ICollection<AbstractModule> modules)
         {
             var lst = new List<ApplicationPart>();
+            PeerFileProvider? tree = null;
 
             static bool TryLoad(string assemblyName, out Assembly? assembly)
             {
@@ -119,6 +121,17 @@ namespace Microsoft.AspNetCore.Mvc
                 if (!assemblyName!.EndsWith(".Views"))
                 {
                     lst.Add(new AssemblyPart(assembly));
+                    var rdpa = assembly.GetCustomAttribute<RazorDebugPathAttribute>();
+                    if (rdpa != null)
+                    {
+                        tree ??= new PeerFileProvider();
+                        var dir1 = Path.Combine(rdpa.Path, "Views");
+                        if (Directory.Exists(dir1))
+                            tree["Areas"][areaName]["Views"].Append(new PhysicalFileProvider(dir1));
+                        var dir2 = Path.Combine(rdpa.Path, "Panels");
+                        if (Directory.Exists(dir2))
+                            tree["Areas"]["Dashboard"]["Views"].Append(new PhysicalFileProvider(dir2));
+                    }
                 }
                 else
                 {
@@ -134,10 +147,14 @@ namespace Microsoft.AspNetCore.Mvc
                 }
             }
 
+            var selfCheck = typeof(AbstractModule).Assembly
+                .GetCustomAttribute<RazorDebugPathAttribute>();
+            if (selfCheck != null)
+                (tree ??= new PeerFileProvider()).Append(new PhysicalFileProvider(selfCheck.Path));
+            
             foreach (var module in modules)
                 Add(module.GetType().Assembly, module.Area);
-
-            return (lst, null!);
+            return (lst, tree);
         }
     }
 }

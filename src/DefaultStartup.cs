@@ -148,12 +148,8 @@ namespace Microsoft.AspNetCore.Mvc
                 .ReplaceDefaultLinkGenerator()
                 .AddSessionStateTempDataProvider()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-                .ConfigureApplicationPartManager(apm => parts.ForEach(a => apm.ApplicationParts.Add(a)));
-
-            if (false && Environment.IsDevelopment())
-                services.AddControllersWithViews()
-                    .AddRazorRuntimeCompilation(options =>
-                        options.FileProviders.Add(razors));
+                .AddApplicationParts(parts)
+                .AddRazorRuntimeCompilation(razors, Environment.IsDevelopment());
 
             services.AddSingleton<ReExecuteEndpointMatcher>();
 

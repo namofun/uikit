@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Microsoft.AspNetCore.Razor.Hosting
 {
@@ -43,14 +42,26 @@ namespace Microsoft.AspNetCore.Razor.Hosting
         /// <param name="areaName">The area name</param>
         public Razor2CompiledItem(RazorCompiledItemAttribute attr, string areaName)
         {
+            var metadata = new List<object>();
+
             Type = attr.Type;
             Kind = attr.Kind;
             Identifier = IdentifierProbing(attr.Identifier, areaName);
+            Metadata = metadata;
 
-            Metadata = Type.GetCustomAttributes(inherit: true).Select(o =>
-                o is RazorSourceChecksumAttribute rsca
-                    ? new RazorSourceChecksumAttribute(rsca.ChecksumAlgorithm, rsca.Checksum, IdentifierProbing(rsca.Identifier, areaName))
-                    : o).ToList();
+            foreach (var item in Type.GetCustomAttributes(inherit: true))
+            {
+                if (item is RazorSourceChecksumAttribute rsca)
+                {
+                    if (rsca.Identifier == "/_ViewImports.cshtml") continue;
+                    if (rsca.Identifier == "/Panels/_ViewImports.cshtml") continue;
+                    metadata.Add(new RazorSourceChecksumAttribute(rsca.ChecksumAlgorithm, rsca.Checksum, IdentifierProbing(rsca.Identifier, areaName)));
+                }
+                else
+                {
+                    metadata.Add(item);
+                }
+            }
         }
     }
 }

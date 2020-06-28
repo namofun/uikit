@@ -10,7 +10,7 @@
     <PackageTags>bootstrap,razor,module,aspnet</PackageTags>
     <PackageReleaseNotes>Support moduling in ASP.NET Core</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/namofun/uikit</RepositoryUrl>
-    <PackageVersion>1.0.4</PackageVersion>
+    <PackageVersion>1.0.5</PackageVersion>
   </PropertyGroup>
 
 </Project>

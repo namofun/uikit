@@ -1,0 +1,5 @@
+﻿<Project>
+  <!-- This file is not needed in your module directory, this just keeps the non-nuget way here. -->
+  <Import Project="$(MSBuildThisFileDirectory)..\Directory.Build.props" />
+  <Import Project="$(MSBuildThisFileDirectory)..\src\build\Microsoft.AspNetCore.Hosting.GitVersions.props" />
+</Project>
