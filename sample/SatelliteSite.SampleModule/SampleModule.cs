@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Menus;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SatelliteSite.SampleModule
@@ -37,6 +39,17 @@ namespace SatelliteSite.SampleModule
         public override void RegisterServices(IServiceCollection services)
         {
 
+        }
+
+        public override void RegisterMenu(IMenuContributor menus)
+        {
+            menus.Menu(MenuNameDefaults.DashboardNavbar, menu =>
+            {
+                menu.HasEntry(0)
+                    .HasTitle(string.Empty, "Sample")
+                    .HasLink("Dashboard", "Weather", "Change")
+                    .ActiveWhen("Dashboard", "Weather");
+            });
         }
     }
 }

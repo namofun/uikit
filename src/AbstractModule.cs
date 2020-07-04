@@ -36,6 +36,14 @@ namespace Microsoft.AspNetCore.Mvc
         public virtual void RegisterServices(IServiceCollection services)
         {
         }
+
+        /// <summary>
+        /// Register the menu.
+        /// </summary>
+        /// <param name="services">The menu contributor</param>
+        public virtual void RegisterMenu(IMenuContributor menus)
+        {
+        }
     }
 
     /// <summary>

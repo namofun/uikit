@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.AspNetCore.Mvc.Menus;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Razor;
 using Microsoft.AspNetCore.Routing;
@@ -79,12 +80,18 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="modules">The dependency configuration list</param>
         internal static void ApplyServices(this ICollection<AbstractModule> modules, IServiceCollection builder)
         {
+            var menuContributor = new ConcreteMenuContributor();
+            menuContributor.ConfigureDefaults();
+
             foreach (var module in modules)
             {
                 var type = typeof(ModuleEndpointDataSource<>).MakeGenericType(module.GetType());
                 builder.AddSingleton(type);
                 module.RegisterServices(builder);
+                module.RegisterMenu(menuContributor);
             }
+
+            builder.AddSingleton<IMenuProvider>(menuContributor);
         }
 
         /// <summary>
