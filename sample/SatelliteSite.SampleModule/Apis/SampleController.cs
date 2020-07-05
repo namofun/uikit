@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SatelliteSite.SampleModule.Models;
+using SatelliteSite.SampleModule.Services;
+using System.Linq;
 
 namespace SatelliteSite.SampleModule.Apis
 {
@@ -7,14 +9,17 @@ namespace SatelliteSite.SampleModule.Apis
     [Route("[area]/[controller]")]
     public class WeatherController : ApiControllerBase
     {
-        [HttpGet("[action]")]
-        public ActionResult<WeatherModel> Forecast()
+        private ForecastService Service { get; }
+
+        public WeatherController(ForecastService service)
         {
-            return new WeatherModel
-            {
-                Name = "The world",
-                Temperature = 2
-            };
+            Service = service;
+        }
+
+        [HttpGet("[action]")]
+        public ActionResult<WeatherForecast[]> Forecast()
+        {
+            return Service.Forecast().ToArray();
         }
     }
 }

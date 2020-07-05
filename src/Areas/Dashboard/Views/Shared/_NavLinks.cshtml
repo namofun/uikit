@@ -1,0 +1,73 @@
+﻿@inject IMenuProvider Menu
+<ul class="navbar-nav mr-auto">
+    @foreach (var menu in Menu.Find(MenuNameDefaults.DashboardNavbar))
+    {
+        if (!menu.Satisfy(Context)) { continue; }
+        if (menu is ISubmenu submenu)
+        {
+            var s = Guid.NewGuid().ToString("N").Substring(0, 6);
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle @menu.Active(ViewContext)" href="#" id="@submenu.Id" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="@menu.Icon"></i> @menu.Title
+            @foreach (var badge in menu.Badges)
+            {
+            <span class="badge badge-@badge.Item2" id="num-alerts-@badge.Item1"></span>
+            }
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            @foreach (var subentry in submenu)
+            {
+            <a class="dropdown-item" href="@subentry.GetLink(Url)" id="@subentry.Id">
+                <i class="@subentry.Icon fa-fw"></i> @subentry.Title
+                @foreach (var badge in subentry.Badges)
+                {
+                <span class="badge badge-@badge.Item2" id="num-alerts-@badge.Item1-sub"></span>
+                }
+            </a>
+            }
+        </div>
+    </li>
+        }
+        else
+        {
+            var entry = (IMenuEntry)menu;
+    <li class="nav-item">
+        <a class="nav-link @menu.Active(ViewContext)" href="@entry.GetLink(Url)" id="@entry.Id">
+            <i class="@entry.Icon"></i> @entry.Title
+            @foreach (var badge in menu.Badges)
+            {
+            <span class="badge badge-@badge.Item2" id="num-alerts-@badge.Item1"></span>
+            }
+        </a>
+    </li>
+        }
+    }
+</ul>
+
+<ul class="navbar-nav">
+    <li class="ajax-loader-container">
+        <div class="spinner-border spinner-border-sm ajax-loader" style="display: none;" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-user"></i> @User.GetUserName()
+        </a>
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item disabled" href="#">@(User.GetNickName())</a>
+
+            <a asp-viewdata-key="RefreshSpan" class="dropdown-item" href="#" id="refresh-navitem">
+                <i class="fas fa-sync-alt fa-fw"></i>
+                <span id="refresh-toggle">
+                    Disable Refresh
+                </span>
+                <span class="small text-muted">(@ViewData["RefreshSpan"]s)</span>
+            </a>
+
+            <a class="dropdown-item" href="/">
+                <i class="fas fa-sign-out-alt fa-fw"></i> Back to main site
+            </a>
+        </div>
+    </li>
+</ul>

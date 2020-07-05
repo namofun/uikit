@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SatelliteSite.SampleModule.Services;
 
 namespace SatelliteSite.SampleModule.Controllers
 {
@@ -6,9 +7,16 @@ namespace SatelliteSite.SampleModule.Controllers
     [Route("[area]/[controller]/[action]")]
     public class MainController : ViewControllerBase
     {
+        private ForecastService Service { get; }
+
+        public MainController(ForecastService service)
+        {
+            Service = service;
+        }
+
         public IActionResult Home()
         {
-            return View();
+            return View(Service.Forecast());
         }
     }
 }

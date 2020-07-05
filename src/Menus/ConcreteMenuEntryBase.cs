@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Abstractions;
-using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
@@ -30,18 +29,16 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         /// <summary>
         /// The internal activity function.
         /// </summary>
-        private Func<ActionContext, bool>? Activity { get; set; }
-
-        /// <summary>
-        /// The activity list.
-        /// </summary>
-        IReadOnlyList<(string, string?, string?)> ActivityList => (IReadOnlyList<(string, string?, string?)>)Metadata.GetValueOrDefault(nameof(MenuNameDefaults.ActiveWhen), Array.Empty<(string, string?, string?)>())!;
+        private Func<ViewContext, bool>? Activity { get; set; }
 
         /// <inheritdoc />
         public Dictionary<string, object> Metadata { get; } = new Dictionary<string, object>();
 
         /// <inheritdoc />
         public List<Expression<Func<HttpContext, bool>>> Requirements { get; } = new List<Expression<Func<HttpContext, bool>>>();
+
+        /// <inheritdoc />
+        public List<Expression<Func<ViewContext, bool>>> Activities { get; } = new List<Expression<Func<ViewContext, bool>>>();
 
         /// <inheritdoc />
         string IMenuEntryBase.Title => (string)Metadata[nameof(IMenuEntryBase.Title)];
@@ -55,24 +52,8 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         /// <inheritdoc />
         public abstract bool Finalized { get; }
 
-        /// <summary>
-        /// Checks whether this <see cref="ControllerActionDescriptor"/> satisfy.
-        /// </summary>
-        /// <param name="cc">The <see cref="ActionDescriptor"/>.</param>
-        /// <param name="items">The (area, controller, action).</param>
-        /// <returns>The check result.</returns>
-        static bool Checks(ActionDescriptor cc, (string, string?, string?) items)
-        {
-            if (!(cc is ControllerActionDescriptor c)) return false;
-            var (area, controller, action) = items;
-            if (c.RouteValues.TryGetValue("area", out var a2) && a2 != area)
-                return false;
-            if (controller != null && c.ControllerName != controller)
-                return false;
-            if (action != null && c.ActionName != controller)
-                return false;
-            return true;
-        }
+        /// <inheritdoc />
+        public string Id { get; private set; } = "menu_" + Guid.NewGuid().ToString("N").Substring(0, 6);
 
         /// <inheritdoc />
         public virtual void Contribute()
@@ -80,16 +61,9 @@ namespace Microsoft.AspNetCore.Mvc.Menus
             foreach (var section in new[] { "Title", "Icon", "Link" }.Concat(ToCheck))
                 if (!Metadata.ContainsKey(section))
                     throw new ArgumentException(section + " should be set.");
+            if (Metadata.ContainsKey("Id")) Id = (string)Metadata["Id"];
             Require = Requirements.CombineAndAlso().Compile();
-            Activity = ActivityList.Select(Factory).ToList().CombineOrElse().Compile();
-
-            static Expression<Func<ActionContext, bool>> Factory((string, string?, string?) items)
-            {
-                var (area, controller, action) = items;
-                if (area == null || (controller == null && action != null))
-                    throw new InvalidOperationException($"Error arguments specified: {items}.");
-                return c => Checks(c.ActionDescriptor, items);
-            }
+            Activity = Activities.CombineOrElse().Compile();
         }
 
         /// <inheritdoc />
@@ -116,7 +90,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
             return Require!.Invoke(httpContext);
         }
 
-        public bool IsActive(ActionContext actionContext)
+        public bool IsActive(ViewContext actionContext)
         {
             return Activity!.Invoke(actionContext);
         }
@@ -188,6 +162,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
             finalized = true;
             base.Contribute();
             entries.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+            entries.ForEach(a => a.Contribute());
         }
 
         /// <inheritdoc />

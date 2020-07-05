@@ -1,10 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@{
+    ViewData["Title"] = "Weather";
+}
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Page1</title>
-</head>
-<body>
-</body>
-</html>
+<h2 class="mt-2">@ViewData["Title"]</h2>
+
+<datatable data="Model" />

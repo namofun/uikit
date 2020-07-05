@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -9,6 +10,11 @@ namespace Microsoft.AspNetCore.Mvc
     /// </summary>
     public interface IMenuEntryBase
     {
+        /// <summary>
+        /// The id of menu entry
+        /// </summary>
+        string Id { get; }
+
         /// <summary>
         /// The title of menu entry
         /// </summary>
@@ -41,7 +47,14 @@ namespace Microsoft.AspNetCore.Mvc
         /// </summary>
         /// <param name="actionContext">The <see cref="ActionContext"/>.</param>
         /// <returns>Whether this tag is active.</returns>
-        bool IsActive(ActionContext actionContext);
+        bool IsActive(ViewContext actionContext);
+
+        /// <summary>
+        /// Check whether this tag is active for such <see cref="ActionContext"/>.
+        /// </summary>
+        /// <param name="actionContext">The <see cref="ActionContext"/>.</param>
+        /// <returns>Whether this tag is active.</returns>
+        public string Active(ViewContext viewContext) => IsActive(viewContext) ? "active" : "";
 
         /// <summary>
         /// Check whether to show this menu entry.

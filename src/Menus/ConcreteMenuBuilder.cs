@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,6 +38,9 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         public int Count => Entries.Count;
 
         /// <inheritdoc />
+        public List<Expression<Func<ViewContext, bool>>> Activities => throw new NotImplementedException();
+
+        /// <inheritdoc />
         public IMenuEntryBase this[int index] => Entries[index];
 
         /// <summary>
@@ -72,7 +76,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
             if (!Submenus.Contains(name)) Submenus.Add(name);
             ISubmenuBuilder menu2;
             if (!Contributor.Store.TryGetValue(name, out var menu))
-                Contributor.Store.Add(name, menu2 = new ConcreteSubmenuBuilder());
+                Contributor.Store.Add(name, menu2 = new ConcreteSubmenuBuilder { Priority = priority });
             else if (menu is ISubmenuBuilder menu3)
                 menu2 = menu3;
             else
@@ -94,6 +98,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
                 .ToList();
 
             subMenus.ForEach(a => a.Contribute());
+            Entries.ForEach(a => ((IMenuEntryBuilder)a).Contribute());
             Entries.AddRange(subMenus);
             Entries.Sort((a, b) => a.Priority.CompareTo(b.Priority));
         }

@@ -1,7 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc.Menus;
+﻿using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Mvc.Menus;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Microsoft.AspNetCore.Mvc
 {
@@ -137,6 +142,21 @@ namespace Microsoft.AspNetCore.Mvc
         }
 
         /// <summary>
+        /// Set the dom id.
+        /// </summary>
+        /// <param name="id">The dom id.</param>
+        /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
+        public static TBuilder HasIdentifier<TBuilder>(this TBuilder that, string id) where TBuilder : IMenuEntryBuilderBase
+        {
+            if (that.Finalized)
+                throw new InvalidOperationException(ModelFinalized);
+            if (that.Metadata.ContainsKey("Id"))
+                throw new InvalidOperationException(EverConfigured);
+            that.Metadata.Add("Id", id);
+            return that;
+        }
+
+        /// <summary>
         /// Set the route link.
         /// </summary>
         /// <param name="area">The area name.</param>
@@ -191,24 +211,88 @@ namespace Microsoft.AspNetCore.Mvc
             return that;
         }
 
+        private static MethodInfo? _containsWithComparer;
+
+        /// <summary>
+        /// Create an expression for <see cref="ViewContext"/>.
+        /// </summary>
+        /// <param name="src">The corresponding field.</param>
+        /// <param name="dest">The results.</param>
+        /// <returns>The compiled view context.</returns>
+        private static Expression<Func<ViewContext, bool>> CreateExpression(Expression<Func<ViewContext, string?>> src, string dest)
+        {
+            if (_containsWithComparer == null)
+            {
+                Expression<Func<IEnumerable<string?>, bool>> exp = c => c.Contains(null!, null!);
+                var body = (MethodCallExpression)exp.Body;
+                _containsWithComparer = body.Method;
+            }
+
+            var dests = dest.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            var call = Expression.Call(_containsWithComparer,
+                Expression.Constant(dests, typeof(IEnumerable<string>)),
+                src.Body,
+                Expression.Constant(StringComparer.OrdinalIgnoreCase, typeof(IEqualityComparer<string>)));
+            return Expression.Lambda<Func<ViewContext, bool>>(call, src.Parameters);
+        }
+
         /// <summary>
         /// Provide a function to detect the active status.
         /// </summary>
-        /// <param name="area">The area name.</param>
-        /// <param name="controller">The controller name.</param>
-        /// <param name="action">The action name.</param>
+        /// <param name="area">The area names, separated by comma.</param>
         /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
-        public static TBuilder ActiveWhen<TBuilder>(this TBuilder that, string area, string? controller = null, string? action = null) where TBuilder : IMenuEntryBuilderBase
+        public static TBuilder ActiveWhenArea<TBuilder>(this TBuilder that, string area) where TBuilder : IMenuEntryBuilderBase
         {
             if (that.Finalized)
                 throw new InvalidOperationException(ModelFinalized);
+            if (area == null)
+                throw new ArgumentNullException(nameof(area));
+            that.Activities.Add(CreateExpression(c => (string?)c.RouteData.Values.GetValueOrDefault("area"), area));
+            return that;
+        }
 
-            if (!that.Metadata.TryGetValue("ActiveWhen", out var ee))
-                ee = that.Metadata["ActiveWhen"] = new List<(string, string?, string?)>();
-            if (!(ee is List<(string, string?, string?)> activity))
-                throw new InvalidOperationException(EverConfigured);
+        /// <summary>
+        /// Provide a function to detect the active status.
+        /// </summary>
+        /// <param name="controller">The controller names, separated by comma.</param>
+        /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
+        public static TBuilder ActiveWhenController<TBuilder>(this TBuilder that, string controller) where TBuilder : IMenuEntryBuilderBase
+        {
+            if (that.Finalized)
+                throw new InvalidOperationException(ModelFinalized);
+            if (controller == null)
+                throw new ArgumentNullException(nameof(controller));
+            that.Activities.Add(CreateExpression(c => ((ControllerActionDescriptor)c.ActionDescriptor).ControllerName, controller));
+            return that;
+        }
 
-            activity.Add((area, controller, action));
+        /// <summary>
+        /// Provide a function to detect the active status.
+        /// </summary>
+        /// <param name="action">The action names, separated by comma.</param>
+        /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
+        public static TBuilder ActiveWhenAction<TBuilder>(this TBuilder that, string action) where TBuilder : IMenuEntryBuilderBase
+        {
+            if (that.Finalized)
+                throw new InvalidOperationException(ModelFinalized);
+            if (action == null)
+                throw new ArgumentNullException(nameof(action));
+            that.Activities.Add(CreateExpression(c => ((ControllerActionDescriptor)c.ActionDescriptor).ActionName, action));
+            return that;
+        }
+
+        /// <summary>
+        /// Provide a function to detect the active status.
+        /// </summary>
+        /// <param name="value">The active action values, separated by comma.</param>
+        /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
+        public static TBuilder ActiveWhenViewData<TBuilder>(this TBuilder that, string value) where TBuilder : IMenuEntryBuilderBase
+        {
+            if (that.Finalized)
+                throw new InvalidOperationException(ModelFinalized);
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+            that.Activities.Add(CreateExpression(c => (string)c.ViewData["ActiveAction"], value));
             return that;
         }
 
