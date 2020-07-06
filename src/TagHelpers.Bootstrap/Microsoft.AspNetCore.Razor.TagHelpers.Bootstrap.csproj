@@ -7,9 +7,8 @@
     <RootNamespace>Microsoft.AspNetCore.Mvc</RootNamespace>
   </PropertyGroup>
 
-  <Import Project="NugetPackageConfig.props" />
-  <Import Project="StaticWebAssetsBathPath.targets" />
-  <Import Project="build\Microsoft.AspNetCore.Hosting.GitVersions.props" />
+  <Import Project="..\..\build\NugetPackage.props" />
+  <Import Project="..\..\build\StaticWebAssetsBathPath.targets" />
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -23,11 +22,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="build\*" Pack="true" PackagePath="build\" />
+    <ProjectReference Include="..\Extensions.Static\Microsoft.Extensions.Static.csproj" />
   </ItemGroup>
-  
+
   <ItemGroup>
-    <Content Update="libman.json">
+    <None Include="..\..\build\Microsoft.AspNetCore.Hosting.GitVersions.props" Pack="true" PackagePath="build\" Link="build\Microsoft.AspNetCore.Hosting.GitVersions.props" />
+    <None Include="..\..\build\Microsoft.AspNetCore.Razor.TagHelpers.Bootstrap.props" Pack="true" PackagePath="build\" Link="build\Microsoft.AspNetCore.Razor.TagHelpers.Bootstrap.props" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="libman.json" Pack="false">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

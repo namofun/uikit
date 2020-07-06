@@ -128,7 +128,7 @@ namespace Microsoft.AspNetCore.Mvc
                 if (!assemblyName!.EndsWith(".Views"))
                 {
                     lst.Add(new AssemblyPart(assembly));
-                    var rdpa = assembly.GetCustomAttribute<RazorDebugPathAttribute>();
+                    var rdpa = assembly.GetCustomAttribute<LocalDebugPathAttribute>();
                     if (rdpa != null)
                     {
                         tree ??= new PeerFileProvider();
@@ -155,7 +155,7 @@ namespace Microsoft.AspNetCore.Mvc
             }
 
             var selfCheck = typeof(AbstractModule).Assembly
-                .GetCustomAttribute<RazorDebugPathAttribute>();
+                .GetCustomAttribute<LocalDebugPathAttribute>();
             if (selfCheck != null)
                 (tree ??= new PeerFileProvider()).Append(new PhysicalFileProvider(selfCheck.Path));
             

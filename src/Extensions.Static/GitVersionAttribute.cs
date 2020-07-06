@@ -1,8 +1,8 @@
-﻿namespace System
-{
-    using System.IO;
-    using System.Linq;
+﻿using System.IO;
+using System.Linq;
 
+namespace System
+{
     /// <summary>
     /// Identify the version of this assembly.
     /// </summary>
@@ -36,7 +36,7 @@
         /// <param name="Folder">The input parameter for <c>/some/root/solution/.git</c>.</param>
         /// <param name="Branch">The branch id.</param>
         /// <param name="CommitId">The commit id.</param>
-        private void MSBuildFunction(string Folder, out string Branch, out string CommitId)
+        private static void MSBuildFunction(string Folder, out string Branch, out string CommitId)
         {
             Branch = "unknown";
             CommitId = "UNKNOWN";

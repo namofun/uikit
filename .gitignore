@@ -340,18 +340,18 @@ ASALocalRun/
 healthchecksdb
 
 # Library Manager restored components
-/src/wwwroot/lib/ace
-/src/wwwroot/lib/bootstrap
-/src/wwwroot/lib/d3
-/src/wwwroot/lib/datatables
-/src/wwwroot/lib/editor-md
-/src/wwwroot/lib/font-awesome
-/src/wwwroot/lib/jquery
-/src/wwwroot/lib/jquery-validation
-/src/wwwroot/lib/jquery-validation-unobtrusive
-/src/wwwroot/lib/jscolor
-/src/wwwroot/lib/katex
-/src/wwwroot/lib/nvd3
-/src/wwwroot/lib/file-saver
-/src/wwwroot/lib/select2
-/src/wwwroot/lib/qrcodejs
+/src/TagHelpers.Bootstrap/wwwroot/lib/ace
+/src/TagHelpers.Bootstrap/wwwroot/lib/bootstrap
+/src/TagHelpers.Bootstrap/wwwroot/lib/d3
+/src/TagHelpers.Bootstrap/wwwroot/lib/datatables
+/src/TagHelpers.Bootstrap/wwwroot/lib/editor-md
+/src/TagHelpers.Bootstrap/wwwroot/lib/font-awesome
+/src/TagHelpers.Bootstrap/wwwroot/lib/jquery
+/src/TagHelpers.Bootstrap/wwwroot/lib/jquery-validation
+/src/TagHelpers.Bootstrap/wwwroot/lib/jquery-validation-unobtrusive
+/src/TagHelpers.Bootstrap/wwwroot/lib/jscolor
+/src/TagHelpers.Bootstrap/wwwroot/lib/katex
+/src/TagHelpers.Bootstrap/wwwroot/lib/nvd3
+/src/TagHelpers.Bootstrap/wwwroot/lib/file-saver
+/src/TagHelpers.Bootstrap/wwwroot/lib/select2
+/src/TagHelpers.Bootstrap/wwwroot/lib/qrcodejs

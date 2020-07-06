@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <ProjectReference Include="..\..\src\Microsoft.AspNetCore.Razor.TagHelpers.Bootstrap.csproj" />
+    <ProjectReference Include="..\..\src\TagHelpers.Bootstrap\Microsoft.AspNetCore.Razor.TagHelpers.Bootstrap.csproj" />
   </ItemGroup>
 
 </Project>

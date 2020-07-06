@@ -2,4 +2,6 @@
   <PropertyGroup>
     <GitRepositoryDirectory>$(MSBuildThisFileDirectory).git</GitRepositoryDirectory>
   </PropertyGroup>
+
+  <Import Project="$(MSBuildThisFileDirectory)build\Microsoft.AspNetCore.Hosting.GitVersions.props" />
 </Project>

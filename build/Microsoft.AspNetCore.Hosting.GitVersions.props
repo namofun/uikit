@@ -49,7 +49,7 @@
       <RazorDebugPath>$(MSBuildProjectDirectory)</RazorDebugPath>
     </PropertyGroup>
     <ItemGroup Condition="$(Configuration) == 'Debug'">
-      <AssemblyAttribute Include="Microsoft.AspNetCore.Razor.RazorDebugPathAttribute">
+      <AssemblyAttribute Include="System.LocalDebugPathAttribute">
         <_Parameter1>$(RazorDebugPath)</_Parameter1>
       </AssemblyAttribute>
     </ItemGroup>
