@@ -1,20 +1,50 @@
-﻿@{
+﻿@inject IMenuProvider Menu
+@{
     ViewData["Title"] = "Overview";
+    var submenus = Menu.Find(MenuNameDefaults.DashboardContent)
+        .OfType<ISubmenu>()
+        .Where(a => a.Any(b => b.Satisfy(Context)))
+        .ToList();
+    int t = (submenus.Count + 1) / 2;
 }
 
 <h2 class="mt-2">Dashboard interface</h2>
 
 <div class="row equal mt-3">
     <div class="col-lg-4 col-md-5 col-sm-6 mt-3">
+        @foreach (var item in submenus.Take(t))
+        {
         <div class="card mb-3">
             <div class="card-header">
-                Dashboard Section
+                @item.Title
             </div>
             <div class="card-body">
                 <ul>
-                    <li><a>Configuration settings</a></li>
+                    @foreach (var entry in item)
+                    {
+                    <li asp-show-if="entry.Satisfy(Context)"><a href="@entry.GetLink(Url)">@entry.Title</a></li>
+                    }
                 </ul>
             </div>
         </div>
+        }
+    </div>
+    <div class="col-lg-4 col-md-5 col-sm-6 mt-3">
+        @foreach (var item in submenus.Skip(t))
+        {
+        <div class="card mb-3">
+            <div class="card-header">
+                @item.Title
+            </div>
+            <div class="card-body">
+                <ul>
+                    @foreach (var entry in item)
+                    {
+                    <li asp-show-if="entry.Satisfy(Context)"><a href="@entry.GetLink(Url)">@entry.Title</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+        }
     </div>
 </div>

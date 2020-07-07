@@ -52,9 +52,9 @@ namespace Microsoft.AspNetCore.Mvc
         public const string DashboardDocuments = Submenu_ + nameof(DashboardDocuments);
 
         /// <summary>
-        /// The dropdown submenu on the top right corner.
+        /// The main menu displayed on the navigation bar.
         /// </summary>
-        public const string UserDropdown = Submenu_ + nameof(UserDropdown);
+        public const string MainNavbar = Menu_ + nameof(MainNavbar);
 
         /// <summary>
         /// Configure the defaults for menus.
@@ -62,7 +62,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="menus">The menu contributor.</param>
         internal static void ConfigureDefaults(this IMenuContributor menus)
         {
-            menus.Menu(UserDropdown, user =>
+            menus.Menu(MainNavbar, menu =>
             {
 
             });

@@ -50,6 +50,15 @@ namespace SatelliteSite.SampleModule
                     .ActiveWhenController("Weather")
                     .HasIdentifier("menu_weather");
             });
+
+            menus.Submenu(MenuNameDefaults.DashboardConfigurations, menu =>
+            {
+                menu.HasEntry(0)
+                    .HasTitle("fas fa-server", "Sample")
+                    .HasLink("Dashboard", "Weather", "Change")
+                    .ActiveWhenController("Weather")
+                    .HasIdentifier("menu_weather");
+            });
         }
     }
 }
