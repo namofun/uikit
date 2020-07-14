@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc.ApplicationModels;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +26,17 @@ namespace Microsoft.AspNetCore.Mvc
         public static IMvcBuilder AddTimeSpanJsonConverter(this IMvcBuilder builder)
         {
             return builder.AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new TimeSpanJsonConverter()));
+        }
+
+        /// <summary>
+        /// Conventions for endpoints that requires the authorization.
+        /// </summary>
+        /// <param name="builder">The endpoint convention builder.</param>
+        /// <param name="roles">The roles to be confirmed.</param>
+        /// <returns>The endpoint convention builder to chain the configurations.</returns>
+        public static IEndpointConventionBuilder RequireRoles(this IEndpointConventionBuilder builder, string roles)
+        {
+            return builder.RequireAuthorization(new AuthorizeAttribute { Roles = roles });
         }
 
         /// <summary>
