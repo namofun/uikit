@@ -1,0 +1,47 @@
+﻿@model IndexViewModel
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<h4>@ViewData["Title"]</h4>
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+@{ TempData["StatusMessage"] = null; }
+
+<form method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="form-group">
+        <label asp-for="Username"></label>
+        <input asp-for="Username" class="form-control" disabled />
+    </div>
+    <div class="form-group">
+        <label asp-for="NickName"></label>
+        <input asp-for="NickName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Plan"></label>
+        <input asp-for="Plan" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Email"></label>
+        <div class="input-group" asp-show-if="Model.IsEmailConfirmed">
+            <input asp-for="Email" class="form-control" />
+            <div class="input-group-append"><span class="input-group-text" aria-hidden="true"><i class="fas fa-check text-success"></i></span></div>
+        </div>
+        <razor asp-show-if="!Model.IsEmailConfirmed">
+            <input asp-for="Email" class="form-control" />
+            <button asp-action="SendVerificationEmail" class="btn btn-link">Send verification email</button>
+        </razor>
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <div class="custom-control custom-checkbox">
+            <input class="custom-control-input" asp-for="SubscribeNews" />
+            <label class="custom-control-label" asp-for="SubscribeNews"></label>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

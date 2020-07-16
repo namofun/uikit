@@ -1,0 +1,65 @@
+﻿@{
+    ViewData["Title"] = "View User";
+    User user = ViewBag.User;
+}
+
+@*
+<h4>Statistics</h4>
+<table>
+    <tr>
+        <th style="width:12em">Problems Submitted</th>
+        <td>@stat.Count()</td>
+    </tr>
+    <tr>
+        <th>Problems Solved</th>
+        <td>@stat.Count(s => s.AcceptedSubmission > 0)</td>
+    </tr>
+    <tr>
+        <th><a>Submissions</a></th>
+        <td>@stat.Sum(s => s.TotalSubmission)</td>
+    </tr>
+    <tr>
+        <th><a>Accepted</a></th>
+        <td>@stat.Sum(s => s.AcceptedSubmission)</td>
+    </tr>
+</table>
+
+<h4 class="mt-3">List of solved problems</h4>
+@foreach (var prob in stat.Where(p => p.AcceptedSubmission > 0))
+{
+    <div class="mr-1 d-inline-block">
+        <a asp-area="Misc" asp-controller="Problem" asp-action="View" asp-route-pid="@prob.ProblemId">@prob.ProblemId</a>
+        <small class="text-danger">@prob.AcceptedSubmission/@prob.TotalSubmission</small>
+    </div>
+}
+
+@if (!stat.Where(p => p.AcceptedSubmission != 0).Any())
+{
+    <p>A problem not solved a day keeps the gold medals away...</p>
+}
+
+<h4 class="mt-3">List of unsolved problems</h4>
+@foreach (var prob in stat.Where(p => p.AcceptedSubmission == 0))
+{
+    <div class="mr-1 d-inline-block">
+        <a asp-area="Misc" asp-controller="Problem" asp-action="View" asp-route-pid="@prob.ProblemId">@prob.ProblemId</a>
+        <small class="text-danger mr-1">@prob.AcceptedSubmission/@prob.TotalSubmission</small>
+    </div>
+}
+
+@if (!stat.Where(p => p.AcceptedSubmission == 0).Any())
+{
+    <p>Wow! You can really solve problems.</p>
+}
+
+*@
+
+<p class="mb-0 mt-3" asp-show-if="User.GetUserName() == user.UserName">
+    <a asp-action="Edit" class="btn btn-primary mb-1">Edit profile</a>
+    <a asp-action="ChangePassword" class="btn btn-secondary mb-1">Change password</a>
+    @*<a asp-action="List" asp-controller="TrainingTeam" class="btn btn-success mb-1">Teams</a>*@
+</p>
+
+<p class="mb-0 mt-3" asp-in-roles="Administrator" asp-show-if="User.GetUserName() != user.UserName">
+    <a asp-action="Detail" asp-controller="Users" asp-area="Dashboard" asp-route-uid="@user.Id" class="btn btn-danger mb-1">Dashboard</a>
+</p>

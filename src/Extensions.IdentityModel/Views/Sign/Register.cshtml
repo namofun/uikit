@@ -1,0 +1,35 @@
+﻿@model RegisterModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = "_WindowLayout";
+}
+
+<div asp-validation-summary="All" class="text-danger"></div>
+<div class="form-group">
+    <label asp-for="UserName"></label>
+    <input asp-for="UserName" class="form-control" />
+    <span asp-validation-for="UserName" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="Email"></label>
+    <input asp-for="Email" class="form-control" />
+    <span asp-validation-for="Email" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="Password"></label>
+    <input asp-for="Password" class="form-control" />
+    <span asp-validation-for="Password" class="text-danger"></span>
+</div>
+<div class="form-group">
+    <label asp-for="ConfirmPassword"></label>
+    <input asp-for="ConfirmPassword" class="form-control" />
+    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+</div>
+
+@section Footer {
+    <button asp-route-returnUrl="@ViewData["ReturnUrl"]" asp-action="Register" type="submit" class="btn btn-primary">Register</button>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

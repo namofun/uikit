@@ -19,9 +19,4 @@
     <ProjectReference Include="..\TagHelpers.Bootstrap\Microsoft.AspNetCore.Razor.TagHelpers.Bootstrap.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Dashboards\" />
-    <Folder Include="Panels\" />
-  </ItemGroup>
-
 </Project>
