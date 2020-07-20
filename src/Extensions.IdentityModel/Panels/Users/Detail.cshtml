@@ -1,0 +1,34 @@
+﻿@model User
+@{
+    ViewData["Title"] = "User u" + Model.Id;
+    IEnumerable<Role> roles = ViewBag.Roles;
+}
+
+<h2 class="mt-2">@ViewData["Title"]</h2>
+
+<div class="row">
+    <div class="col-lg-4">
+        <table class="table table-sm table-striped">
+            <tr><th>ID</th><td>u@(Model.Id)</td></tr>
+            <tr><th>Login</th><td class="text-monospace text-small">@Model.UserName</td></tr>
+            <tr><th>Nick name</th><td>@Model.NickName</td></tr>
+            <tr><th>Email @(Model.EmailConfirmed ? "" : "?")</th><td>@Model.Email</td></tr>
+            <tr><th>Password</th><td>@(Model.PasswordHash == null ? "Not set" : "Set")</td></tr>
+            <tr><th>Register date</th><td>@Html.CstTime(Model.RegisterTime)</td></tr>
+            <tr><th>Plan</th><td>@Model.Plan</td></tr>
+        </table>
+    </div>
+    <div class="col-lg-4">
+        <table class="table table-sm table-striped">
+            <tr><th>Roles</th><td>@Html.Raw(string.Join("<br>", roles.Where(r => r.ShortName != null).Select(r => r.Description)))</td></tr>
+            <tr><th>Jury of</th><td>@foreach (var r in roles.Where(r => r.Name.StartsWith("JuryOfContest"))) { int cid = int.Parse(r.Name.Substring("JuryOfContest".Length)); <a asp-area="Contest" asp-route-cid="@cid" asp-controller="Gym" asp-action="Home">c@(cid)</a> }</td></tr>
+            <tr><th>Author of</th><td>@foreach (var r in roles.Where(r => r.Name.StartsWith("AuthorOfProblem"))) { int cid = int.Parse(r.Name.Substring("AuthorOfProblem".Length)); <a asp-area="Polygon" asp-route-pid="@cid" asp-controller="Editor" asp-action="Overview">p@(cid)</a> }</td></tr>
+        </table>
+    </div>
+</div>
+
+<div class="mb-4">
+    <p>
+        <a asp-route-uid="@Model.Id" asp-action="Edit" class="btn btn-primary" title="Edit"><i class="fas fa-edit"></i>&nbsp;Edit</a>
+    </p>
+</div>

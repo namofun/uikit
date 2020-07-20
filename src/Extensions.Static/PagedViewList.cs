@@ -1,10 +1,42 @@
-﻿namespace System.Collections.Generic
+﻿using System.Linq;
+
+namespace System.Collections.Generic
 {
     /// <summary>
     /// A paged <see cref="IReadOnlyList{T}"/> view.
     /// </summary>
     /// <typeparam name="T">The content type.</typeparam>
-    public class PagedViewList<T> : IReadOnlyList<T>
+    public interface IPagedList<out T> : IReadOnlyList<T>
+    {
+        /// <summary>
+        /// Gets the total entity count.
+        /// </summary>
+        int TotalCount { get; }
+
+        /// <summary>
+        /// Gets the total page count.
+        /// </summary>
+        int TotalPage { get; }
+
+        /// <summary>
+        /// Gets the count of each page.
+        /// </summary>
+        int CountPerPage { get; }
+
+        /// <summary>
+        /// Gets the current page.
+        /// </summary>
+        int CurrentPage { get; }
+
+        /// <inheritdoc />
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    /// <summary>
+    /// A paged <see cref="IReadOnlyList{T}"/> view.
+    /// </summary>
+    /// <typeparam name="T">The content type.</typeparam>
+    public class PagedViewList<T> : IPagedList<T>
     {
         /// <inheritdoc />
         public T this[int index] => Content[index];
@@ -14,9 +46,6 @@
 
         /// <inheritdoc />
         public IEnumerator<T> GetEnumerator() => Content.GetEnumerator();
-
-        /// <inheritdoc />
-        IEnumerator IEnumerable.GetEnumerator() => Content.GetEnumerator();
 
         /// <summary>
         /// Gets the total entity count.
@@ -41,7 +70,7 @@
         /// <summary>
         /// The internal list.
         /// </summary>
-        private List<T> Content { get; set; }
+        internal List<T> Content { get; set; }
 
         /// <summary>
         /// Instantiate an <see cref="PagedViewList{T}"/>.
@@ -57,6 +86,90 @@
             TotalCount = totalCount;
             TotalPage = (content.Count - 1) / perPage + 1;
             CountPerPage = perPage;
+        }
+
+        /// <summary>
+        /// Cast this list with more details by selector.
+        /// </summary>
+        /// <typeparam name="T2">The target type.</typeparam>
+        /// <param name="selector">The selector.</param>
+        /// <returns>The new paged list.</returns>
+        public IPagedList<T2> As<T2>(Func<T, T2> selector)
+        {
+            return new PagedFakeList<T, T2>(this, selector);
+        }
+    }
+    
+    /// <summary>
+    /// A paged <see cref="IReadOnlyList{T2}"/> view.
+    /// </summary>
+    /// <typeparam name="T2">The content type.</typeparam>
+    public class PagedFakeList<T1, T2> : IPagedList<T2>
+    {
+        /// <inheritdoc />
+        public T2 this[int index] => Selector.Invoke(Content[index]);
+
+        /// <inheritdoc />
+        public int Count => Content.Count;
+
+        /// <inheritdoc />
+        public IEnumerator<T2> GetEnumerator() => Content.Select(Selector).GetEnumerator();
+
+        /// <inheritdoc />
+        public int TotalCount { get; }
+
+        /// <inheritdoc />
+        public int TotalPage { get; }
+
+        /// <inheritdoc />
+        public int CountPerPage { get; }
+
+        /// <inheritdoc />
+        public int CurrentPage { get; }
+
+        /// <summary>
+        /// The internal list.
+        /// </summary>
+        private List<T1> Content { get; set; }
+
+        /// <summary>
+        /// The internal selector.
+        /// </summary>
+        private Func<T1, T2> Selector { get; set; }
+
+        /// <summary>
+        /// Instantiate an <see cref="PagedFakeList{T1, T2}"/>.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <param name="selector">The selector.</param>
+        /// <param name="curPage">The current page.</param>
+        /// <param name="totalCount">The total count.</param>
+        /// <param name="perPage">The count per page.</param>
+        public PagedFakeList(List<T1> content, Func<T1, T2> selector, int curPage, int totalCount, int perPage)
+        {
+            Content = content;
+            Selector = selector;
+            CurrentPage = curPage;
+            TotalCount = totalCount;
+            TotalPage = (content.Count - 1) / perPage + 1;
+            CountPerPage = perPage;
+        }
+
+        /// <summary>
+        /// Instantiate an <see cref="PagedViewList{T}"/>.
+        /// </summary>
+        /// <param name="content">The content.</param>
+        /// <param name="curPage">The current page.</param>
+        /// <param name="totalCount">The total count.</param>
+        /// <param name="perPage">The count per page.</param>
+        public PagedFakeList(PagedViewList<T1> content, Func<T1, T2> selector)
+        {
+            Content = content.Content;
+            Selector = selector;
+            CurrentPage = content.CurrentPage;
+            TotalCount = content.TotalCount;
+            TotalPage = (content.Count - 1) / content.CountPerPage + 1;
+            CountPerPage = content.CountPerPage;
         }
     }
 }

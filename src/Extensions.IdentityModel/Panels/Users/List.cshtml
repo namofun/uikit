@@ -1,0 +1,78 @@
+﻿@model IPagedList<(User, IEnumerable<string>)>
+@{
+    ViewData["Title"] = "Users";
+    int currentPage = ViewBag.CurrentPage;
+    int totalPage = ViewBag.TotalPage;
+}
+
+<h2 class="mt-2">@ViewData["Title"]</h2>
+
+<div class="d-none" id="paging">
+    <pagination />
+    <partial name="_Pagination" model="(currentPage, totalPage)" />
+</div>
+
+<style>
+    .data-table td {
+        padding-top: 3px;
+        padding-bottom: 3px;
+    }
+</style>
+
+<div class="table-wrapper">
+    <table class="data-table table table-sm table-striped" style="width:auto">
+        <thead>
+            <tr role="row">
+                <th scope="col" class="sortable searchable">ID</th>
+                <th scope="col" class="sortable searchable">username</th>
+                <th scope="col" class="sortable searchable">name</th>
+                <th scope="col" class="sortable searchable">email</th>
+                <th scope="col" class="sortable searchable">plan</th>
+                <th scope="col" class="sortable searchable">roles</th>
+                <th scope="col" class="sortable searchable">register date</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var (user, roles) in Model)
+            {
+                var (statStr, statIcon) = user.EmailConfirmed ? ("success", "check") : ("danger", "times");
+                <tr asp-action="Detail" asp-route-uid="@user.Id" role="row" data-target="gotoUrl">
+                    <td use-a>@user.Id</td>
+                    <td use-a>@user.UserName</td>
+                    <td use-a>@(user.NickName ?? user.UserName)</td>
+                    <td use-a><i class="text-@statStr fas fa-@statIcon-circle"></i> @user.Email</td>
+                    <td title="@user.Plan" use-a><span class="forceWidth" style="max-width:6rem">@user.Plan</span></td>
+                    <td use-a>@string.Join(',', roles)</td>
+                    <td use-a>@Html.CstTime(user.RegisterTime)</td>
+                    <td><a asp-action="Edit" asp-route-uid="@user.Id" title="edit this affiliation"><i class="fas fa-edit"></i></a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $().ready(function () {
+        $('.data-table').DataTable({
+            "paging": false,
+            "searching": true,
+            "ordering": true,
+            "order": [[0, 'asc']],
+            "info": false,
+            "autoWidth": true,
+            "language": {
+                "searchPlaceholder": "filter table",
+                "search": "_INPUT_",
+            },
+            'aoColumnDefs': [
+                { aTargets: ['sortable'], bSortable: true },
+                { aTargets: ['searchable'], bSearchable: true },
+                { aTargets: ['_all'], bSortable: false, bSearchable: false }
+            ],
+        });
+
+        $('.dataTables_wrapper .row:first-child .col-md-6:first-child').html($('#paging').html());
+        $('.dataTables_wrapper .pagination-sm').addClass('mb-0');
+    });
+</script>

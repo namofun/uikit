@@ -123,11 +123,12 @@ namespace SatelliteSite.IdentityModule.Services
             return new PagedViewList<User>(lst, page, count, pageCount);
         }
 
-        public virtual Task<List<IdentityUserRole<int>>> ListUserRolesAsync(int minUid, int maxUid)
+        public virtual async Task<ILookup<int, int>> ListUserRolesAsync(int minUid, int maxUid)
         {
-            return Context.UserRoles
+            var lst = await Context.UserRoles
                 .Where(ur => ur.UserId >= minUid && ur.UserId <= maxUid)
                 .ToListAsync();
+            return lst.ToLookup(a => a.UserId, a => a.RoleId);
         }
 
         public virtual Task<Dictionary<int, Role>> ListNamedRolesAsync()
