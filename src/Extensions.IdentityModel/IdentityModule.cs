@@ -71,6 +71,7 @@ namespace SatelliteSite.IdentityModule
                 options =>
                 {
                     options.AddPolicy("EmailVerified", b => b.RequireClaim("email_verified", "true"));
+                    options.AddPolicy("HasDashboard", b => b.RequireClaim("dashboard", "true"));
                 });
         }
 

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Encodings.Web;
@@ -19,6 +20,11 @@ namespace Microsoft.AspNetCore.Mvc
     /// </summary>
     public class Startup
     {
+        /// <summary>
+        /// The databases to configure
+        /// </summary>
+        internal static ICollection<Action<IServiceCollection, IConfiguration>> Databases { get; } = new List<Action<IServiceCollection, IConfiguration>>();
+
         /// <summary>
         /// The modules to configure
         /// </summary>
@@ -63,68 +69,16 @@ namespace Microsoft.AspNetCore.Mvc
 
             services.AddMediatR(Modules.Select(a => a.GetType().Assembly).ToArray());
 
+            foreach (var items in Databases)
+            {
+                items.Invoke(services, Configuration);
+            }
 
-            /*
-            services.AddDbContext<AppDbContext>(options => options
-                .UseSqlServer(Configuration.GetConnectionString("UserDbConnection"))
-                .UseBulkExtensions());
-            */
 
             //services.AddScoped<IAuditlogger, Auditlogger>();
 
 
             /*
-            services.AddIdentity<User, Role>(
-                options =>
-                {
-                    options.Password.RequireDigit = false;
-                    options.Password.RequiredLength = 6;
-                    options.Password.RequireNonAlphanumeric = false;
-                    options.Password.RequireUppercase = false;
-                    options.Password.RequireLowercase = false;
-                    options.Password.RequiredUniqueChars = 2;
-
-                    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-                    options.Lockout.MaxFailedAccessAttempts = 10;
-                    options.Lockout.AllowedForNewUsers = true;
-
-                    options.User.RequireUniqueEmail = true;
-                    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.@";
-
-                    options.SignIn.RequireConfirmedEmail = false;
-                    options.SignIn.RequireConfirmedPhoneNumber = false;
-                })
-                .AddEntityFrameworkStores<AppDbContext>()
-                .AddUserManager<UserManager>()
-                .AddSignInManager<SignInManager>()
-                .AddDefaultTokenProviders()
-                .RegisterOtherStores()
-                .UseClaimsPrincipalFactory<UserWithNickNameClaimsPrincipalFactory<AppDbContext>, User>();
-
-            services.AddAuthentication()
-                .SetCookie(options =>
-                {
-                    options.Cookie.HttpOnly = true;
-                    options.ExpireTimeSpan = TimeSpan.FromDays(30);
-                    options.LoginPath = "/account/login";
-                    options.LogoutPath = "/account/logout";
-                    options.AccessDeniedPath = "/account/access-denied";
-                    options.SlidingExpiration = true;
-                    options.Events = new CookieAuthenticationValidator();
-                })
-                .AddBasic(options =>
-                {
-                    options.Realm = "JudgeWeb";
-                    options.AllowInsecureProtocol = true;
-                    options.Events = new BasicAuthenticationValidator<User, Role, int, AppDbContext>();
-                });
-
-            services.AddAuthorization(
-                options =>
-                {
-                    options.AddPolicy("EmailVerified", b => b.RequireClaim("email_verified", "true"));
-                });
-
             if (Configuration["IdentityServer:Enabled"] == "True")
                 services.AddIdentityServer()
                     .AddAspNetIdentity<User>()

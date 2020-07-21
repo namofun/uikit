@@ -90,6 +90,14 @@ namespace Microsoft.AspNetCore.Mvc
                 {
                     docs.HasTitle(string.Empty, "Documentation")
                         .HasLink("javascript:;");
+
+                    docs.HasEntry(100)
+                        .HasTitle(string.Empty, "Sitemaps")
+                        .HasLink("Dashboard", "Root", "Endpoints");
+
+                    docs.HasEntry(101)
+                        .HasTitle(string.Empty, "Component Versions")
+                        .HasLink("Dashboard", "Root", "Versions");
                 });
             });
         }

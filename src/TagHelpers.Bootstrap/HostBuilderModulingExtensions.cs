@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc.Menus;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Razor;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
@@ -32,6 +34,46 @@ namespace Microsoft.AspNetCore.Mvc
             var module = typeof(TModule);
             ApiExplorerVisibilityAttribute.DeclaredAssemblyModule.Add(module.Assembly.FullName!, module.FullName!);
             return builder;
+        }
+
+        /// <summary>
+        /// Add a <see cref="DbContext"/> and configure them in the next constructing pipeline.
+        /// </summary>
+        /// <typeparam name="TContext">The required <see cref="DbContext"/>.</typeparam>
+        /// <param name="builder">The <see cref="IHostBuilder"/></param>
+        /// <param name="configures">The configure delegate</param>
+        /// <returns>The <see cref="IHostBuilder"/></returns>
+        public static IHostBuilder AddDatabase<TContext>(
+            this IHostBuilder builder,
+            Action<IConfiguration, DbContextOptionsBuilder> configures) where TContext : DbContext
+        {
+            Startup.Databases.Add((services, conf) =>
+            {
+                services.AddDbContext<TContext>(options =>
+                {
+                    configures.Invoke(conf, options);
+                });
+            });
+
+            return builder;
+        }
+
+        /// <summary>
+        /// Add a <see cref="DbContext"/> and configure them in the next constructing pipeline.
+        /// </summary>
+        /// <typeparam name="TContext">The required <see cref="DbContext"/>.</typeparam>
+        /// <param name="builder">The <see cref="IHostBuilder"/></param>
+        /// <param name="connectionStringName">The connection string name</param>
+        /// <returns>The <see cref="IHostBuilder"/></returns>
+        public static IHostBuilder AddDatabaseMssql<TContext>(
+            this IHostBuilder builder,
+            string connectionStringName) where TContext : DbContext
+        {
+            return builder.AddDatabase<TContext>((conf, opt) =>
+            {
+                opt.UseSqlServer(conf.GetConnectionString(connectionStringName));
+                opt.UseBulkExtensions();
+            });
         }
 
         /// <summary>
