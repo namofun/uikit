@@ -22,12 +22,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Extensions.Static\Microsoft.Extensions.Static.csproj" />
+    <ProjectReference Include="..\Extensions.Static\SatelliteSite.Substrate.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="..\..\build\Microsoft.AspNetCore.Hosting.GitVersions.props" Pack="true" PackagePath="build\" Link="build\Microsoft.AspNetCore.Hosting.GitVersions.props" />
-    <None Include="..\..\build\Microsoft.AspNetCore.Razor.TagHelpers.Bootstrap.props" Pack="true" PackagePath="build\" Link="build\Microsoft.AspNetCore.Razor.TagHelpers.Bootstrap.props" />
+    <None Include="..\..\build\SatelliteSite.Bootstrap.props" Pack="true" PackagePath="build\" Link="build\SatelliteSite.Bootstrap.props" />
   </ItemGroup>
 
   <ItemGroup>

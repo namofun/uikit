@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29926.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.AspNetCore.Razor.TagHelpers.Bootstrap", "src\TagHelpers.Bootstrap\Microsoft.AspNetCore.Razor.TagHelpers.Bootstrap.csproj", "{26576939-06BA-439B-A8B8-FF7408DB6341}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Bootstrap", "src\TagHelpers.Bootstrap\SatelliteSite.Bootstrap.csproj", "{26576939-06BA-439B-A8B8-FF7408DB6341}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.SampleModule", "sample\SatelliteSite.SampleModule\SatelliteSite.SampleModule.csproj", "{530A3020-7CC1-44F5-9386-0A0883E97DE2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Host", "sample\SatelliteSite.Host\SatelliteSite.Host.csproj", "{4D4689B8-83C7-44A8-A8C2-4FAAEC81BD19}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Extensions.Static", "src\Extensions.Static\Microsoft.Extensions.Static.csproj", "{04185025-BE17-4DAD-8D17-AE45B0ECF9DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Substrate", "src\Extensions.Static\SatelliteSite.Substrate.csproj", "{04185025-BE17-4DAD-8D17-AE45B0ECF9DC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.IdentityModule", "src\Extensions.IdentityModel\SatelliteSite.IdentityModule.csproj", "{5F099F4D-9BC9-4FF0-85BA-4D27724ADBED}"
 EndProject

@@ -38,7 +38,7 @@ namespace Microsoft.AspNetCore.Mvc.DataTables
             }
             else
             {
-                isNotNull = Expression.Equal(
+                isNotNull = Expression.NotEqual(
                     Expression.Property(modelExpression, prop),
                     Expression.Constant(null));
             }

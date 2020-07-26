@@ -1,24 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Routing.Internal;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 
-namespace Microsoft.AspNetCore.Mvc.Dashboards
+namespace SatelliteSite.Substrate.Dashboards
 {
     [Area("Dashboard")]
-    [Route("[area]/misc/[action]")]
+    [Route("[area]/[action]")]
     //[Authorize("HasDashboard")]
     public class RootController : ViewControllerBase
     {
-        private string? EndpointResults { get; set; }
-        private string? VersionResults { get; set; }
-
-
         [HttpGet("/[area]")]
         public IActionResult Index()
         {
@@ -28,42 +21,36 @@ namespace Microsoft.AspNetCore.Mvc.Dashboards
 
         [HttpGet]
         public IActionResult Endpoints(
-            [FromServices] DfaGraphWriter writer,
             [FromServices] IOptions<RouteOptions> options)
         {
-            if (EndpointResults == null)
-            {
-                using var sw = new StringWriter();
-                var edss = options.Value.Private<ICollection<EndpointDataSource>>("_endpointDataSources");
-                var eds = new CompositeEndpointDataSource(edss);
-                writer.Write(eds, sw);
-                EndpointResults = sw.ToString();
-            }
-
-            return Content(EndpointResults, "text/plain");
+            var edss = options.Value.Private<ICollection<EndpointDataSource>>("_endpointDataSources");
+            return View(edss);
         }
 
 
         [HttpGet]
         public IActionResult Versions()
         {
-            if (VersionResults == null)
+            var lst = new List<LoadedModulesModel>();
+                
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                var text = new StringBuilder();
-                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-                {
-                    var gitVersion = assembly.GetCustomAttributes(false)
-                        .OfType<GitVersionAttribute>()
-                        .SingleOrDefault();
-                    if (gitVersion == null) continue;
-                    text.Append(assembly.FullName)
-                        .AppendLine($", Commit={gitVersion.Version}, Branch={gitVersion.Branch}");
-                }
+                var gitVersion = assembly.GetCustomAttributes(false)
+                    .OfType<GitVersionAttribute>()
+                    .SingleOrDefault();
+                var asName = assembly.GetName();
 
-                VersionResults = text.ToString();
+                lst.Add(new LoadedModulesModel
+                {
+                    AssemblyName = asName.Name,
+                    Branch = gitVersion?.Branch,
+                    CommitLong = gitVersion?.Version,
+                    PublicKey = asName.GetPublicKeyToken()?.ToHexDigest(true),
+                    Version = asName.Version?.ToString(),
+                });
             }
 
-            return Content(VersionResults, "text/plain");
+            return View(lst);
         }
     }
 }

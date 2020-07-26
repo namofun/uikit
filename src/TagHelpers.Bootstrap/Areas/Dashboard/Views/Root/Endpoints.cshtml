@@ -1,0 +1,36 @@
+﻿@using Microsoft.AspNetCore.Routing  
+@model ICollection<EndpointDataSource>
+
+@functions {
+    string GetExtendedName(Type type)
+    {
+        if (type.GenericTypeArguments.Length == 0)
+            return type.Name;
+        else
+            return type.Name[0..^2] + "<" + string.Join(',', type.GenericTypeArguments.Select(a => GetExtendedName(a))) + ">";
+    }
+}
+
+@{
+    ViewData["Title"] = "Sitemaps";
+}
+
+<h2 class="mt-2 mb-3">@ViewData["Title"]</h2>
+
+@foreach (var eds in Model)
+{
+<h4>@GetExtendedName(eds.GetType())</h4>
+<ul>
+    @foreach (var ep in eds.Endpoints)
+    {
+        if (ep is RouteEndpoint re)
+        {
+            <li><code>/@re.RoutePattern.RawText.TrimStart('/')</code> @re.DisplayName</li>
+        }
+        else
+        {
+            <li>Endpoint: @ep.DisplayName</li>
+        }
+    }
+</ul>
+}
