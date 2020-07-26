@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SatelliteSite.Entities;
@@ -20,7 +21,7 @@ namespace SatelliteSite.IdentityModule
         {
         }
 
-        public override void RegisterServices(IServiceCollection services)
+        public override void RegisterServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddIdentity<User, Role>(
                 options =>
@@ -73,6 +74,11 @@ namespace SatelliteSite.IdentityModule
                     options.AddPolicy("EmailVerified", b => b.RequireClaim("email_verified", "true"));
                     options.AddPolicy("HasDashboard", b => b.RequireClaim("dashboard", "true"));
                 });
+
+            services.AddSingleton<IEmailSender, SmtpSender>();
+            
+            services.AddOptions<AuthMessageSenderOptions>()
+                .Bind(configuration.GetSection("Mailing"));
         }
 
         public override void RegisterEndpoints(IEndpointBuilder endpoints)

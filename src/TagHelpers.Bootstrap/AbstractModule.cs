@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
@@ -27,6 +27,16 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="endpoints">The endpoint route builder</param>
         public virtual void RegisterEndpoints(IEndpointBuilder endpoints)
         {
+        }
+
+        /// <summary>
+        /// Register the services with corresponding lifetimes.
+        /// </summary>
+        /// <param name="services">The dependency injection builder</param>
+        /// <param name="configuration">The configuration</param>
+        public virtual void RegisterServices(IServiceCollection services, IConfiguration configuration)
+        {
+            RegisterServices(services);
         }
 
         /// <summary>

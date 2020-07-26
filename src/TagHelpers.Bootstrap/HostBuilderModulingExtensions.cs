@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Menus;
 using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Razor;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -120,7 +119,8 @@ namespace Microsoft.AspNetCore.Mvc
         /// </summary>
         /// <param name="builder">The dependency injection builder</param>
         /// <param name="modules">The dependency configuration list</param>
-        internal static void ApplyServices(this ICollection<AbstractModule> modules, IServiceCollection builder)
+        /// <param name="configuration">The configuration source</param>
+        internal static void ApplyServices(this ICollection<AbstractModule> modules, IServiceCollection builder, IConfiguration configuration)
         {
             var menuContributor = new ConcreteMenuContributor();
             menuContributor.ConfigureDefaults();
@@ -129,7 +129,7 @@ namespace Microsoft.AspNetCore.Mvc
             {
                 var type = typeof(ModuleEndpointDataSource<>).MakeGenericType(module.GetType());
                 builder.AddSingleton(type);
-                module.RegisterServices(builder);
+                module.RegisterServices(builder, configuration);
                 module.RegisterMenu(menuContributor);
             }
 

@@ -93,7 +93,7 @@ namespace Microsoft.AspNetCore.Mvc
                     UnicodeRanges.BasicLatin,
                     UnicodeRanges.CjkUnifiedIdeographs));
 
-            Modules.ApplyServices(services);
+            Modules.ApplyServices(services, Configuration);
             var (parts, razors) = Modules.GetParts();
 
             services.AddControllersWithViews()
