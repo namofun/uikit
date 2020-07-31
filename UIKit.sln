@@ -3,13 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29926.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Bootstrap", "src\TagHelpers.Bootstrap\SatelliteSite.Bootstrap.csproj", "{26576939-06BA-439B-A8B8-FF7408DB6341}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Substrate", "src\TagHelpers.Bootstrap\SatelliteSite.Substrate.csproj", "{26576939-06BA-439B-A8B8-FF7408DB6341}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.SampleModule", "sample\SatelliteSite.SampleModule\SatelliteSite.SampleModule.csproj", "{530A3020-7CC1-44F5-9386-0A0883E97DE2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Host", "sample\SatelliteSite.Host\SatelliteSite.Host.csproj", "{4D4689B8-83C7-44A8-A8C2-4FAAEC81BD19}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Substrate", "src\Extensions.Static\SatelliteSite.Substrate.csproj", "{04185025-BE17-4DAD-8D17-AE45B0ECF9DC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.IdentityModule", "src\Extensions.IdentityModel\SatelliteSite.IdentityModule.csproj", "{5F099F4D-9BC9-4FF0-85BA-4D27724ADBED}"
 EndProject
@@ -35,10 +33,6 @@ Global
 		{4D4689B8-83C7-44A8-A8C2-4FAAEC81BD19}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4D4689B8-83C7-44A8-A8C2-4FAAEC81BD19}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4D4689B8-83C7-44A8-A8C2-4FAAEC81BD19}.Release|Any CPU.Build.0 = Release|Any CPU
-		{04185025-BE17-4DAD-8D17-AE45B0ECF9DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{04185025-BE17-4DAD-8D17-AE45B0ECF9DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{04185025-BE17-4DAD-8D17-AE45B0ECF9DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{04185025-BE17-4DAD-8D17-AE45B0ECF9DC}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5F099F4D-9BC9-4FF0-85BA-4D27724ADBED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5F099F4D-9BC9-4FF0-85BA-4D27724ADBED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F099F4D-9BC9-4FF0-85BA-4D27724ADBED}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -51,7 +45,6 @@ Global
 		{26576939-06BA-439B-A8B8-FF7408DB6341} = {65EF0846-B58D-4C79-B254-456B61BC845B}
 		{530A3020-7CC1-44F5-9386-0A0883E97DE2} = {BB2A9F4A-7E6E-4A8F-ADF5-22E17D5EC325}
 		{4D4689B8-83C7-44A8-A8C2-4FAAEC81BD19} = {BB2A9F4A-7E6E-4A8F-ADF5-22E17D5EC325}
-		{04185025-BE17-4DAD-8D17-AE45B0ECF9DC} = {65EF0846-B58D-4C79-B254-456B61BC845B}
 		{5F099F4D-9BC9-4FF0-85BA-4D27724ADBED} = {65EF0846-B58D-4C79-B254-456B61BC845B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

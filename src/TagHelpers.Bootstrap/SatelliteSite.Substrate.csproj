@@ -22,12 +22,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Extensions.Static\SatelliteSite.Substrate.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="..\..\build\Microsoft.AspNetCore.Hosting.GitVersions.props" Pack="true" PackagePath="build\" Link="build\Microsoft.AspNetCore.Hosting.GitVersions.props" />
-    <None Include="..\..\build\SatelliteSite.Bootstrap.props" Pack="true" PackagePath="build\" Link="build\SatelliteSite.Bootstrap.props" />
+    <None Include="..\..\build\SatelliteSite.Substrate.props" Pack="true" PackagePath="build\" Link="build\SatelliteSite.Substrate.props" />
   </ItemGroup>
 
   <ItemGroup>
