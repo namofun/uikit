@@ -19,6 +19,6 @@ namespace SatelliteSite
                 .AddModule<IdentityModule.IdentityModule>()
                 .AddModule<SampleModule.SampleModule>()
                 .AddDatabaseMssql<DefaultContext>("UserDbConnection")
-                .ConfigureModuleWebHostDefaults();
+                .ConfigureSubstrateDefaults();
     }
 }

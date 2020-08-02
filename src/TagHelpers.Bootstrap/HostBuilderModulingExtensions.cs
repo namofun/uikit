@@ -89,7 +89,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="builder">The <see cref="IHostBuilder"/> instance to configure.</param>
         /// <param name="further">The configure callback.</param>
         /// <returns>The <see cref="IHostBuilder"/> for chaining.</returns>
-        public static IHostBuilder ConfigureModuleWebHostDefaults(this IHostBuilder builder, Action<IWebHostBuilder>? further = null)
+        public static IHostBuilder ConfigureSubstrateDefaults(this IHostBuilder builder, Action<IWebHostBuilder>? further = null)
         {
             return builder.ConfigureWebHostDefaults(builder =>
             {
@@ -131,6 +131,11 @@ namespace Microsoft.AspNetCore.Mvc
                 builder.AddSingleton(type);
                 module.RegisterServices(builder, configuration);
                 module.RegisterMenu(menuContributor);
+            }
+
+            foreach (var (_, item) in menuContributor.Store)
+            {
+                item.Contribute();
             }
 
             builder.AddSingleton<IMenuProvider>(menuContributor);
@@ -180,6 +185,9 @@ namespace Microsoft.AspNetCore.Mvc
                         var dir2 = Path.Combine(rdpa.Path, "Panels");
                         if (Directory.Exists(dir2))
                             tree["Areas"]["Dashboard"]["Views"].Append(new PhysicalFileProvider(dir2));
+                        var dir3 = Path.Combine(rdpa.Path, "Components");
+                        if (Directory.Exists(dir3))
+                            tree["Views"]["Components"].Append(new PhysicalFileProvider(dir3));
                     }
                 }
                 else

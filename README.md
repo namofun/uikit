@@ -16,13 +16,18 @@ This repository contains the following components:
 
 This section provide guides to write Application Modules.
 
+- /Models/SomeModel.cs
+- /Services/SomeService.cs
 - /Apis/SomeApiController.cs
 - /Controllers/SomeActivityController.cs
 - /Dashboards/SomePanelController.cs
+- /Components/SomeComponent/SomeComponentViewComponent.cs
+- /Components/SomeComponent/_ViewImports.cshtml
+- /Components/SomeComponent/SomeView.cshtml
+- /Views/_ViewImports.cshtml
 - /Views/SomeActivity/SomeAction.cshtml
+- /Panels/SomePanel/_ViewImports.cshtml
 - /Panels/SomePanel/SomeAction.cshtml
-- /Models/SomeModel.cs
-- /Services/SomeService.cs
 
 There are several rules to obey.
 

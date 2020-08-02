@@ -31,6 +31,8 @@ namespace Microsoft.AspNetCore.Razor.Hosting
                 return fileName;
             else if (fileName.StartsWith("/Views/"))
                 return "/Areas/" + areaName + fileName;
+            else if (fileName.StartsWith("/Components/"))
+                return "/Views/Shared" + fileName;
             else
                 throw new ArgumentException($"The file {fileName} violates the discovery rules.");
         }
