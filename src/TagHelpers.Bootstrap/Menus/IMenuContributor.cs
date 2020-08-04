@@ -27,6 +27,13 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="name">The menu identifier.</param>
         /// <param name="action">The menu builder.</param>
         void Menu(string name, Action<IMenuBuilder> action);
+
+        /// <summary>
+        /// Configure the component list.
+        /// </summary>
+        /// <param name="name">The name identifier.</param>
+        /// <returns>The component menu builder.</returns>
+        IComponentMenuBuilder Component(string name);
     }
 
     /// <summary>
@@ -40,5 +47,12 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="name">The menu name.</param>
         /// <returns>The menu.</returns>
         IMenu Find(string name);
+
+        /// <summary>
+        /// Gets the component extensions for such menu.
+        /// </summary>
+        /// <param name="name">The name identifier.</param>
+        /// <returns>The component menu.</returns>
+        IComponentMenu Extend(string name);
     }
 }

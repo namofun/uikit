@@ -10,11 +10,17 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         public Dictionary<string, IMenuEntryBuilderBase> Store { get; }
 
         /// <summary>
+        /// The component builder list.
+        /// </summary>
+        public Dictionary<string, IComponentMenuBuilder> Components { get; }
+
+        /// <summary>
         /// Instantiate the <see cref="IMenuContributor"/>.
         /// </summary>
         public ConcreteMenuContributor()
         {
             Store = new Dictionary<string, IMenuEntryBuilderBase>();
+            Components = new Dictionary<string, IComponentMenuBuilder>();
         }
 
         /// <inheritdoc />
@@ -45,6 +51,43 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         public IMenu Find(string name)
         {
             if (!Store.TryGetValue(name, out var menu) || !(menu is ConcreteMenuBuilder menu2))
+                throw new InvalidOperationException(
+                    $"\"{name}\" is not a pre-defined menu. " +
+                    $"Please add it in the corresponding menu first.");
+            menu2.Contribute();
+            return menu2;
+        }
+
+        /// <summary>
+        /// Finalize the menus.
+        /// </summary>
+        public void Contribute()
+        {
+            foreach (var (_, item) in Store)
+            {
+                item.Contribute();
+            }
+
+            foreach (var (_, item) in Components)
+            {
+                item.Contribute();
+            }
+        }
+
+        /// <inheritdoc />
+        public IComponentMenuBuilder Component(string name)
+        {
+            if (Components.ContainsKey(name))
+                return Components[name];
+            var builder = new ConcreteComponentBuilder();
+            Components.Add(name, builder);
+            return builder;
+        }
+
+        /// <inheritdoc />
+        public IComponentMenu Extend(string name)
+        {
+            if (!Components.TryGetValue(name, out var menu) || !(menu is ConcreteComponentBuilder menu2))
                 throw new InvalidOperationException(
                     $"\"{name}\" is not a pre-defined menu. " +
                     $"Please add it in the corresponding menu first.");

@@ -133,11 +133,7 @@ namespace Microsoft.AspNetCore.Mvc
                 module.RegisterMenu(menuContributor);
             }
 
-            foreach (var (_, item) in menuContributor.Store)
-            {
-                item.Contribute();
-            }
-
+            menuContributor.Contribute();
             builder.AddSingleton<IMenuProvider>(menuContributor);
         }
 

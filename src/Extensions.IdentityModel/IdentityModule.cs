@@ -15,6 +15,10 @@ namespace SatelliteSite.IdentityModule
 {
     public class IdentityModule : AbstractModule<DefaultContext>
     {
+        public const string UserDetail = nameof(UserDetail);
+
+        public const string DashboardUserDetail = nameof(DashboardUserDetail);
+
         public override string Area => "Account";
 
         public override void Initialize()
@@ -103,6 +107,10 @@ namespace SatelliteSite.IdentityModule
                     .HasTitle(string.Empty, "Users")
                     .RequireRoles("Administrator");
             });
+
+            menus.Component(UserDetail);
+
+            menus.Component(DashboardUserDetail);
         }
 
         public static readonly Role[] HasRoles = new[]

@@ -1,4 +1,5 @@
 ﻿@model User
+@inject IMenuProvider Menu
 @{
     ViewData["Title"] = "User u" + Model.Id;
     IEnumerable<Role> roles = ViewBag.Roles;
@@ -32,3 +33,6 @@
         <a asp-route-uid="@Model.Id" asp-action="Edit" class="btn btn-primary" title="Edit"><i class="fas fa-edit"></i>&nbsp;Edit</a>
     </p>
 </div>
+
+@await Menu.Extend(SatelliteSite.IdentityModule.IdentityModule.DashboardUserDetail).RenderAsync(Component)
+ 
