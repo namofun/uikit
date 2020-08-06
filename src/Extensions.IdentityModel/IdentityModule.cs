@@ -1,19 +1,19 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SatelliteSite.Entities;
 using SatelliteSite.IdentityModule.Services;
+using SatelliteSite.Services;
 using System;
 using System.Linq;
 using System.Security.Claims;
 
 namespace SatelliteSite.IdentityModule
 {
-    public class IdentityModule : AbstractModule<DefaultContext>
+    public class IdentityModule : AbstractModule
     {
         public const string UserDetail = nameof(UserDetail);
 
@@ -83,6 +83,8 @@ namespace SatelliteSite.IdentityModule
             
             services.AddOptions<AuthMessageSenderOptions>()
                 .Bind(configuration.GetSection("Mailing"));
+
+            services.AddScoped<IConfigurationRegistry, ConfigurationRegistry<DefaultContext>>();
         }
 
         public override void RegisterEndpoints(IEndpointBuilder endpoints)
@@ -135,72 +137,5 @@ namespace SatelliteSite.IdentityModule
             (new Claim("judger", "true"), OfRoles("Judgehost")),
             (new Claim("read_contest", "true"), OfRoles("Administrator", "CDS")),
         };
-
-        public override void RegisterEntities(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Role>(entity =>
-            {
-                entity.HasData(HasRoles);
-            });
-
-            modelBuilder.Entity<IdentityRoleClaim<int>>(entity =>
-            {
-                entity.HasData(RoleClaims
-                    .SelectMany(
-                        collectionSelector: c => c.Item2,
-                        resultSelector: (c, i) => new { claim = c.Item1, roleId = i })
-                    .Select(
-                        selector: (a, i) => new IdentityRoleClaim<int>
-                        {
-                            Id = -1 - i,
-                            RoleId = a.roleId,
-                            ClaimType = a.claim.Type,
-                            ClaimValue = a.claim.Value
-                        }));
-            });
-
-            modelBuilder.Entity<User>(entity =>
-            {
-                entity.HasData(
-                    new User
-                    {
-                        Id = -1,
-                        UserName = "judgehost",
-                        NormalizedUserName = "JUDGEHOST",
-                        Email = "acm@xylab.fun",
-                        NormalizedEmail = "ACM@XYLAB.FUN",
-                        EmailConfirmed = true,
-                        ConcurrencyStamp = "e1a1189a-38f5-487b-907b-6d0533722f02",
-                        SecurityStamp = "AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHH",
-                        LockoutEnabled = false,
-                        NickName = "User for judgedaemons"
-                    });
-
-                entity.Property(u => u.NickName)
-                    .HasMaxLength(256);
-            });
-
-            modelBuilder.Entity<IdentityUserRole<int>>(entity =>
-            {
-                entity.HasData(
-                    new IdentityUserRole<int> { RoleId = OfRole("Judgehost"), UserId = -1 });
-            });
-
-            modelBuilder.Entity<IdentityRoleClaim<int>>(entity =>
-            {
-                entity.HasData(RoleClaims
-                    .SelectMany(
-                        collectionSelector: c => c.Item2,
-                        resultSelector: (c, i) => new { claim = c.Item1, roleId = i })
-                    .Select(
-                        selector: (a, i) => new IdentityRoleClaim<int>
-                        {
-                            Id = -1 - i,
-                            RoleId = a.roleId,
-                            ClaimType = a.claim.Type,
-                            ClaimValue = a.claim.Value
-                        }));
-            });
-        }
     }
 }

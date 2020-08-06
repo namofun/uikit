@@ -16,6 +16,7 @@ namespace SatelliteSite
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .MarkDomain<Program>()
                 .AddModule<IdentityModule.IdentityModule>()
                 .AddModule<SampleModule.SampleModule>()
                 .AddDatabaseMssql<DefaultContext>("UserDbConnection")

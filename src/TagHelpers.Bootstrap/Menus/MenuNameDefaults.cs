@@ -78,6 +78,11 @@ namespace Microsoft.AspNetCore.Mvc
                 {
                     conf.HasTitle(string.Empty, "Infrastructure")
                         .HasLink("javascript:;");
+
+                    conf.HasEntry(0)
+                        .HasLink("Dashboard", "Root", "Config")
+                        .HasTitle(string.Empty, "Configurations")
+                        .RequireRoles("Administrator");
                 });
 
                 menu.HasSubmenu(DashboardUsers, 100, user =>

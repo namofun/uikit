@@ -26,8 +26,8 @@ namespace SatelliteSite.Services
             string userName,
             DateTimeOffset now,
             string action,
-            string target,
-            string extra,
+            string? target,
+            string? extra,
             int? cid);
 
         /// <summary>

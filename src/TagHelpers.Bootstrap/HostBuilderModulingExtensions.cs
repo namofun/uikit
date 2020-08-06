@@ -22,6 +22,25 @@ namespace Microsoft.AspNetCore.Mvc
     public static class HostBuilderModulingExtensions
     {
         /// <summary>
+        /// The name of migration assembly
+        /// </summary>
+        private static string? MigrationAssembly { get; set; }
+
+        /// <summary>
+        /// Mark the application domain.
+        /// </summary>
+        /// <typeparam name="T">The program class.</typeparam>
+        /// <param name="builder">The <see cref="IHostBuilder"/></param>
+        /// <returns>The <see cref="IHostBuilder"/></returns>
+        public static IHostBuilder MarkDomain<T>(this IHostBuilder builder)
+        {
+            MigrationAssembly
+                = typeof(T).Assembly.GetName().Name
+                ?? throw new ArgumentNullException("The migration assembly is invalid.");
+            return builder;
+        }
+
+        /// <summary>
         /// Add a module and configure them in the next constructing pipeline.
         /// </summary>
         /// <typeparam name="TModule">The only <see cref="AbstractModule"/> in that Assembly</typeparam>
@@ -68,9 +87,12 @@ namespace Microsoft.AspNetCore.Mvc
             this IHostBuilder builder,
             string connectionStringName) where TContext : DbContext
         {
+            _ = MigrationAssembly ?? throw new ArgumentNullException("The migration assembly is invalid.");
             return builder.AddDatabase<TContext>((conf, opt) =>
             {
-                opt.UseSqlServer(conf.GetConnectionString(connectionStringName));
+                opt.UseSqlServer(
+                    conf.GetConnectionString(connectionStringName),
+                    o => o.MigrationsAssembly(MigrationAssembly));
                 opt.UseBulkExtensions();
             });
         }
@@ -91,11 +113,12 @@ namespace Microsoft.AspNetCore.Mvc
         /// <returns>The <see cref="IHostBuilder"/> for chaining.</returns>
         public static IHostBuilder ConfigureSubstrateDefaults(this IHostBuilder builder, Action<IWebHostBuilder>? further = null)
         {
+            _ = MigrationAssembly ?? throw new ArgumentNullException("The migration assembly is invalid.");
             return builder.ConfigureWebHostDefaults(builder =>
             {
                 builder.UseStaticWebAssets();
                 builder.UseStartup<Startup>();
-                builder.UseSetting(WebHostDefaults.ApplicationKey, AppDomain.CurrentDomain.FriendlyName);
+                builder.UseSetting(WebHostDefaults.ApplicationKey, MigrationAssembly);
                 further?.Invoke(builder);
             });
         }
