@@ -21,6 +21,25 @@ namespace SatelliteSite
         {
             base.OnModelCreating(builder);
 
+            builder.Entity<Auditlog>(entity =>
+            {
+                entity.HasKey(e => e.LogId);
+
+                entity.Property(e => e.UserName)
+                    .IsRequired();
+
+                entity.HasIndex(e => e.DataType);
+
+                entity.Property(e => e.DataId)
+                    .HasMaxLength(256)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Action)
+                    .IsRequired()
+                    .HasMaxLength(256)
+                    .IsUnicode(false);
+            });
+
             builder.Entity<Configuration>(entity =>
             {
                 entity.HasKey(e => e.Name);

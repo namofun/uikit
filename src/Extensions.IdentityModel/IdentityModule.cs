@@ -85,6 +85,7 @@ namespace SatelliteSite.IdentityModule
                 .Bind(configuration.GetSection("Mailing"));
 
             services.AddScoped<IConfigurationRegistry, ConfigurationRegistry<DefaultContext>>();
+            services.AddScoped<IAuditlogger, Auditlogger<DefaultContext>>();
         }
 
         public override void RegisterEndpoints(IEndpointBuilder endpoints)

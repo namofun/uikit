@@ -103,6 +103,11 @@ namespace Microsoft.AspNetCore.Mvc
                     docs.HasEntry(101)
                         .HasTitle(string.Empty, "Component Versions")
                         .HasLink("Dashboard", "Root", "Versions");
+
+                    docs.HasEntry(102)
+                        .HasTitle(string.Empty, "Auditlogs")
+                        .HasLink("Dashboard", "Root", "Auditlog")
+                        .RequireRoles("Administrator");
                 });
             });
         }

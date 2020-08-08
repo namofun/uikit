@@ -58,6 +58,17 @@ namespace SatelliteSite.Substrate.Dashboards
         }
 
 
+        [HttpGet("{page?}")]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> Auditlog(
+            [FromServices] IAuditlogger auditlogger,
+            int page = 1)
+        {
+            if (page <= 0) return BadRequest();
+            return View(await auditlogger.ViewLogsAsync(null, page, 1000));
+        }
+
+
         [HttpGet]
         [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> Config(
