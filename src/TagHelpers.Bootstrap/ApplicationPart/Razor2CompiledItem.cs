@@ -57,7 +57,8 @@ namespace Microsoft.AspNetCore.Razor.Hosting
                 {
                     if (rsca.Identifier == "/_ViewImports.cshtml") continue;
                     if (rsca.Identifier == "/Panels/_ViewImports.cshtml") continue;
-                    metadata.Add(new RazorSourceChecksumAttribute(rsca.ChecksumAlgorithm, rsca.Checksum, IdentifierProbing(rsca.Identifier, areaName)));
+                    var newIdentifier = IdentifierProbing(rsca.Identifier, areaName);
+                    metadata.Add(new RazorSourceChecksumAttribute(rsca.ChecksumAlgorithm, rsca.Checksum, newIdentifier));
                 }
                 else
                 {
