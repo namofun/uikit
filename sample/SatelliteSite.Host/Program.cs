@@ -11,6 +11,7 @@ namespace SatelliteSite
         public static void Main(string[] args)
         {
             Current = CreateHostBuilder(args).Build();
+            Current.AutoMigrate<DefaultContext>();
             Current.Run();
         }
 
@@ -20,6 +21,6 @@ namespace SatelliteSite
                 .AddModule<IdentityModule.IdentityModule>()
                 .AddModule<SampleModule.SampleModule>()
                 .AddDatabaseMssql<DefaultContext>("UserDbConnection")
-                .ConfigureSubstrateDefaults();
+                .ConfigureSubstrateDefaults<DefaultContext>();
     }
 }

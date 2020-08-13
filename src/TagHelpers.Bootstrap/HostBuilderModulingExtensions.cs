@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using SatelliteSite.Entities;
+using SatelliteSite.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -108,12 +110,24 @@ namespace Microsoft.AspNetCore.Mvc
         /// - Enable IIS integration. <br />
         /// - Use the moduled built-in <see cref="Startup"/> configurations.
         /// </remarks>
+        /// <typeparam name="TContext">The default core service <see cref="DbContext"/>.</typeparam>
         /// <param name="builder">The <see cref="IHostBuilder"/> instance to configure.</param>
         /// <param name="further">The configure callback.</param>
         /// <returns>The <see cref="IHostBuilder"/> for chaining.</returns>
-        public static IHostBuilder ConfigureSubstrateDefaults(this IHostBuilder builder, Action<IWebHostBuilder>? further = null)
+        public static IHostBuilder ConfigureSubstrateDefaults<TContext>(
+            this IHostBuilder builder,
+            Action<IWebHostBuilder>? further = null)
+            where TContext : DbContext
         {
             _ = MigrationAssembly ?? throw new ArgumentNullException("The migration assembly is invalid.");
+
+            Startup.Databases.Add((services, configuration) =>
+            {
+                services.AddScoped<IAuditlogger, Auditlogger<TContext>>();
+                services.AddScoped<IConfigurationRegistry, ConfigurationRegistry<TContext>>();
+                services.AddDbModelSupplier<TContext, CoreEntityConfiguration<TContext>>();
+            });
+
             return builder.ConfigureWebHostDefaults(builder =>
             {
                 builder.UseStaticWebAssets();

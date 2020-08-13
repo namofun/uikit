@@ -355,3 +355,4 @@ healthchecksdb
 /src/TagHelpers.Bootstrap/wwwroot/lib/file-saver
 /src/TagHelpers.Bootstrap/wwwroot/lib/select2
 /src/TagHelpers.Bootstrap/wwwroot/lib/qrcodejs
+/sample/SatelliteSite.Host/Migrations

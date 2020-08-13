@@ -1,15 +1,13 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SatelliteSite.Entities;
 using SatelliteSite.IdentityModule.Services;
-using SatelliteSite.Services;
 using System;
-using System.Linq;
-using System.Security.Claims;
 
 namespace SatelliteSite.IdentityModule
 {
@@ -84,8 +82,7 @@ namespace SatelliteSite.IdentityModule
             services.AddOptions<AuthMessageSenderOptions>()
                 .Bind(configuration.GetSection("Mailing"));
 
-            services.AddScoped<IConfigurationRegistry, ConfigurationRegistry<DefaultContext>>();
-            services.AddScoped<IAuditlogger, Auditlogger<DefaultContext>>();
+            services.AddDbModelSupplier<DefaultContext, IdentityEntityConfiguration>();
         }
 
         public override void RegisterEndpoints(IEndpointBuilder endpoints)
@@ -115,28 +112,5 @@ namespace SatelliteSite.IdentityModule
 
             menus.Component(DashboardUserDetail);
         }
-
-        public static readonly Role[] HasRoles = new[]
-        {
-            new Role { Id = -1, ConcurrencyStamp = "17337d8e-0118-4c42-9da6-e4ca600d5836", Name = "Administrator", NormalizedName = "ADMINISTRATOR", ShortName = "admin", Description = "Administrative User" },
-            new Role { Id = -2, ConcurrencyStamp = "9ec57e90-312c-4eed-ac25-a40fbcf5f33b", Name = "Blocked", NormalizedName = "BLOCKED", ShortName = "blocked", Description = "Blocked User" },
-            new Role { Id = -3, ConcurrencyStamp = "2bbf420d-6253-4ace-a825-4bf8e85cf41e", Name = "Problem", NormalizedName = "PROBLEM", ShortName = "prob", Description = "Problem Provider" },
-            new Role { Id = -4, ConcurrencyStamp = "fd0d1cf4-2ccf-4fd6-9d47-7fd62923c5d2", Name = "Judgehost", NormalizedName = "JUDGEHOST", ShortName = "judgehost", Description = "(Internal/System) Judgehost" },
-            new Role { Id = -5, ConcurrencyStamp = "81ffd1be-883c-4093-8adf-f2a4909370b7", Name = "CDS", NormalizedName = "CDS", ShortName = "cds_api", Description = "CDS API user" },
-        };
-
-        public static int OfRole(string role) => HasRoles.Single(r => r.Name == role).Id;
-
-        public static int[] OfRoles(params string[] roles) => roles.Select(r => OfRole(r)).ToArray();
-
-        public static readonly (Claim, int[])[] RoleClaims = new[]
-        {
-            (new Claim("dashboard", "true"), OfRoles("Administrator", "Problem")),
-            (new Claim("create_contest", "true"), OfRoles("Administrator")),
-            (new Claim("create_problem", "true"), OfRoles("Administrator", "Problem")),
-            (new Claim("plag_detect", "true"), OfRoles("Administrator")),
-            (new Claim("judger", "true"), OfRoles("Judgehost")),
-            (new Claim("read_contest", "true"), OfRoles("Administrator", "CDS")),
-        };
     }
 }
