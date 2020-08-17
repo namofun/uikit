@@ -20,6 +20,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ahead", "ahead", "{9B64D1B5
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{962F1EFF-AAFA-4BD8-8793-EF1736E568B7}"
+	ProjectSection(SolutionItems) = preProject
+		build\Microsoft.AspNetCore.Hosting.GitVersions.props = build\Microsoft.AspNetCore.Hosting.GitVersions.props
+		build\NugetPackage.props = build\NugetPackage.props
+		build\SatelliteSite.Substrate.props = build\SatelliteSite.Substrate.props
+		build\StaticWebAssetsBathPath.targets = build\StaticWebAssetsBathPath.targets
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

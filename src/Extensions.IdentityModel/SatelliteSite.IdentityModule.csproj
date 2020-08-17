@@ -3,7 +3,10 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <DescriptionAttach>The identity module</DescriptionAttach>
   </PropertyGroup>
+
+  <Import Project="..\..\build\NugetPackage.props" />
 
   <ItemGroup>
     <PackageReference Include="idunno.Authentication.Basic" Version="2.2.2" />
