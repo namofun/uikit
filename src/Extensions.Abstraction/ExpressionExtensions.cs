@@ -40,7 +40,7 @@ namespace System.Linq.Expressions
             /// <inheritdoc />
             public override Expression Visit(Expression node)
             {
-                return Changes.GetValueOrDefault(node) ?? base.Visit(node);
+                return Changes.TryGetValue(node, out var exp) ? exp : base.Visit(node);
             }
         }
 

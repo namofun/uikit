@@ -28,6 +28,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Extensions.Abstraction\SatelliteSite.Abstraction.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Update="libman.json" Pack="false">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>

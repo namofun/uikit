@@ -27,9 +27,6 @@ namespace System.Collections.Generic
         /// Gets the current page.
         /// </summary>
         int CurrentPage { get; }
-
-        /// <inheritdoc />
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     /// <summary>
@@ -72,6 +69,9 @@ namespace System.Collections.Generic
         /// </summary>
         internal List<T> Content { get; set; }
 
+        /// <inheritdoc />
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
         /// <summary>
         /// Instantiate an <see cref="PagedViewList{T}"/>.
         /// </summary>
@@ -111,6 +111,9 @@ namespace System.Collections.Generic
 
         /// <inheritdoc />
         public int Count => Content.Count;
+        
+        /// <inheritdoc />
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         /// <inheritdoc />
         public IEnumerator<T2> GetEnumerator() => Content.Select(Selector).GetEnumerator();

@@ -4,6 +4,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Buffers;
+using System;
 
 namespace System
 {
@@ -78,7 +79,7 @@ namespace System
                 toWrite[(i << 1) | 1] = chars[bit];
             }
 
-            return new string(toWrite);
+            return toWrite.ToString();
         }
 
         /// <summary>
@@ -97,7 +98,7 @@ namespace System
             else
             {
                 var buffer = ArrayPool<char>.Shared.Rent(source.Length * 2);
-                var result = ToHexDigest(buffer[0..(source.Length * 2)], source, chars);
+                var result = ToHexDigest(new ArraySegment<char>(buffer, 0, source.Length * 2), source, chars);
                 ArrayPool<char>.Shared.Return(buffer);
                 return result;
             }
