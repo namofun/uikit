@@ -10,7 +10,10 @@ using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -188,7 +191,36 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
         public IEndpointConventionBuilder MapApiDocument(string name, string title, string description, string version)
         {
-            throw new NotImplementedException();
+            ApiExplorerVisibilityAttribute.DeclaredAssemblyModule.Add(typeof(TModule).Assembly.FullName!, name);
+            Builder.ServiceProvider.GetRequiredService<IOptions<SwaggerGenOptions>>().Value
+                .SwaggerDoc(name, new OpenApiInfo
+                {
+                    Title = title,
+                    Description = description,
+                    Version = version,
+                });
+
+            var adcp = Builder.ServiceProvider.GetRequiredService<IActionDescriptorCollectionProvider>();
+            var actions = adcp.ActionDescriptors.Items;
+            var action = actions.OfType<ControllerActionDescriptor>()
+                .Where(s => s.ControllerName.Equals("ApiDoc", StringComparison.OrdinalIgnoreCase))
+                .Where(s => s.ActionName.Equals("Display", StringComparison.OrdinalIgnoreCase))
+                .Where(s => s.RouteValues.TryGetValue("area", out var AreaName) && AreaName.Equals("Dashboard", StringComparison.OrdinalIgnoreCase))
+                .Single();
+
+            return Builder.Map("/api/doc/" + name, context =>
+            {
+                var routeData = new RouteData();
+                routeData.PushState(router: null, context.Request.RouteValues, new RouteValueDictionary());
+                routeData.Values["name"] = name;
+                var actionContext = new ActionContext(context, routeData, action);
+
+                var invoker = context.RequestServices
+                    .GetRequiredService<IActionInvokerFactory>()
+                    .CreateInvoker(actionContext);
+
+                return invoker.InvokeAsync();
+            });
         }
 
         public ControllerActionEndpointConventionBuilder MapControllers()

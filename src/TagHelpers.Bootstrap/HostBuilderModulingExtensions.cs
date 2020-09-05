@@ -51,8 +51,6 @@ namespace Microsoft.AspNetCore.Mvc
         public static IHostBuilder AddModule<TModule>(this IHostBuilder builder) where TModule : AbstractModule, new()
         {
             Startup.Modules.Add(new TModule());
-            var module = typeof(TModule);
-            ApiExplorerVisibilityAttribute.DeclaredAssemblyModule.Add(module.Assembly.FullName!, module.FullName!);
             return builder;
         }
 

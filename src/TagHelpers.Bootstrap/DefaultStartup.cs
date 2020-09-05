@@ -70,13 +70,7 @@ namespace Microsoft.AspNetCore.Mvc
             services.AddMediatR(Modules.Select(a => a.GetType().Assembly).ToArray());
 
             foreach (var items in Databases)
-            {
                 items.Invoke(services, Configuration);
-            }
-
-
-            //services.AddScoped<IAuditlogger, Auditlogger>();
-
 
             /*
             if (Configuration["IdentityServer:Enabled"] == "True")
@@ -109,15 +103,8 @@ namespace Microsoft.AspNetCore.Mvc
 
             services.AddSession(options => options.Cookie.IsEssential = true);
 
-            /*
-            services.AddApiExplorer()
-                .AddHtmlTemplate(Environment.WebRootFileProvider.GetFileInfo("static/nelmioapidoc/index.html.src"))
-                .AddDocument("DOMjudge", "DOMjudge compact API v4", "7.2.0")
-                .AddSecurityScheme("basic", Microsoft.OpenApi.Models.SecuritySchemeType.Http)
-                .IncludeXmlComments(EnabledAreas.Select(item => System.IO.Path.Combine(AppContext.BaseDirectory, $"{AssemblyPrefix}{item}.xml")))
-                .IncludeXmlComments(System.IO.Path.Combine(AppContext.BaseDirectory, "JudgeWeb.Domains.Contests.CcsApi.xml"))
-                .FilterByRouteArea();
-            */
+            services.AddApiExplorer(o => o.DocInclusionPredicate((a, b) => b.GroupName == a))
+                .AddSecurityScheme("basic", Microsoft.OpenApi.Models.SecuritySchemeType.Http);
         }
 
 

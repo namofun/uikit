@@ -14,7 +14,6 @@ namespace SatelliteSite.Substrate.Apis
         /// Get configuration variables
         /// </summary>
         /// <param name="name">Get only this configuration variable</param>
-        /// <param name="configs"></param>
         /// <response code="200">The configuration variables</response>
         [HttpGet]
         [Authorize(Roles = "Judgehost,Administrator")]

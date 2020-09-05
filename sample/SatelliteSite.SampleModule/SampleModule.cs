@@ -19,6 +19,12 @@ namespace SatelliteSite.SampleModule
         {
             endpoints.MapControllers();
 
+            endpoints.MapApiDocument(
+                name: "sample",
+                title: "Sample Module",
+                description: "The API for sample module",
+                version: "1.0");
+
             endpoints.WithErrorHandler("Sample", "Main")
                 .MapFallbackNotFound("/sample/{**slug}")
                 .MapStatusCode("/sample/{**slug}");
