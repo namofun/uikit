@@ -21,6 +21,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using AE = Microsoft.AspNetCore.Mvc.Routing.ApiExplorerVisibilityAttribute;
 
 namespace Microsoft.AspNetCore.Mvc.Routing
 {
@@ -177,12 +178,17 @@ namespace Microsoft.AspNetCore.Mvc.Routing
             Builder = builder;
         }
 
+        private T GetRequiredService<T>()
+        {
+            return Builder.ServiceProvider.GetRequiredService<T>();
+        }
+
         private ModuleEndpointDataSource<TModule> GetOrCreateDataSource()
         {
             var dataSource = Builder.DataSources.OfType<ModuleEndpointDataSource<TModule>>().FirstOrDefault();
             if (dataSource == null)
             {
-                dataSource = Builder.ServiceProvider.GetRequiredService<ModuleEndpointDataSource<TModule>>();
+                dataSource = GetRequiredService<ModuleEndpointDataSource<TModule>>();
                 Builder.DataSources.Add(dataSource);
             }
 
@@ -191,16 +197,23 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
         public IEndpointConventionBuilder MapApiDocument(string name, string title, string description, string version)
         {
-            ApiExplorerVisibilityAttribute.DeclaredAssemblyModule.Add(typeof(TModule).Assembly.FullName!, name);
-            Builder.ServiceProvider.GetRequiredService<IOptions<SwaggerGenOptions>>().Value
-                .SwaggerDoc(name, new OpenApiInfo
-                {
-                    Title = title,
-                    Description = description,
-                    Version = version,
-                });
+            var assembly = typeof(TModule).Assembly;
+            AE.DeclaredAssemblyModule.TryAdd(assembly.FullName!, name);
 
-            var adcp = Builder.ServiceProvider.GetRequiredService<IActionDescriptorCollectionProvider>();
+            var sgo = GetRequiredService<IOptions<SwaggerGenOptions>>().Value;
+
+            sgo.SwaggerDoc(name, new OpenApiInfo
+            {
+                Title = title,
+                Description = description,
+                Version = version,
+            });
+
+            var file = System.IO.Path.ChangeExtension(assembly.Location, "xml");
+            if (System.IO.File.Exists(file))
+                sgo.IncludeXmlComments(file);
+
+            var adcp = GetRequiredService<IActionDescriptorCollectionProvider>();
             var actions = adcp.ActionDescriptors.Items;
             var action = actions.OfType<ControllerActionDescriptor>()
                 .Where(s => s.ControllerName.Equals("ApiDoc", StringComparison.OrdinalIgnoreCase))
@@ -230,7 +243,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
         public IErrorHandlerBuilder WithErrorHandler(string area, string controller, string action)
         {
-            var adcp = Builder.ServiceProvider.GetRequiredService<IActionDescriptorCollectionProvider>();
+            var adcp = GetRequiredService<IActionDescriptorCollectionProvider>();
             var actions = adcp.ActionDescriptors.Items;
             var ad = actions.OfType<ControllerActionDescriptor>()
                 .Where(s => s.ControllerName.Equals(controller, StringComparison.OrdinalIgnoreCase))

@@ -46,7 +46,7 @@ namespace Microsoft.AspNetCore.Mvc
         {
             await OnActionExecuting(context);
 
-            if (context.Result != null)
+            if (context.Result == null)
             {
                 var actionResult = await next();
                 await OnActionExecuted(actionResult);
