@@ -103,6 +103,7 @@ namespace System.Collections.Generic
     /// <summary>
     /// A paged <see cref="IReadOnlyList{T2}"/> view.
     /// </summary>
+    /// <typeparam name="T1">The source type.</typeparam>
     /// <typeparam name="T2">The content type.</typeparam>
     public class PagedFakeList<T1, T2> : IPagedList<T2>
     {
@@ -162,9 +163,7 @@ namespace System.Collections.Generic
         /// Instantiate an <see cref="PagedViewList{T}"/>.
         /// </summary>
         /// <param name="content">The content.</param>
-        /// <param name="curPage">The current page.</param>
-        /// <param name="totalCount">The total count.</param>
-        /// <param name="perPage">The count per page.</param>
+        /// <param name="selector">The new content factory.</param>
         public PagedFakeList(PagedViewList<T1> content, Func<T1, T2> selector)
         {
             Content = content.Content;

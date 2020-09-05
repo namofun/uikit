@@ -51,7 +51,7 @@
         Pending = 8,
 
         /// <summary>
-        /// Judging & Running
+        /// Judging &amp; Running
         /// </summary>
         Running = 9,
 

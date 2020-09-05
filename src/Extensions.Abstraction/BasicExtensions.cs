@@ -83,7 +83,7 @@ namespace System
         }
 
         /// <summary>
-        /// Convert the <see cref="byte[]" /> to corresponding hexademical string.
+        /// Convert the byte[] to corresponding hexademical string.
         /// </summary>
         /// <param name="source">The source byte array.</param>
         /// <param name="lower">Whether the result is lowercase.</param>
@@ -105,7 +105,7 @@ namespace System
         }
 
         /// <summary>
-        /// Gets the MD5 result for <see cref="byte[]" />.
+        /// Gets the MD5 result for byte[].
         /// </summary>
         /// <param name="source">The source to calculate.</param>
         /// <returns>The calculated MD5 result.</returns>
