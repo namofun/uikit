@@ -48,7 +48,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// Register the menu.
         /// </summary>
-        /// <param name="services">The menu contributor</param>
+        /// <param name="menus">The menu contributor</param>
         public virtual void RegisterMenu(IMenuContributor menus)
         {
         }

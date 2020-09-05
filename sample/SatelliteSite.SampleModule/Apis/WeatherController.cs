@@ -59,6 +59,7 @@ namespace SatelliteSite.SampleModule.Apis
         /// Replace the given weather forecast
         /// </summary>
         /// <param name="id">The ID of entity to replace</param>
+        /// <param name="model"></param>
         /// <response code="200">Returns the replaced weather forecast</response>
         [HttpPut("{id}")]
         public ActionResult<WeatherForecast> ReplaceOne(

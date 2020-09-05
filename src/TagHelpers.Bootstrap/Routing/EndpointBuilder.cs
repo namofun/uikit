@@ -49,7 +49,9 @@ namespace Microsoft.AspNetCore.Builder
         /// <summary>
         /// Adds a specialized <see cref="RouteEndpoint"/> to the <see cref="IEndpointRouteBuilder"/>
         /// that will match the provided pattern with the lowest possible priority. <br />
-        /// If such error handler is set up, the routes registered by <see cref="MapErrorNotFound(string)"/>
+        /// If such error handler is set up, the routes registered by
+        /// <see cref="IErrorHandlerBuilder.MapFallbackNotFound(string)" /> and
+        /// <see cref="IErrorHandlerBuilder.MapStatusCode(string)" />
         /// will be handled with this handler.
         /// </summary>
         /// <param name="area">The name of area.</param>

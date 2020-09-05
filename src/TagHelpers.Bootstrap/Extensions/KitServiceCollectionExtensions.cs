@@ -86,7 +86,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// Batch add the file providers into the razor source file digging chain.
         /// </summary>
         /// <param name="builder">The <see cref="IMvcBuilder"/> to configure more.</param>
-        /// <param name="fileProviders">The list of <see cref="IFileProvider"/>.</param>
+        /// <param name="fileProvider">The list of <see cref="IFileProvider"/>.</param>
         /// <param name="add">Whether to apply this convention.</param>
         /// <returns>The <see cref="IMvcBuilder"/> to chain the conventions.</returns>
         public static IMvcBuilder AddRazorRuntimeCompilation(this IMvcBuilder builder, IFileProvider? fileProvider, bool add = true)

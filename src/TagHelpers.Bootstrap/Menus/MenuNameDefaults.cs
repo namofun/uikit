@@ -125,7 +125,9 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// Set the title for this menu entry.
         /// </summary>
-        /// <param name="title"></param>
+        /// <param name="that">The menu builder.</param>
+        /// <param name="icon">The menu icon.</param>
+        /// <param name="title">The menu title.</param>
         /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
         public static TBuilder HasTitle<TBuilder>(this TBuilder that, string icon, string title) where TBuilder : IMenuEntryBuilderBase
         {
@@ -141,6 +143,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// Set the external link.
         /// </summary>
+        /// <param name="that">The menu builder.</param>
         /// <param name="link">The external link.</param>
         /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
         public static TBuilder HasLink<TBuilder>(this TBuilder that, string link) where TBuilder : IMenuEntryBuilderBase
@@ -162,6 +165,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// Set the dom id.
         /// </summary>
+        /// <param name="that">The menu builder.</param>
         /// <param name="id">The dom id.</param>
         /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
         public static TBuilder HasIdentifier<TBuilder>(this TBuilder that, string id) where TBuilder : IMenuEntryBuilderBase
@@ -177,6 +181,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// Set the route link.
         /// </summary>
+        /// <param name="that">The menu builder.</param>
         /// <param name="area">The area name.</param>
         /// <param name="controller">The controller name.</param>
         /// <param name="action">The action name.</param>
@@ -212,6 +217,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// Set the badge icon.
         /// </summary>
+        /// <param name="that">The menu builder.</param>
         /// <param name="id">The badge name.</param>
         /// <param name="color">The badge color.</param>
         /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
@@ -257,6 +263,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// Provide a function to detect the active status.
         /// </summary>
+        /// <param name="that">The menu builder.</param>
         /// <param name="area">The area names, separated by comma.</param>
         /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
         public static TBuilder ActiveWhenArea<TBuilder>(this TBuilder that, string area) where TBuilder : IMenuEntryBuilderBase
@@ -272,6 +279,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// Provide a function to detect the active status.
         /// </summary>
+        /// <param name="that">The menu builder.</param>
         /// <param name="controller">The controller names, separated by comma.</param>
         /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
         public static TBuilder ActiveWhenController<TBuilder>(this TBuilder that, string controller) where TBuilder : IMenuEntryBuilderBase
@@ -287,6 +295,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// Provide a function to detect the active status.
         /// </summary>
+        /// <param name="that">The menu builder.</param>
         /// <param name="action">The action names, separated by comma.</param>
         /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
         public static TBuilder ActiveWhenAction<TBuilder>(this TBuilder that, string action) where TBuilder : IMenuEntryBuilderBase
@@ -302,6 +311,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// Provide a function to detect the active status.
         /// </summary>
+        /// <param name="that">The menu builder.</param>
         /// <param name="value">The active action values, separated by comma.</param>
         /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
         public static TBuilder ActiveWhenViewData<TBuilder>(this TBuilder that, string value) where TBuilder : IMenuEntryBuilderBase
@@ -317,6 +327,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// Require these roles.
         /// </summary>
+        /// <param name="that">The menu builder.</param>
         /// <param name="roles">The comma separated role list.</param>
         /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
         public static TBuilder RequireRoles<TBuilder>(this TBuilder that, string roles) where TBuilder : IMenuEntryBuilderBase
@@ -330,6 +341,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// Require this claim.
         /// </summary>
+        /// <param name="that">The menu builder.</param>
         /// <param name="claimKey">The claim key.</param>
         /// <param name="claimValue">The claim value.</param>
         /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>

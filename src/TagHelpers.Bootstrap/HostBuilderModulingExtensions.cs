@@ -175,7 +175,6 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// Apply the application parts into the manager.
         /// </summary>
-        /// <param name="apm">The application part manager</param>
         /// <param name="modules">The application parts list</param>
         /// <returns>The application part manager</returns>
         internal static (List<ApplicationPart>, PeerFileProvider?) GetParts(this ICollection<AbstractModule> modules)

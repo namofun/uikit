@@ -50,9 +50,9 @@ namespace Microsoft.AspNetCore.Mvc
         bool IsActive(ViewContext actionContext);
 
         /// <summary>
-        /// Check whether this tag is active for such <see cref="ActionContext"/>.
+        /// Check whether this tag is active for such <see cref="ViewContext"/>.
         /// </summary>
-        /// <param name="actionContext">The <see cref="ActionContext"/>.</param>
+        /// <param name="viewContext">The <see cref="ViewContext"/>.</param>
         /// <returns>Whether this tag is active.</returns>
         public string Active(ViewContext viewContext) => IsActive(viewContext) ? "active" : "";
 

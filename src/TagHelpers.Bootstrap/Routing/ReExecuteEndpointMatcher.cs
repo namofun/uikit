@@ -26,8 +26,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         /// <summary>
         /// Instantiate the <see cref="ReExecuteEndpointMatcher"/>.
         /// </summary>
-        /// <param name="options">The route options.</param>
-        /// <param name="templateBinderFactory">The template binder factory.</param>
+        /// <param name="serviceProvider">The dependency injection container.</param>
         public ReExecuteEndpointMatcher(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;

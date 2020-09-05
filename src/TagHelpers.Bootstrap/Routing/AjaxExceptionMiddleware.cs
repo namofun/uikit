@@ -36,7 +36,6 @@ namespace Microsoft.AspNetCore.Http
         /// Display the exception when it is an AJAX request.
         /// </summary>
         /// <param name="context">The <see cref="HttpContext"/></param>
-        /// <param name="ex">The <see cref="Exception"/></param>
         /// <returns>A <see cref="Task"/> representing the next request pipelines.</returns>
         private async Task InvokeInAjax(HttpContext context)
         {

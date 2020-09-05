@@ -159,7 +159,6 @@ namespace Microsoft.Extensions.FileProviders
         /// <summary>
         /// Add the physical provider to this peer file provider.
         /// </summary>
-        /// <param name="origin">The peer file provider.</param>
         /// <param name="dest">The physical file provider.</param>
         /// <returns>The peer file provider.</returns>
         public PeerFileProvider Append(PhysicalFileProvider dest)

@@ -22,6 +22,7 @@ namespace Microsoft.AspNetCore.Razor.Hosting
         /// Probe the correct file name.
         /// </summary>
         /// <param name="fileName">The razor file identifier</param>
+        /// <param name="areaName">The area name</param>
         /// <returns>The correct identifier</returns>
         private static string IdentifierProbing(string fileName, string areaName)
         {

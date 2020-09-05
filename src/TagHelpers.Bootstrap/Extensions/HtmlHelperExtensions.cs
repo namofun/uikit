@@ -64,11 +64,12 @@ namespace Microsoft.AspNetCore.Mvc.Rendering
         /// Return a formatted ratio display.
         /// </summary>
         /// <param name="_">The html helper</param>
-        /// <param name="timespan">The timespan to format</param>
-        /// <returns><c>-</c> if <c>null</c>, otherwise <c>233:00</c></returns>
-        public static string RatioOf(this IHtmlHelper _, int fz, int fm)
+        /// <param name="numerator">The numerator</param>
+        /// <param name="denominator">The denominator</param>
+        /// <returns><c>x.xx% (x/x)</c></returns>
+        public static string RatioOf(this IHtmlHelper _, int numerator, int denominator)
         {
-            return fm == 0 ? "0.00% (0/0)" : $"{100.0 * fz / fm:F2}% ({fz}/{fm})";
+            return denominator == 0 ? "0.00% (0/0)" : $"{100.0 * numerator / denominator:F2}% ({numerator}/{denominator})";
         }
 
         /// <summary>
