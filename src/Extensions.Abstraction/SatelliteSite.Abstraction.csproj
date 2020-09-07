@@ -11,6 +11,13 @@
   <Import Project="..\..\build\NugetPackage.props" />
 
   <ItemGroup>
+    <None Include="..\..\build\Microsoft.AspNetCore.Hosting.GitVersions.props" Pack="true" PackagePath="build\" Link="build\Microsoft.AspNetCore.Hosting.GitVersions.props" />
+    <None Include="..\..\build\SatelliteSite.Abstraction.props" Pack="true" PackagePath="build\" Link="build\SatelliteSite.Abstraction.props" />
+    <None Include="..\..\build\SatelliteSite.Abstraction-buildMultiTargeting.props" Pack="true" PackagePath="buildMultiTargeting\SatelliteSite.Abstraction.props" Link="build\SatelliteSite.Abstraction-buildMultiTargeting.props" />
+    <None Include="..\..\build\SatelliteSite.Abstraction-buildTransitive.props" Pack="true" PackagePath="buildTransitive\SatelliteSite.Abstraction.props" Link="build\SatelliteSite.Abstraction-buildTransitive.props" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MediatR" Version="8.1.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.1.0" />
     <PackageReference Include="System.Text.Json" Version="4.7.2" />

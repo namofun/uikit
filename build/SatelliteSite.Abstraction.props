@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="Microsoft.AspNetCore.Hosting.GitVersions.props" />
+</Project>

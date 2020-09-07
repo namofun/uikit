@@ -55,6 +55,7 @@ namespace System
                 }
 
                 head = Path.Combine(Folder, "HEAD");
+                var packed_ref = Path.Combine(Folder, "packed-refs");
                 if (File.Exists(head))
                 {
                     var lines = File.ReadAllText(head).Trim();
@@ -63,6 +64,16 @@ namespace System
                     if (line.StartsWith(starts))
                     {
                         Branch = line.Substring(starts.Length);
+                    }
+                    else if (line.Length == 40 && File.Exists(packed_ref))
+                    {
+                        lines = File.ReadAllText(packed_ref).Trim();
+                        var line2 = lines.Split('\n').Select(t => t.Trim()).Where(t => t.StartsWith(line)).FirstOrDefault();
+                        if (line2.IndexOf("refs/remotes") == 41)
+                        {
+                            var line3 = line2.Substring(41).Split(new[] { '/' }, 4);
+                            if (line3.Length == 4) Branch = line3[3];
+                        }
                     }
                 }
             }
