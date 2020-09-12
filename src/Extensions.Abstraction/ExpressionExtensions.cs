@@ -57,6 +57,29 @@ namespace System.Linq.Expressions
         }
 
         /// <summary>
+        /// Combine some expressions with anonymous parameter type.
+        /// </summary>
+        /// <typeparam name="T1">The computed source type.</typeparam>
+        /// <typeparam name="T2">The computed source type.</typeparam>
+        /// <typeparam name="T3">The computed source type.</typeparam>
+        /// <typeparam name="T4">The computed source type.</typeparam>
+        /// <param name="expression">The expression to use.</param>
+        /// <param name="objectTemplate">The source anonymous object template to use this function.</param>
+        /// <param name="selector">The other expression to combine.</param>
+        /// <returns>The combined expression.</returns>
+        public static Expression<Func<T1, T2, T3>>? Combine<T1, T2, T3, T4>(
+            this Expression<Func<T4, T2, T3>>? expression,
+            T1 objectTemplate,
+            Expression<Func<T1, T4>> selector)
+        {
+            if (expression == null) return null;
+            var s1 = selector.Parameters[0];
+            var s2 = expression.Parameters[1];
+            var newBody = expression.Body.ReplaceWith(expression.Parameters[0], selector.Body);
+            return Expression.Lambda<Func<T1, T2, T3>>(newBody, s1, s2);
+        }
+
+        /// <summary>
         /// Combine some condition with other.
         /// </summary>
         /// <typeparam name="T">The computed source type.</typeparam>
