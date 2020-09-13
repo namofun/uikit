@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.FileProviders.Composite;
+﻿using Microsoft.Extensions.FileProviders.Composite;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections;
@@ -39,6 +38,28 @@ namespace Microsoft.Extensions.FileProviders
 
         #endregion
 
+        /// <summary>
+        /// Filter out the <see cref="NotFoundFileInfo"/>.
+        /// </summary>
+        /// <param name="fileInfo">The source <see cref="IFileInfo"/>.</param>
+        /// <returns>The <see cref="IFileInfo"/>.</returns>
+        internal static IFileInfo? NullIfNotFound(IFileInfo? fileInfo)
+        {
+            if (fileInfo == null || fileInfo is NotFoundFileInfo || !fileInfo.Exists) return null;
+            return fileInfo;
+        }
+
+        /// <summary>
+        /// Filter out the <see cref="NullChangeToken"/>.
+        /// </summary>
+        /// <param name="changeToken">The source <see cref="IChangeToken"/>.</param>
+        /// <returns>The <see cref="IChangeToken"/>.</returns>
+        internal static IChangeToken? NullIfNotFound(IChangeToken? changeToken)
+        {
+            if (changeToken == null || changeToken is NullChangeToken) return null;
+            return changeToken;
+        }
+
         /// <summary> The internal tree </summary>
         private Dictionary<string, PeerFileProvider>? Tree { get; set; }
 
@@ -77,7 +98,7 @@ namespace Microsoft.Extensions.FileProviders
             if (subpath.StartsWith("/Pages/", StringComparison.OrdinalIgnoreCase))
                 return new NotFoundFileInfo(subpath);
 
-            var f1 = Composite?.Select(a => a.GetFileInfo(subpath)?.NullIfNotFound())
+            var f1 = Composite?.Select(a => NullIfNotFound(a.GetFileInfo(subpath)))
                 .Where(a => a != null).SingleOrDefault();
 
             if (f1 == null && Tree != null)
@@ -90,7 +111,7 @@ namespace Microsoft.Extensions.FileProviders
                 {
                     var newSubpath = ch.Slice(idx).ToString();
                     var smallPath = ch.Slice(0, idx).ToString();
-                    f1 = Tree?.GetValueOrDefault(smallPath)?.GetFileInfo(newSubpath)?.NullIfNotFound();
+                    f1 = NullIfNotFound(Tree?.GetValueOrDefault(smallPath)?.GetFileInfo(newSubpath));
                 }
             }
 
@@ -107,9 +128,9 @@ namespace Microsoft.Extensions.FileProviders
             {
                 var toks = Enumerable.Empty<IChangeToken>();
                 if (Tree != null) toks = toks.Concat(
-                    Tree.Values.Select(a => a.Watch(filter).NullIfNotFound()!).Where(a => a != null));
+                    Tree.Values.Select(a => NullIfNotFound(a.Watch(filter))!).Where(a => a != null));
                 if (Composite != null) toks = toks.Concat(
-                    Composite.Select(a => a.Watch(filter).NullIfNotFound()!).Where(a => a != null));
+                    Composite.Select(a => NullIfNotFound(a.Watch(filter))!).Where(a => a != null));
                 var results = toks.ToArray();
                 if (results.Length == 0) return NullChangeToken.Singleton;
                 else if (results.Length == 1) return results[0];
@@ -129,10 +150,10 @@ namespace Microsoft.Extensions.FileProviders
                     var newSubpath = ch.Slice(idx).ToString();
                     var smallPath = ch.Slice(0, idx).ToString();
                     if (Tree != null) toks = toks.Append(
-                        Tree.GetValueOrDefault(smallPath)?.Watch(newSubpath)?.NullIfNotFound());
+                        NullIfNotFound(Tree.GetValueOrDefault(smallPath)?.Watch(newSubpath)));
                 }
 
-                var toks3 = toks.Where(a => a?.NullIfNotFound() != null).ToArray();
+                var toks3 = toks.Where(a => NullIfNotFound(a) != null).ToArray();
                 if (toks3.Length == 0) return NullChangeToken.Singleton;
                 else if (toks3.Length == 1) return toks3[0]!;
                 return new CompositeChangeToken(toks3);

@@ -88,7 +88,6 @@ namespace Microsoft.AspNetCore.Mvc
                     UnicodeRanges.CjkUnifiedIdeographs));
 
             Modules.ApplyServices(services, Configuration);
-            var (parts, razors) = Modules.GetParts();
 
             services.AddControllersWithViews()
                 .AddTimeSpanJsonConverter()
@@ -96,8 +95,7 @@ namespace Microsoft.AspNetCore.Mvc
                 .ReplaceDefaultLinkGenerator()
                 .AddSessionStateTempDataProvider()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-                .AddApplicationParts(parts)
-                .AddRazorRuntimeCompilation(razors, Environment.IsDevelopment());
+                .AddOnboardingModules(Modules, Environment.IsDevelopment());
 
             services.AddSingleton<ReExecuteEndpointMatcher>();
 
@@ -158,19 +156,14 @@ namespace Microsoft.AspNetCore.Mvc
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.DataSources.Add(new RootEndpointDataSource(endpoints.ServiceProvider));
-
-                Modules.ApplyEndpoints(endpoints);
+                endpoints.MapSubstrate();
+                endpoints.MapModules(Modules);
 
                 endpoints.MapNotFound("/api/{**slug}");
-
                 endpoints.MapNotFound("/lib/{**slug}");
-
                 endpoints.MapNotFound("/images/{**slug}");
 
-                app.ApplicationServices
-                    .GetRequiredService<ReExecuteEndpointMatcher>()
-                    .BuildPassOne();
+                endpoints.MapReExecute();
             });
         }
     }

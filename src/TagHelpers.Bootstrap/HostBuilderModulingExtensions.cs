@@ -1,20 +1,17 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Menus;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using SatelliteSite.Entities;
 using SatelliteSite.Services;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 
 namespace Microsoft.AspNetCore.Mvc
 {
@@ -136,17 +133,50 @@ namespace Microsoft.AspNetCore.Mvc
         }
 
         /// <summary>
+        /// Apply the substrate endpoint into the route builder.
+        /// </summary>
+        /// <param name="builder">The route builder</param>
+        /// <returns>The route builder</returns>
+        internal static void MapSubstrate(this IEndpointRouteBuilder builder)
+        {
+            builder.DataSources.Add(new RootEndpointDataSource(builder.ServiceProvider));
+        }
+
+        /// <summary>
         /// Apply the endpoint modules into the route builder.
         /// </summary>
         /// <param name="builder">The route builder</param>
         /// <param name="modules">The endpoint configuration list</param>
         /// <returns>The route builder</returns>
-        internal static void ApplyEndpoints(this ICollection<AbstractModule> modules, IEndpointRouteBuilder builder)
+        internal static void MapModules(this IEndpointRouteBuilder builder, ICollection<AbstractModule> modules)
         {
             foreach (var module in modules)
             {
                 module.RegisterEndpoints(ModuleEndpointDataSourceBase.Factory(module, builder));
             }
+        }
+
+        /// <summary>
+        /// Apply the re-execute endpoint into the route builder.
+        /// </summary>
+        /// <param name="builder">The route builder</param>
+        /// <returns>The route builder</returns>
+        internal static void MapReExecute(this IEndpointRouteBuilder builder)
+        {
+            builder.ServiceProvider
+                .GetRequiredService<ReExecuteEndpointMatcher>()
+                .BuildPassOne();
+        }
+
+        /// <summary>
+        /// Conventions for endpoints that requires the authorization.
+        /// </summary>
+        /// <param name="builder">The endpoint convention builder.</param>
+        /// <param name="roles">The roles to be confirmed.</param>
+        /// <returns>The endpoint convention builder to chain the configurations.</returns>
+        public static IEndpointConventionBuilder RequireRoles(this IEndpointConventionBuilder builder, string roles)
+        {
+            return builder.RequireAuthorization(new AuthorizeAttribute { Roles = roles });
         }
 
         /// <summary>
@@ -170,78 +200,6 @@ namespace Microsoft.AspNetCore.Mvc
 
             menuContributor.Contribute();
             builder.AddSingleton<IMenuProvider>(menuContributor);
-        }
-
-        /// <summary>
-        /// Apply the application parts into the manager.
-        /// </summary>
-        /// <param name="modules">The application parts list</param>
-        /// <returns>The application part manager</returns>
-        internal static (List<ApplicationPart>, PeerFileProvider?) GetParts(this ICollection<AbstractModule> modules)
-        {
-            var lst = new List<ApplicationPart>();
-            PeerFileProvider? tree = null;
-
-            static bool TryLoad(string assemblyName, out Assembly? assembly)
-            {
-                if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + assemblyName))
-                {
-                    assembly = Assembly.LoadFrom(AppDomain.CurrentDomain.BaseDirectory + assemblyName);
-                    return true;
-                }
-                else
-                {
-                    assembly = null;
-                    return false;
-                }
-            }
-
-            void Add(Assembly assembly, string areaName)
-            {
-                var assemblyName = assembly.GetName().Name;
-                if (string.IsNullOrEmpty(assemblyName))
-                    throw new TypeLoadException("The assembly is invalid.");
-
-                if (!assemblyName!.EndsWith(".Views"))
-                {
-                    lst.Add(new AssemblyPart(assembly));
-                    var rdpa = assembly.GetCustomAttribute<LocalDebugPathAttribute>();
-                    if (rdpa != null)
-                    {
-                        tree ??= new PeerFileProvider();
-                        var dir1 = Path.Combine(rdpa.Path, "Views");
-                        if (Directory.Exists(dir1))
-                            tree["Areas"][areaName]["Views"].Append(new PhysicalFileProvider(dir1));
-                        var dir2 = Path.Combine(rdpa.Path, "Panels");
-                        if (Directory.Exists(dir2))
-                            tree["Areas"]["Dashboard"]["Views"].Append(new PhysicalFileProvider(dir2));
-                        var dir3 = Path.Combine(rdpa.Path, "Components");
-                        if (Directory.Exists(dir3))
-                            tree["Views"]["Components"].Append(new PhysicalFileProvider(dir3));
-                    }
-                }
-                else
-                {
-                    lst.Add(new ViewsAssemblyPart(assembly, areaName));
-                }
-
-                foreach (var rel in assembly.GetCustomAttributes<RelatedAssemblyAttribute>())
-                {
-                    if (AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetName().Name == rel.AssemblyFileName).Any()) return;
-                    if (!TryLoad(rel.AssemblyFileName + ".dll", out var ass))
-                        throw new TypeLoadException("The assembly is invalid.");
-                    Add(ass!, areaName);
-                }
-            }
-
-            var selfCheck = typeof(AbstractModule).Assembly
-                .GetCustomAttribute<LocalDebugPathAttribute>();
-            if (selfCheck != null)
-                (tree ??= new PeerFileProvider()).Append(new PhysicalFileProvider(selfCheck.Path));
-            
-            foreach (var module in modules)
-                Add(module.GetType().Assembly, module.Area);
-            return (lst, tree);
         }
     }
 }
