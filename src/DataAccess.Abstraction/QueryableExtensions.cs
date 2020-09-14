@@ -3,6 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 
 namespace System.Linq
 {
@@ -75,6 +76,43 @@ namespace System.Linq
             if (!takeCount.HasValue) return queryable;
             if (takeCount.Value >= 0) return queryable.Take(takeCount.Value);
             throw new InvalidOperationException("Take count cannot be negative!");
+        }
+
+        /// <summary>
+        /// Get a paged view list from the query source.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="queryable">The source queryable.</param>
+        /// <param name="currentPage">The current page.</param>
+        /// <param name="countPerPage">The count per page.</param>
+        /// <returns>The task for fetching paged list.</returns>
+        public static async Task<PagedViewList<T>> ToPagedListAsync<T>(
+            this IQueryable<T> queryable,
+            int currentPage,
+            int countPerPage)
+        {
+            if (queryable == null) throw new ArgumentNullException(nameof(queryable));
+            if (currentPage <= 0) throw new ArgumentOutOfRangeException(nameof(currentPage));
+            if (countPerPage <= 0) throw new ArgumentOutOfRangeException(nameof(countPerPage));
+
+            var count = await queryable.CountAsync();
+            var content = await queryable.Skip((currentPage - 1) * countPerPage).Take(countPerPage).ToListAsync();
+            return new PagedViewList<T>(content, currentPage, count, countPerPage);
+        }
+
+        /// <summary>
+        /// Get a transformed paged view list from an asynchronous fetching.
+        /// </summary>
+        /// <typeparam name="T">The source entity type.</typeparam>
+        /// <typeparam name="T2">The target entity type.</typeparam>
+        /// <param name="listTask">The task to fetch a paged view list.</param>
+        /// <param name="transformer">The transform delegate.</param>
+        /// <returns>The task for fetching paged list.</returns>
+        public static async Task<IPagedList<T2>> TransformAfterAcquire<T, T2>(
+            this Task<PagedViewList<T>> listTask,
+            Func<T, T2> transformer)
+        {
+            return (await listTask).As(transformer);
         }
 
         /// <summary>
