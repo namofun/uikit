@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Encodings.Web;
@@ -20,11 +19,6 @@ namespace Microsoft.AspNetCore.Mvc
     /// </summary>
     public class Startup
     {
-        /// <summary>
-        /// The databases to configure
-        /// </summary>
-        internal static ICollection<Action<IServiceCollection, IConfiguration>> Databases { get; } = new List<Action<IServiceCollection, IConfiguration>>();
-
         /// <summary>
         /// The modules to configure
         /// </summary>
@@ -69,9 +63,6 @@ namespace Microsoft.AspNetCore.Mvc
 
             services.AddMediatR(Modules.Select(a => a.GetType().Assembly).ToArray());
 
-            foreach (var items in Databases)
-                items.Invoke(services, Configuration);
-
             /*
             if (Configuration["IdentityServer:Enabled"] == "True")
                 services.AddIdentityServer()
@@ -86,8 +77,6 @@ namespace Microsoft.AspNetCore.Mvc
                 HtmlEncoder.Create(
                     UnicodeRanges.BasicLatin,
                     UnicodeRanges.CjkUnifiedIdeographs));
-
-            Modules.ApplyServices(services, Configuration);
 
             services.AddControllersWithViews()
                 .AddTimeSpanJsonConverter()

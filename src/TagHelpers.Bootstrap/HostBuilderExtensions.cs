@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc.Menus;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SatelliteSite.Entities;
@@ -21,25 +20,6 @@ namespace Microsoft.AspNetCore.Mvc
     public static class HostBuilderModulingExtensions
     {
         /// <summary>
-        /// The name of migration assembly
-        /// </summary>
-        private static string? MigrationAssembly { get; set; }
-
-        /// <summary>
-        /// Mark the application domain.
-        /// </summary>
-        /// <typeparam name="T">The program class.</typeparam>
-        /// <param name="builder">The <see cref="IHostBuilder"/></param>
-        /// <returns>The <see cref="IHostBuilder"/></returns>
-        public static IHostBuilder MarkDomain<T>(this IHostBuilder builder)
-        {
-            MigrationAssembly
-                = typeof(T).Assembly.GetName().Name
-                ?? throw new ArgumentNullException("The migration assembly is invalid.");
-            return builder;
-        }
-
-        /// <summary>
         /// Add a module and configure them in the next constructing pipeline.
         /// </summary>
         /// <typeparam name="TModule">The only <see cref="AbstractModule"/> in that Assembly</typeparam>
@@ -49,49 +29,6 @@ namespace Microsoft.AspNetCore.Mvc
         {
             Startup.Modules.Add(new TModule());
             return builder;
-        }
-
-        /// <summary>
-        /// Add a <see cref="DbContext"/> and configure them in the next constructing pipeline.
-        /// </summary>
-        /// <typeparam name="TContext">The required <see cref="DbContext"/>.</typeparam>
-        /// <param name="builder">The <see cref="IHostBuilder"/></param>
-        /// <param name="configures">The configure delegate</param>
-        /// <returns>The <see cref="IHostBuilder"/></returns>
-        public static IHostBuilder AddDatabase<TContext>(
-            this IHostBuilder builder,
-            Action<IConfiguration, DbContextOptionsBuilder> configures) where TContext : DbContext
-        {
-            Startup.Databases.Add((services, conf) =>
-            {
-                services.AddDbContext<TContext>(options =>
-                {
-                    configures.Invoke(conf, options);
-                });
-            });
-
-            return builder;
-        }
-
-        /// <summary>
-        /// Add a <see cref="DbContext"/> and configure them in the next constructing pipeline.
-        /// </summary>
-        /// <typeparam name="TContext">The required <see cref="DbContext"/>.</typeparam>
-        /// <param name="builder">The <see cref="IHostBuilder"/></param>
-        /// <param name="connectionStringName">The connection string name</param>
-        /// <returns>The <see cref="IHostBuilder"/></returns>
-        public static IHostBuilder AddDatabaseMssql<TContext>(
-            this IHostBuilder builder,
-            string connectionStringName) where TContext : DbContext
-        {
-            _ = MigrationAssembly ?? throw new ArgumentNullException("The migration assembly is invalid.");
-            return builder.AddDatabase<TContext>((conf, opt) =>
-            {
-                opt.UseSqlServer(
-                    conf.GetConnectionString(connectionStringName),
-                    o => o.MigrationsAssembly(MigrationAssembly));
-                opt.UseBulkExtensions();
-            });
         }
 
         /// <summary>
@@ -114,22 +51,44 @@ namespace Microsoft.AspNetCore.Mvc
             Action<IWebHostBuilder>? further = null)
             where TContext : DbContext
         {
-            _ = MigrationAssembly ?? throw new ArgumentNullException("The migration assembly is invalid.");
+            if (DataAccessExtensions.MigrationAssembly == null)
+                throw new ArgumentNullException("The migration assembly is invalid.");
 
-            Startup.Databases.Add((services, configuration) =>
+            // auditlogger and configuration registry
+            builder.ConfigureServices(services =>
             {
                 services.AddScoped<IAuditlogger, Auditlogger<TContext>>();
                 services.AddScoped<IConfigurationRegistry, ConfigurationRegistry<TContext>>();
                 services.AddDbModelSupplier<TContext, CoreEntityConfiguration<TContext>>();
             });
 
-            return builder.ConfigureWebHostDefaults(builder =>
+            // register webservices
+            builder.ConfigureWebHostDefaults(builder =>
             {
                 builder.UseStaticWebAssets();
                 builder.UseStartup<Startup>();
-                builder.UseSetting(WebHostDefaults.ApplicationKey, MigrationAssembly);
-                further?.Invoke(builder);
+                builder.UseSetting(WebHostDefaults.ApplicationKey, DataAccessExtensions.MigrationAssembly);
             });
+
+            // module services
+            builder.ConfigureServices((context, services) =>
+            {
+                var menuContributor = new ConcreteMenuContributor();
+                menuContributor.ConfigureDefaults();
+
+                foreach (var module in Startup.Modules)
+                {
+                    var type = typeof(ModuleEndpointDataSource<>).MakeGenericType(module.GetType());
+                    services.AddSingleton(type);
+                    module.RegisterServices(services, context.Configuration);
+                    module.RegisterMenu(menuContributor);
+                }
+
+                menuContributor.Contribute();
+                services.AddSingleton<IMenuProvider>(menuContributor);
+            });
+
+            return builder.ConfigureWebHost(further ?? (_ => { }));
         }
 
         /// <summary>
@@ -180,26 +139,15 @@ namespace Microsoft.AspNetCore.Mvc
         }
 
         /// <summary>
-        /// Apply the dependency into the dependency injection builder.
+        /// Conventions for endpoints that changes the name.
         /// </summary>
-        /// <param name="builder">The dependency injection builder</param>
-        /// <param name="modules">The dependency configuration list</param>
-        /// <param name="configuration">The configuration source</param>
-        internal static void ApplyServices(this ICollection<AbstractModule> modules, IServiceCollection builder, IConfiguration configuration)
+        /// <param name="builder">The endpoint convention builder.</param>
+        /// <param name="configure">The name of that endpoint.</param>
+        /// <returns>The endpoint convention builder to chain the configurations.</returns>
+        public static IEndpointConventionBuilder WithDisplayName(this IEndpointConventionBuilder builder, Func<string, string> configure)
         {
-            var menuContributor = new ConcreteMenuContributor();
-            menuContributor.ConfigureDefaults();
-
-            foreach (var module in modules)
-            {
-                var type = typeof(ModuleEndpointDataSource<>).MakeGenericType(module.GetType());
-                builder.AddSingleton(type);
-                module.RegisterServices(builder, configuration);
-                module.RegisterMenu(menuContributor);
-            }
-
-            menuContributor.Contribute();
-            builder.AddSingleton<IMenuProvider>(menuContributor);
+            builder.Add(b => b.DisplayName = configure.Invoke(b.DisplayName));
+            return builder;
         }
     }
 }

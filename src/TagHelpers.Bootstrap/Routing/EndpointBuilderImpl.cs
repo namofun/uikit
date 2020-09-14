@@ -233,7 +233,8 @@ namespace Microsoft.AspNetCore.Mvc.Routing
                     .CreateInvoker(actionContext);
 
                 return invoker.InvokeAsync();
-            });
+            })
+            .WithDisplayName(_ => $"Swagger Document ({name})");
         }
 
         public ControllerActionEndpointConventionBuilder MapControllers()
