@@ -1,22 +1,21 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 
-namespace Microsoft.AspNetCore.Mvc
+namespace Microsoft.Extensions.Hosting
 {
+    /// <summary>
+    /// Logger definition type.
+    /// </summary>
+    internal struct AutoMigration { }
+
     /// <summary>
     /// Provide extension methods to help <see cref="IHost"/> got their <see cref="DbContext"/>s migrated.
     /// </summary>
-    public static class HostAutoMigrationExtensions
+    public static class AutoMigrationExtensions
     {
-        /// <summary>
-        /// Logger definition type
-        /// </summary>
-        private struct HostAutoMigration { }
-
         /// <summary>
         /// Automatically migrate the <see cref="DbContext"/> to the newest migration.
         /// </summary>
@@ -36,7 +35,7 @@ namespace Microsoft.AspNetCore.Mvc
             }
             catch (Exception ex)
             {
-                var logger = services.GetRequiredService<ILogger<HostAutoMigration>>();
+                var logger = services.GetRequiredService<ILogger<AutoMigration>>();
                 logger.LogError(ex, "An error occurred during migrating the database.");
                 throw;
             }
