@@ -59,11 +59,6 @@
     <PropertyGroup Condition="$(RazorDebugPath) == ''">
       <RazorDebugPath>$(MSBuildProjectDirectory)</RazorDebugPath>
     </PropertyGroup>
-    <ItemGroup Condition="$(Configuration) == 'Debug'">
-      <AssemblyAttribute Include="System.LocalDebugPathAttribute">
-        <_Parameter1>$(RazorDebugPath)</_Parameter1>
-      </AssemblyAttribute>
-    </ItemGroup>
 
     <Warning Code="XY1001" Text="&lt;GitRepositoryDirectory&gt; is not found in this project. Please define it with Directory.Build.props." Condition="$(GitRepositoryDirectory) == ''" />
     <_ReadGitInfo Condition="$(GitRepositoryDirectory) != ''" Folder="$(GitRepositoryDirectory)">
@@ -76,11 +71,36 @@
     <PropertyGroup Condition="$(_GitBranchRead) == ''">
       <_GitBranchRead>unknown</_GitBranchRead>
     </PropertyGroup>
+
+    <PropertyGroup>
+      <GenerateRazorTargetAssemblyInfoDependsOn Condition="'$(GenerateRazorTargetAssemblyInfoDependsOn)' != ''">
+        GetGitVersionAndDebugPathRazor;
+        $(GenerateRazorTargetAssemblyInfoDependsOn)
+      </GenerateRazorTargetAssemblyInfoDependsOn>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="GetGitVersionAndDebugPathCore" DependsOnTargets="GetGitVersionAndDebugPath">
+    <ItemGroup Condition="$(Configuration) == 'Debug'">
+      <AssemblyAttribute Include="System.LocalDebugPathAttribute">
+        <_Parameter1>$(RazorDebugPath)</_Parameter1>
+      </AssemblyAttribute>
+    </ItemGroup>
+
     <ItemGroup>
       <AssemblyAttribute Include="System.GitVersionAttribute">
         <_Parameter1>$(_GitVersionRead)</_Parameter1>
         <_Parameter2>$(_GitBranchRead)</_Parameter2>
       </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="GetGitVersionAndDebugPathRazor" DependsOnTargets="GetGitVersionAndDebugPath">
+    <ItemGroup>
+      <RazorTargetAssemblyAttribute Include="System.GitVersionAttribute" Condition="'$(_GitVersionRead)' != '' and '$(_GitBranchRead)' != ''">
+        <_Parameter1>$(_GitVersionRead)</_Parameter1>
+        <_Parameter2>$(_GitBranchRead)</_Parameter2>
+      </RazorTargetAssemblyAttribute>
     </ItemGroup>
   </Target>
 
@@ -90,7 +110,7 @@
 
   <PropertyGroup>
     <PrepareForBuildDependsOn>
-      GetGitVersionAndDebugPath;
+      GetGitVersionAndDebugPathCore;
       $(PrepareForBuildDependsOn)
     </PrepareForBuildDependsOn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
