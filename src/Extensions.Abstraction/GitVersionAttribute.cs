@@ -74,6 +74,11 @@ namespace System
                             var line3 = line2.Substring(41).Split(new[] { '/' }, 4);
                             if (line3.Length == 4) Branch = line3[3];
                         }
+                        else if (line2.IndexOf("refs/tags") == 41)
+                        {
+                            var line3 = line2.Substring(41).Split(new[] { '/' }, 3);
+                            if (line3.Length == 3) Branch = line3[2];
+                        }
                     }
                 }
             }
