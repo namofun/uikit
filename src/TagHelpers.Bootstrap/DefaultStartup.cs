@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 
@@ -46,11 +48,30 @@ namespace Microsoft.AspNetCore.Mvc
         public IWebHostEnvironment Environment { get; }
 
         /// <summary>
+        /// AssemblyLoadFileDelegate for <see cref="ApplicationParts.RelatedAssemblyAttribute"/>.
+        /// </summary>
+        /// <param name="fileName">The file name.</param>
+        /// <returns>The loaded assembly.</returns>
+        private static Assembly AssemblyLoadFileDelegate(string fileName)
+        {
+            bool AreSameAssembly(Assembly a) => string.Equals(a.Location, fileName, StringComparison.OrdinalIgnoreCase);
+
+            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(AreSameAssembly);
+            if (assembly != null) return assembly;
+            return Assembly.LoadFile(fileName);
+        }
+
+        /// <summary>
         /// This method gets called by the runtime. Use this method to add services to the container.
         /// </summary>
         /// <param name="services">The dependency injection builder</param>
         public void ConfigureServices(IServiceCollection services)
         {
+            typeof(ApplicationParts.RelatedAssemblyAttribute)
+                .GetFields(BindingFlags.Static | BindingFlags.NonPublic)
+                .Single(f => f.Name == nameof(AssemblyLoadFileDelegate))
+                .SetValue(null, new Func<string, Assembly>(AssemblyLoadFileDelegate));
+
             services.AddMemoryCache();
 
             services.Configure<CookiePolicyOptions>(options =>
@@ -95,7 +116,6 @@ namespace Microsoft.AspNetCore.Mvc
             services.AddApiExplorer(o => o.DocInclusionPredicate((a, b) => b.GroupName == a))
                 .AddSecurityScheme("basic", Microsoft.OpenApi.Models.SecuritySchemeType.Http);
         }
-
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
