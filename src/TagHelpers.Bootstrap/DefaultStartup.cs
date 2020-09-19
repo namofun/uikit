@@ -61,7 +61,9 @@ namespace Microsoft.AspNetCore.Mvc
 
             services.AddApplicationInsightsTelemetry();
 
-            services.AddMediatR(Modules.Select(a => a.GetType().Assembly).ToArray());
+            var assemblies = Modules.Select(a => a.GetType().Assembly).ToArray();
+            if (assemblies.Length > 0)
+                services.AddMediatR(assemblies);
 
             /*
             if (Configuration["IdentityServer:Enabled"] == "True")
