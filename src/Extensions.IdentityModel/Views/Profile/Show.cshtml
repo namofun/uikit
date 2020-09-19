@@ -4,7 +4,7 @@
     User user = ViewBag.User;
 }
 
-@await Menu.Extend(SatelliteSite.IdentityModule.IdentityModule.UserDetail).RenderAsync(Component)
+@await Menu.Extend(SatelliteSite.IdentityModule.ExtensionPointDefaults.UserDetail).RenderAsync(Component)
 
 <p class="mb-0 mt-3" asp-show-if="User.GetUserName() == user.UserName">
     <a asp-action="Edit" class="btn btn-primary mb-1">Edit profile</a>

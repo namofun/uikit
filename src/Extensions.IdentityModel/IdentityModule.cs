@@ -11,12 +11,9 @@ using System;
 
 namespace SatelliteSite.IdentityModule
 {
-    public class IdentityModule : AbstractModule
+    public class IdentityModule<TContext> : AbstractModule
+        where TContext : Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityDbContext<User, Role, int>
     {
-        public const string UserDetail = nameof(UserDetail);
-
-        public const string DashboardUserDetail = nameof(DashboardUserDetail);
-
         public override string Area => "Account";
 
         public override void Initialize()
@@ -45,12 +42,12 @@ namespace SatelliteSite.IdentityModule
                     options.SignIn.RequireConfirmedEmail = false;
                     options.SignIn.RequireConfirmedPhoneNumber = false;
                 })
-                .AddEntityFrameworkStores<DefaultContext>()
+                .AddEntityFrameworkStores<TContext>()
                 .AddUserManager<UserManager>()
                 .AddSignInManager<SignInManager>()
                 .AddDefaultTokenProviders();
 
-            services.Replace(ServiceDescriptor.Scoped<IUserClaimsPrincipalFactory<User>, UserClaimsPrincipalFactory>());
+            services.Replace(ServiceDescriptor.Scoped<IUserClaimsPrincipalFactory<User>, Services.UserClaimsPrincipalFactory<TContext>>());
 
             services.AddAuthentication()
                 .SetCookie(options =>
@@ -82,7 +79,7 @@ namespace SatelliteSite.IdentityModule
             services.AddOptions<AuthMessageSenderOptions>()
                 .Bind(configuration.GetSection("Mailing"));
 
-            services.AddDbModelSupplier<DefaultContext, IdentityEntityConfiguration>();
+            services.AddDbModelSupplier<TContext, IdentityEntityConfiguration<TContext>>();
         }
 
         public override void RegisterEndpoints(IEndpointBuilder endpoints)
@@ -108,9 +105,9 @@ namespace SatelliteSite.IdentityModule
                     .RequireRoles("Administrator");
             });
 
-            menus.Component(UserDetail);
+            menus.Component(ExtensionPointDefaults.UserDetail);
 
-            menus.Component(DashboardUserDetail);
+            menus.Component(ExtensionPointDefaults.DashboardUserDetail);
         }
     }
 }

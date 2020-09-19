@@ -28,12 +28,15 @@ namespace SatelliteSite.IdentityModule.Services
         private static async Task ValidateAsync(ValidateCredentialsContext context)
         {
             var dbContext = context.HttpContext.RequestServices
-                .GetRequiredService<DefaultContext>();
+                .GetRequiredService<IUserStore<User>>();
+            if (!(dbContext is IQueryableUserStore<User> uqstore) || !(dbContext is IUserRoleStore<User> urstore))
+                throw new InvalidOperationException("Using BasicAuthenticationValidator against invalid store.");
+
             var normusername = context.Username.ToUpper();
 
             var user = await _cache.GetOrCreateAsync("`" + normusername.ToLower(), async entry =>
             {
-                var value = await dbContext.Users
+                var value = await uqstore.Users
                     .Where(u => u.NormalizedUserName == normusername)
                     .Select(u => new { u.Id, u.UserName, u.PasswordHash, u.SecurityStamp })
                     .FirstOrDefaultAsync();
@@ -63,11 +66,8 @@ namespace SatelliteSite.IdentityModule.Services
 
             var principal = await _cache.GetOrCreateAsync(normusername, async entry =>
             {
-                var uid = user.Id;
-                var ur = await dbContext.UserRoles
-                    .Where(r => r.UserId.Equals(uid))
-                    .Join(dbContext.Roles, r => r.RoleId, r => r.Id, (_, r) => r.Name)
-                    .ToListAsync();
+                // Assert the UserStore implemention doesn't use other properties
+                var ur = await urstore.GetRolesAsync(new User { Id = user.Id }, default);
 
                 var options = context.HttpContext.RequestServices
                     .GetRequiredService<IOptions<IdentityOptions>>().Value;

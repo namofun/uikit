@@ -9,13 +9,15 @@ using System.Threading.Tasks;
 
 namespace SatelliteSite.IdentityModule.Services
 {
-    public class UserClaimsPrincipalFactory : UserClaimsPrincipalFactory<User>
+    public class UserClaimsPrincipalFactory<TContext> :
+        Microsoft.AspNetCore.Identity.UserClaimsPrincipalFactory<User>
+        where TContext : IdentityDbContext<User, Role, int>
     {
         public IdentityDbContext<User, Role, int> Identity { get; }
 
         public UserClaimsPrincipalFactory(
             UserManager<User> userManager,
-            DefaultContext identityDbContext,
+            TContext identityDbContext,
             IOptions<IdentityOptions> options) :
             base(userManager, options)
         {

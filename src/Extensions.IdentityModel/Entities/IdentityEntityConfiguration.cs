@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Linq;
@@ -6,12 +7,13 @@ using System.Security.Claims;
 
 namespace SatelliteSite.Entities
 {
-    public class IdentityEntityConfiguration :
-        EntityTypeConfigurationSupplier<DefaultContext>,
+    public class IdentityEntityConfiguration<TContext> :
+        EntityTypeConfigurationSupplier<TContext>,
         IEntityTypeConfiguration<User>,
         IEntityTypeConfiguration<Role>,
         IEntityTypeConfiguration<IdentityRoleClaim<int>>,
         IEntityTypeConfiguration<IdentityUserRole<int>>
+        where TContext : IdentityDbContext<User, Role, int>
     {
         public static readonly Role[] HasRoles = new[]
         {
