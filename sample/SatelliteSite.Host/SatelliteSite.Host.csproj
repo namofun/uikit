@@ -9,7 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Extensions.IdentityModel\SatelliteSite.IdentityModule.csproj" />
     <ProjectReference Include="..\SatelliteSite.SampleModule\SatelliteSite.SampleModule.csproj" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.6">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="$(AspNetCoreVersion)">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

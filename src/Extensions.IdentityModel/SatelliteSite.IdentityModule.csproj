@@ -10,8 +10,8 @@
 
   <ItemGroup>
     <PackageReference Include="idunno.Authentication.Basic" Version="2.2.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.5" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="3.1.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="$(AspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="$(AspNetCoreVersion)" />
   </ItemGroup>
 
   <ItemGroup>
