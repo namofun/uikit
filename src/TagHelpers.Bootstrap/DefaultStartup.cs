@@ -54,7 +54,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <returns>The loaded assembly.</returns>
         private static Assembly AssemblyLoadFileDelegate(string fileName)
         {
-            bool AreSameAssembly(Assembly a) => string.Equals(a.Location, fileName, StringComparison.OrdinalIgnoreCase);
+            bool AreSameAssembly(Assembly a) => !a.IsDynamic && string.Equals(a.Location, fileName, StringComparison.OrdinalIgnoreCase);
 
             var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(AreSameAssembly);
             if (assembly != null) return assembly;
