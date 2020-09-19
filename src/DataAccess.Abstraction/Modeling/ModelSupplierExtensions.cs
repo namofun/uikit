@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -8,35 +8,6 @@ namespace Microsoft.EntityFrameworkCore
     /// </summary>
     public static class ModelSupplierExtensions
     {
-        /// <summary>
-        /// The class for holding extensions.
-        /// </summary>
-        /// <typeparam name="T">The <see cref="DbContext"/>.</typeparam>
-        private class Supplier<T> where T : DbContext
-        {
-            /// <summary>
-            /// The holder list
-            /// </summary>
-            public static List<IDbModelSupplier<T>> Holder { get; } = new List<IDbModelSupplier<T>>();
-        }
-
-        /// <summary>
-        /// Apply the DbContext configuration.
-        /// </summary>
-        /// <typeparam name="TContext">The DbContext type.</typeparam>
-        /// <param name="supplierSource">The supplier source.</param>
-        /// <param name="builder"></param>
-        public static void FromSupplierToModelBuilder<TContext>(
-            this TContext supplierSource,
-            ModelBuilder builder)
-            where TContext : DbContext
-        {
-            foreach (var supplier in Supplier<TContext>.Holder)
-            {
-                supplier.Configure(builder);
-            }
-        }
-
         /// <summary>
         /// Add the <typeparamref name="TSupplier"/> to dependency injection container.
         /// </summary>
@@ -48,7 +19,7 @@ namespace Microsoft.EntityFrameworkCore
             where TContext : DbContext
             where TSupplier : class, IDbModelSupplier<TContext>, new()
         {
-            Supplier<TContext>.Holder.Add(new TSupplier());
+            SuppliedModelCustomizer<TContext>.Holder.Add(new TSupplier());
             return services;
         }
     }

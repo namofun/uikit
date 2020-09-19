@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -44,6 +45,7 @@ namespace Microsoft.Extensions.Hosting
             {
                 services.AddDbContext<TContext>(options =>
                 {
+                    options.ReplaceService<IModelCustomizer, SuppliedModelCustomizer<TContext>>();
                     configures.Invoke(context.Configuration, options);
                 });
             });
