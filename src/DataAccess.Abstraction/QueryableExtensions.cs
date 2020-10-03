@@ -86,7 +86,7 @@ namespace System.Linq
         /// <param name="currentPage">The current page.</param>
         /// <param name="countPerPage">The count per page.</param>
         /// <returns>The task for fetching paged list.</returns>
-        public static async Task<PagedViewList<T>> ToPagedListAsync<T>(
+        public static async Task<IPagedList<T>> ToPagedListAsync<T>(
             this IQueryable<T> queryable,
             int currentPage,
             int countPerPage)
@@ -109,7 +109,7 @@ namespace System.Linq
         /// <param name="transformer">The transform delegate.</param>
         /// <returns>The task for fetching paged list.</returns>
         public static async Task<IPagedList<T2>> TransformAfterAcquire<T, T2>(
-            this Task<PagedViewList<T>> listTask,
+            this Task<IPagedList<T>> listTask,
             Func<T, T2> transformer)
         {
             return (await listTask).As(transformer);
