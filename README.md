@@ -1,6 +1,6 @@
 # Project Substrate
 
-Build Status: ![](https://api.travis-ci.org/namofun/uikit.svg?branch=master)
+Build Status: ![](https://api.travis-ci.com/namofun/uikit.svg?branch=master)
 
 This is a project for ASP.NET Core module design standard,  designed as Satellite Site first. With this module, you can build your module application faster.
 

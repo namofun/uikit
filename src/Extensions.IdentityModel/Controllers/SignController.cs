@@ -17,13 +17,13 @@ namespace SatelliteSite.IdentityModule.Controllers
     public class SignController : ViewControllerBase
     {
         private SignInManager SignInManager { get; }
-        private UserManager UserManager { get; }
+        private IUserManager UserManager { get; }
         private ILogger<SignController> Logger { get; }
         private IEmailSender EmailSender { get; }
 
         public SignController(
             SignInManager signInMgr,
-            UserManager userMgr,
+            IUserManager userMgr,
             ILogger<SignController> logger,
             IEmailSender emailSender)
         {
@@ -32,6 +32,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             Logger = logger;
             EmailSender = emailSender;
         }
+
 
         [HttpGet]
         [AllowAnonymous]
@@ -43,6 +44,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
+
 
         [HttpPost]
         [AllowAnonymous]
@@ -79,12 +81,14 @@ namespace SatelliteSite.IdentityModule.Controllers
             return View(model);
         }
 
+
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Lockout()
         {
             return View();
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -95,12 +99,14 @@ namespace SatelliteSite.IdentityModule.Controllers
             return RedirectToAction("Index", "Home", new { area = "Misc" });
         }
 
+
         [HttpGet]
         [AllowAnonymous]
         public IActionResult AccessDenied()
         {
             return View();
         }
+
 
         [HttpGet]
         [AllowAnonymous]
@@ -110,6 +116,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             return View();
         }
 
+
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -118,12 +125,9 @@ namespace SatelliteSite.IdentityModule.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                var user = new User
-                {
-                    UserName = model.UserName,
-                    Email = model.Email,
-                    RegisterTime = DateTimeOffset.Now,
-                };
+                var user = UserManager.CreateEmpty(model.UserName);
+                user.Email = model.Email;
+                user.RegisterTime = DateTimeOffset.Now;
 
                 var result = await UserManager.CreateAsync(user, model.Password);
 
@@ -154,6 +158,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             return View(model);
         }
 
+
         [HttpGet]
         [AllowAnonymous]
         public IActionResult ForgotPassword()
@@ -161,6 +166,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             return View();
         }
 
+        
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -192,6 +198,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             return View(model);
         }
 
+        
         [HttpGet]
         [AllowAnonymous]
         public IActionResult ForgotPasswordConfirmation()
@@ -199,6 +206,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             return View();
         }
 
+        
         [HttpGet]
         [AllowAnonymous]
         public IActionResult ResetPassword(string code = null)
@@ -211,15 +219,14 @@ namespace SatelliteSite.IdentityModule.Controllers
             return View(model);
         }
 
+
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
+            if (!ModelState.IsValid) return View(model);
+
             var user = await UserManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
@@ -236,6 +243,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             return View();
         }
 
+
         [HttpGet]
         [AllowAnonymous]
         public IActionResult ResetPasswordConfirmation()
@@ -245,19 +253,12 @@ namespace SatelliteSite.IdentityModule.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> ConfirmEmail(string userId, string code)
+        public async Task<IActionResult> ConfirmEmail(int userId, string code)
         {
-            if (userId == null || code == null)
-            {
-                return RedirectToAction("Index", "Home", new { area = "Misc" });
-            }
+            if (code == null) return View("ConfirmEmailError");
 
             var user = await UserManager.FindByIdAsync(userId);
-
-            if (user == null)
-            {
-                throw new ApplicationException($"Unable to load user with ID '{userId}'.");
-            }
+            if (user == null) return View("ConfirmEmailError");
 
             var result = await UserManager.ConfirmEmailAsync(user, code);
             return View(result.Succeeded ? "ConfirmEmail" : "ConfirmEmailError");

@@ -2,18 +2,17 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SatelliteSite.IdentityModule.Entities;
 using System.Linq;
 using System.Security.Claims;
 
 namespace SatelliteSite.Entities
 {
-    public class IdentityEntityConfiguration<TContext> :
-        EntityTypeConfigurationSupplier<TContext>,
-        IEntityTypeConfiguration<User>,
-        IEntityTypeConfiguration<Role>,
-        IEntityTypeConfiguration<IdentityRoleClaim<int>>,
-        IEntityTypeConfiguration<IdentityUserRole<int>>
-        where TContext : IdentityDbContext<User, Role, int>
+    public class IdentityEntityConfiguration<TUser, TRole, TContext> :
+        IDbModelSupplier<TContext>
+        where TUser : User
+        where TRole : Role
+        where TContext : IdentityDbContext<TUser, TRole, int>
     {
         public static readonly Role[] HasRoles = new[]
         {
@@ -38,7 +37,7 @@ namespace SatelliteSite.Entities
             (new Claim("read_contest", "true"), OfRoles("Administrator", "CDS")),
         };
 
-        public void Configure(EntityTypeBuilder<User> entity)
+        public void Configure(EntityTypeBuilder<TUser> entity)
         {
             entity.HasData(
                 new User
@@ -75,7 +74,7 @@ namespace SatelliteSite.Entities
                     }));
         }
 
-        public void Configure(EntityTypeBuilder<Role> entity)
+        public void Configure(EntityTypeBuilder<TRole> entity)
         {
             entity.HasData(HasRoles);
         }
@@ -84,6 +83,17 @@ namespace SatelliteSite.Entities
         {
             entity.HasData(
                 new IdentityUserRole<int> { RoleId = OfRole("Judgehost"), UserId = -1 });
+        }
+
+        public void Configure(ModelBuilder builder)
+        {
+            builder.Entity<TUser>(Configure);
+
+            builder.Entity<TRole>(Configure);
+
+            builder.Entity<IdentityUserRole<int>>(Configure);
+
+            builder.Entity<IdentityRoleClaim<int>>(Configure);
         }
     }
 }

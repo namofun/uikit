@@ -16,9 +16,9 @@ namespace SatelliteSite.IdentityModule.Dashboards
     [AuditPoint(AuditlogType.User)]
     public class UsersController : ViewControllerBase
     {
-        public UserManager UserManager { get; }
+        public IUserManager UserManager { get; }
 
-        public UsersController(UserManager userManager)
+        public UsersController(IUserManager userManager)
         {
             UserManager = userManager;
         }

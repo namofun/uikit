@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using SatelliteSite.Entities;
 using SatelliteSite.IdentityModule.Models;
 using SatelliteSite.IdentityModule.Services;
 using System;
@@ -16,13 +15,13 @@ namespace SatelliteSite.IdentityModule.Controllers
     [Route("[controller]")]
     public class ProfileController : ViewControllerBase
     {
-        UserManager UserManager { get; }
+        IUserManager UserManager { get; }
         SignInManager SignInManager { get; }
         ILogger<ProfileController> Logger { get; }
         IEmailSender EmailSender { get; }
 
         public ProfileController(
-            UserManager um,
+            IUserManager um,
             SignInManager sim,
             ILogger<ProfileController> logger,
             IEmailSender emailSender)
@@ -40,7 +39,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             return View(model);
         }
 
-        private async Task<User> GetUserAsync()
+        private async Task<IUser> GetUserAsync()
         {
             var user = await UserManager.GetUserAsync(User);
             var userId = UserManager.GetUserId(User);
@@ -55,7 +54,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         public async Task<IActionResult> Claims(string username)
         {
             var user = await GetUserAsync();
-            if (user.NormalizedUserName != username.ToUpper())
+            if (user.HasUserName(username))
                 return NotFound();
             return View();
         }
@@ -76,7 +75,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         public async Task<IActionResult> Edit(string username)
         {
             var user = await GetUserAsync();
-            if (user.NormalizedUserName != username.ToUpper())
+            if (user.HasUserName(username))
                 return NotFound();
 
             var model = new IndexViewModel
@@ -84,7 +83,7 @@ namespace SatelliteSite.IdentityModule.Controllers
                 Username = user.UserName,
                 NickName = user.NickName,
                 Email = user.Email,
-                IsEmailConfirmed = user.EmailConfirmed,
+                IsEmailConfirmed = await UserManager.IsEmailConfirmedAsync(user),
                 Plan = user.Plan,
                 SubscribeNews = user.SubscribeNews,
             };
@@ -100,7 +99,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         public async Task<IActionResult> ChangePassword(string username)
         {
             var user = await GetUserAsync();
-            if (user.NormalizedUserName != username.ToUpper())
+            if (user.HasUserName(username))
                 return NotFound();
 
             var hasPassword = await UserManager.HasPasswordAsync(user);
@@ -118,7 +117,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var user = await GetUserAsync();
-            if (user.NormalizedUserName != username.ToUpper())
+            if (user.HasUserName(username))
                 return NotFound();
 
             var changePasswordResult = await UserManager
@@ -138,7 +137,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         public async Task<IActionResult> SetPassword(string username)
         {
             var user = await GetUserAsync();
-            if (user.NormalizedUserName != username.ToUpper())
+            if (user.HasUserName(username))
                 return NotFound();
 
             var hasPassword = await UserManager.HasPasswordAsync(user);
@@ -156,7 +155,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var user = await GetUserAsync();
-            if (user.NormalizedUserName != username.ToUpper())
+            if (user.HasUserName(username))
                 return NotFound();
 
             var addPasswordResult = await UserManager
@@ -177,7 +176,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var user = await GetUserAsync();
-            if (user.NormalizedUserName != username.ToUpper())
+            if (user.HasUserName(username))
                 return NotFound();
 
             var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
@@ -211,7 +210,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             try
             {
                 var user = await GetUserAsync();
-                if (user.NormalizedUserName != username.ToUpper())
+                if (user.HasUserName(username))
                     return NotFound();
 
                 var email = user.Email;
