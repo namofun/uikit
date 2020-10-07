@@ -16,20 +16,10 @@ namespace SatelliteSite.IdentityModule.Controllers
     public class ProfileController : ViewControllerBase
     {
         IUserManager UserManager { get; }
-        SignInManager SignInManager { get; }
-        ILogger<ProfileController> Logger { get; }
-        IEmailSender EmailSender { get; }
 
-        public ProfileController(
-            IUserManager um,
-            SignInManager sim,
-            ILogger<ProfileController> logger,
-            IEmailSender emailSender)
+        public ProfileController(IUserManager um)
         {
             UserManager = um;
-            SignInManager = sim;
-            Logger = logger;
-            EmailSender = emailSender;
         }
 
         private IActionResult ViewWithError(IdentityResult result, object model)
@@ -112,7 +102,10 @@ namespace SatelliteSite.IdentityModule.Controllers
 
         [HttpPost("{username}/[action]")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword(string username, ChangePasswordModel model)
+        public async Task<IActionResult> ChangePassword(
+            [FromRoute] string username,
+            ChangePasswordModel model,
+            [FromServices] ISignInManager signInManager)
         {
             if (!ModelState.IsValid) return View(model);
 
@@ -125,8 +118,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             if (!changePasswordResult.Succeeded)
                 return ViewWithError(changePasswordResult, model);
             
-            await SignInManager.SignInAsync(user, isPersistent: false);
-            Logger.LogInformation("User changed their password successfully.");
+            await signInManager.SignInAsync(user, isPersistent: false);
             StatusMessage = "Your password has been changed.";
 
             return RedirectToAction(nameof(ChangePassword));
@@ -150,7 +142,10 @@ namespace SatelliteSite.IdentityModule.Controllers
 
         [HttpPost("{username}/[action]")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SetPassword(string username, SetPasswordModel model)
+        public async Task<IActionResult> SetPassword(
+            [FromRoute] string username,
+            SetPasswordModel model,
+            [FromServices] ISignInManager signInManager)
         {
             if (!ModelState.IsValid) return View(model);
 
@@ -163,7 +158,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             if (!addPasswordResult.Succeeded)
                 return ViewWithError(addPasswordResult, model);
 
-            await SignInManager.SignInAsync(user, isPersistent: false);
+            await signInManager.SignInAsync(user, isPersistent: false);
             StatusMessage = "Your password has been set.";
             return RedirectToAction(nameof(SetPassword));
         }
@@ -171,7 +166,11 @@ namespace SatelliteSite.IdentityModule.Controllers
 
         [HttpPost("{username}/[action]")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SendVerificationEmail(string username, IndexViewModel model)
+        public async Task<IActionResult> SendVerificationEmail(
+            [FromRoute] string username,
+            IndexViewModel model,
+            [FromServices] IEmailSender emailSender,
+            [FromServices] ILogger<IEmailSender> logger)
         {
             if (!ModelState.IsValid) return View(model);
 
@@ -188,13 +187,13 @@ namespace SatelliteSite.IdentityModule.Controllers
 
             try
             {
-                await EmailSender.SendEmailConfirmationAsync(user.Email, callbackUrl);
+                await emailSender.SendEmailConfirmationAsync(user.Email, callbackUrl);
                 StatusMessage = "Verification email sent. Please check your email.";
             }
             catch (Exception ex)
             {
                 StatusMessage = "Error sending mails: " + ex.Message;
-                Logger.LogError(ex, "Mail sending failed.");
+                logger.LogError(ex, "Mail sending failed.");
             }
 
             return RedirectToAction(nameof(Edit));
@@ -203,7 +202,10 @@ namespace SatelliteSite.IdentityModule.Controllers
 
         [HttpPost("{username}/[action]")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string username, IndexViewModel model)
+        public async Task<IActionResult> Edit(
+            [FromRoute] string username,
+            IndexViewModel model,
+            [FromServices] ISignInManager signInManager)
         {
             if (!ModelState.IsValid) return View(model);
 
@@ -235,7 +237,7 @@ namespace SatelliteSite.IdentityModule.Controllers
                 user.SubscribeNews = model.SubscribeNews;
 
                 await UserManager.UpdateAsync(user);
-                await SignInManager.RefreshSignInAsync(user);
+                await signInManager.RefreshSignInAsync(user);
                 StatusMessage = "Your profile has been updated";
             }
             catch (ApplicationException ex)

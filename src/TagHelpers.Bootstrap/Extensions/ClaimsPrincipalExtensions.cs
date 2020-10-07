@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
@@ -71,20 +69,6 @@ namespace Microsoft.AspNetCore.Mvc
         {
             return principal?.Identities != null &&
                 principal.Identities.Any(i => i.AuthenticationType == IdentityConstants.ApplicationScheme);
-        }
-
-        /// <summary>
-        /// Make the cookie configuration after <see cref="AuthenticationBuilder"/>.
-        /// </summary>
-        /// <param name="builder">The builder</param>
-        /// <param name="configure">The configuration function</param>
-        /// <returns>The original builder</returns>
-        public static AuthenticationBuilder SetCookie(
-            this AuthenticationBuilder builder,
-            Action<CookieAuthenticationOptions> configure)
-        {
-            builder.Services.ConfigureApplicationCookie(configure);
-            return builder;
         }
 
         /// <summary>

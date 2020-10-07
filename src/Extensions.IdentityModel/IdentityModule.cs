@@ -1,18 +1,20 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using SatelliteSite.Entities;
 using SatelliteSite.IdentityModule.Services;
 using System;
 
 namespace SatelliteSite.IdentityModule
 {
-    public class IdentityModule<TContext> : AbstractModule
-        where TContext : Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityDbContext<User, Role, int>
+    public class IdentityModule<TUser, TRole, TContext> : AbstractModule
+        where TUser : Entities.User, new()
+        where TRole : Entities.Role, new()
+        where TContext : IdentityDbContext<TUser, TRole, int>
     {
         public override string Area => "Account";
 
@@ -22,7 +24,7 @@ namespace SatelliteSite.IdentityModule
 
         public override void RegisterServices(IServiceCollection services, IConfiguration configuration)
         {
-            services.AddIdentity<User, Role>(
+            services.AddIdentity<TUser, TRole>(
                 options =>
                 {
                     options.Password.RequireDigit = false;
@@ -43,14 +45,16 @@ namespace SatelliteSite.IdentityModule
                     options.SignIn.RequireConfirmedPhoneNumber = false;
                 })
                 .AddEntityFrameworkStores<TContext>()
-                .AddUserManager<UserManager>()
-                .AddSignInManager<SignInManager>()
+                .AddUserManager<UserManager<TUser, TRole>>()
+                .AddSignInManager<SignInManager2<TUser>>()
                 .AddDefaultTokenProviders();
 
-            services.Replace(ServiceDescriptor.Scoped<IUserClaimsPrincipalFactory<User>, Services.UserClaimsPrincipalFactory<TContext>>());
+            services.ReplaceScoped<
+                IUserClaimsPrincipalFactory<TUser>,
+                UserClaimsPrincipalFactory<TUser, TRole, TContext>>();
 
             services.AddAuthentication()
-                .SetCookie(options =>
+                .AddCookie(IdentityConstants.ApplicationScheme, options =>
                 {
                     options.Cookie.HttpOnly = true;
                     options.ExpireTimeSpan = TimeSpan.FromDays(30);
@@ -79,7 +83,7 @@ namespace SatelliteSite.IdentityModule
             services.AddOptions<AuthMessageSenderOptions>()
                 .Bind(configuration.GetSection("Mailing"));
 
-            services.AddDbModelSupplier<TContext, IdentityEntityConfiguration<TContext>>();
+            services.AddDbModelSupplier<TContext, IdentityEntityConfiguration<TUser, TRole, TContext>>();
         }
 
         public override void RegisterEndpoints(IEndpointBuilder endpoints)

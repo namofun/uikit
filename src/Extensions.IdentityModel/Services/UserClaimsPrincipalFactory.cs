@@ -2,21 +2,22 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using SatelliteSite.Entities;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace SatelliteSite.IdentityModule.Services
 {
-    public class UserClaimsPrincipalFactory<TContext> :
-        Microsoft.AspNetCore.Identity.UserClaimsPrincipalFactory<User>
-        where TContext : IdentityDbContext<User, Role, int>
+    public class UserClaimsPrincipalFactory<TUser, TRole, TContext> :
+        UserClaimsPrincipalFactory<TUser>
+        where TUser : Entities.User, new()
+        where TRole : Entities.Role, new()
+        where TContext : IdentityDbContext<TUser, TRole, int>
     {
-        public IdentityDbContext<User, Role, int> Identity { get; }
+        public IdentityDbContext<TUser, TRole, int> Identity { get; }
 
         public UserClaimsPrincipalFactory(
-            UserManager<User> userManager,
+            UserManager<TUser> userManager,
             TContext identityDbContext,
             IOptions<IdentityOptions> options) :
             base(userManager, options)
@@ -24,7 +25,7 @@ namespace SatelliteSite.IdentityModule.Services
             Identity = identityDbContext;
         }
 
-        protected override async Task<ClaimsIdentity> GenerateClaimsAsync(User user)
+        protected override async Task<ClaimsIdentity> GenerateClaimsAsync(TUser user)
         {
             var content = await base.GenerateClaimsAsync(user);
 

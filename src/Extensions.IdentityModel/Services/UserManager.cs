@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SatelliteSite.IdentityModule.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,8 +14,8 @@ namespace SatelliteSite.IdentityModule.Services
     /// <inheritdoc cref="UserManagerBase{TUser,TRole}" />
     public class UserManager<TUser, TRole> :
         UserManagerBase<TUser, TRole>
-        where TUser : User
-        where TRole : Role
+        where TUser : Entities.User, new()
+        where TRole : Entities.Role, new()
     {
         /// <summary>
         /// Construct a new instance of <see cref="UserManager{TUser,TRole}"/>.
