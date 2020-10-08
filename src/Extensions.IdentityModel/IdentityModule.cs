@@ -53,8 +53,8 @@ namespace SatelliteSite.IdentityModule
                 IUserClaimsPrincipalFactory<TUser>,
                 UserClaimsPrincipalFactory<TUser, TRole, TContext>>();
 
-            services.AddAuthentication()
-                .AddCookie(IdentityConstants.ApplicationScheme, options =>
+            services.ConfigureApplicationCookie(
+                options =>
                 {
                     options.Cookie.HttpOnly = true;
                     options.ExpireTimeSpan = TimeSpan.FromDays(30);
@@ -63,7 +63,9 @@ namespace SatelliteSite.IdentityModule
                     options.AccessDeniedPath = "/account/access-denied";
                     options.SlidingExpiration = true;
                     options.Events = new CookieAuthenticationValidator();
-                })
+                });
+
+            services.AddAuthentication()
                 .AddBasic(options =>
                 {
                     options.Realm = "Satellite Site";
@@ -77,6 +79,9 @@ namespace SatelliteSite.IdentityModule
                     options.AddPolicy("EmailVerified", b => b.RequireClaim("email_verified", "true"));
                     options.AddPolicy("HasDashboard", b => b.RequireClaim("dashboard", "true"));
                 });
+
+            services.AddScoped<IUserManager>(s => s.GetRequiredService<UserManager<TUser, TRole>>());
+            services.AddScoped<ISignInManager>(s => s.GetRequiredService<SignInManager2<TUser>>());
 
             services.AddSingleton<IEmailSender, SmtpSender>();
             
@@ -97,7 +102,8 @@ namespace SatelliteSite.IdentityModule
             {
                 menu.HasEntry(500)
                     .HasLink("Dashboard", "Users", "List")
-                    .HasTitle("fas fa-user", "Users")
+                    .HasTitle("fas fa-address-card", "Users")
+                    .ActiveWhenController("Users")
                     .RequireRoles("Administrator");
             });
 
