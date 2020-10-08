@@ -1,12 +1,8 @@
 ﻿using idunno.Authentication.Basic;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using SatelliteSite.Entities;
 using System;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -27,19 +23,17 @@ namespace SatelliteSite.IdentityModule.Services
 
         private static async Task ValidateAsync(ValidateCredentialsContext context)
         {
-            var dbContext = context.HttpContext.RequestServices
-                .GetRequiredService<IUserStore<User>>();
-            if (!(dbContext is IQueryableUserStore<User> uqstore) || !(dbContext is IUserRoleStore<User> urstore))
-                throw new InvalidOperationException("Using BasicAuthenticationValidator against invalid store.");
-
-            var normusername = context.Username.ToUpper();
-
-            var user = await _cache.GetOrCreateAsync("`" + normusername.ToLower(), async entry =>
+            if (string.IsNullOrWhiteSpace(context.Username))
             {
-                var value = await uqstore.Users
-                    .Where(u => u.NormalizedUserName == normusername)
-                    .Select(u => new { u.Id, u.UserName, u.PasswordHash, u.SecurityStamp })
-                    .FirstOrDefaultAsync();
+                context.Fail("User not found.");
+                return;
+            }
+
+            var userManager = context.HttpContext.RequestServices.GetRequiredService<IUserManager>();
+            var normusername = userManager.NormalizeName(context.Username);
+            var user = await _cache.GetOrCreateAsync("`" + normusername, async entry =>
+            {
+                var value = await userManager.FindByNameAsync(context.Username);
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
                 return value;
             });
@@ -50,14 +44,7 @@ namespace SatelliteSite.IdentityModule.Services
                 return;
             }
 
-            var passwordHasher = context.HttpContext.RequestServices
-                .GetRequiredService<IPasswordHasher<User>>();
-
-            var attempt = passwordHasher.VerifyHashedPassword(
-                user: default, // assert that hasher don't need TUser
-                hashedPassword: user.PasswordHash,
-                providedPassword: context.Password);
-
+            var attempt = userManager.VerifyPassword(user, context.Password);
             if (attempt == PasswordVerificationResult.Failed)
             {
                 context.Fail("Login failed, password not match.");
@@ -66,14 +53,10 @@ namespace SatelliteSite.IdentityModule.Services
 
             var principal = await _cache.GetOrCreateAsync(normusername, async entry =>
             {
-                // Assert the UserStore implemention doesn't use other properties
-                var ur = await urstore.GetRolesAsync(new User { Id = user.Id }, default);
+                var ur = await userManager.GetRolesAsync(user);
+                var options = userManager.Options;
 
-                var options = context.HttpContext.RequestServices
-                    .GetRequiredService<IOptions<IdentityOptions>>().Value;
-
-                // REVIEW: Used to match Application scheme
-                var id = new ClaimsIdentity("Identity.Application",
+                var id = new ClaimsIdentity(IdentityConstants.ApplicationScheme,
                     options.ClaimsIdentity.UserNameClaimType,
                     options.ClaimsIdentity.RoleClaimType);
                 id.AddClaim(new Claim(options.ClaimsIdentity.UserIdClaimType, $"{user.Id}"));

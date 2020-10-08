@@ -32,7 +32,12 @@ namespace SatelliteSite.IdentityModule.Services
         /// Gets or sets the user name for this user.
         /// </summary>
         string UserName { get; set; }
-        
+
+        /// <summary>
+        /// A random value that must change whenever a users credentials change (password changed, login removed)
+        /// </summary>
+        string SecurityStamp { get; }
+
         /// <summary>
         /// Gets the primary key for this user.
         /// </summary>

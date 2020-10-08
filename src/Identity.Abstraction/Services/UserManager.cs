@@ -9,7 +9,7 @@ namespace SatelliteSite.IdentityModule.Services
     /// <summary>
     /// Provides the APIs for managing user in a persistence store.
     /// </summary>
-    public partial interface IUserManager
+    public interface IUserManager
     {
         /// <summary>
         /// Creates the specified user in the backing store with no password, as an asynchronous operation.
@@ -67,6 +67,33 @@ namespace SatelliteSite.IdentityModule.Services
         /// <param name="username">The username.</param>
         /// <returns>A brand new <see cref="IUser"/>.</returns>
         IUser CreateEmpty(string username);
+
+        /// <summary>
+        /// Normalize email for consistent comparisons.
+        /// </summary>
+        /// <param name="email">The email to normalize.</param>
+        /// <returns>A normalized value representing the specified email.</returns>
+        string NormalizeEmail(string email);
+
+        /// <summary>
+        /// Normalize user or role name for consistent comparisons.
+        /// </summary>
+        /// <param name="name">The name to normalize.</param>
+        /// <returns>A normalized value representing the specified name.</returns>
+        string NormalizeName(string name);
+
+        /// <summary>
+        /// The <see cref="IdentityOptions"/> used to configure Identity.
+        /// </summary>
+        IdentityOptions Options { get; }
+
+        /// <summary>
+        /// Returns a <see cref="PasswordVerificationResult"/> indicating the result of a password hash comparison.
+        /// </summary>
+        /// <param name="user">The user whose password should be verified.</param>
+        /// <param name="providedPassword">The password supplied for comparison.</param>
+        /// <returns>A <see cref="PasswordVerificationResult"/> indicating the result of a password hash comparison.</returns>
+        PasswordVerificationResult VerifyPassword(IUser user, string providedPassword);
 
         #region Email
 

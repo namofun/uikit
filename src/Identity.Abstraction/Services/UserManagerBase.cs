@@ -183,6 +183,12 @@ namespace SatelliteSite.IdentityModule.Services
             return int.Parse(result);
         }
 
+        PasswordVerificationResult IUserManager.VerifyPassword(IUser user, string providedPassword)
+        {
+            TUser userEntity = (TUser)user;
+            return PasswordHasher.VerifyHashedPassword(userEntity, userEntity.PasswordHash, providedPassword);
+        }
+
         IUser IUserManager.CreateEmpty(string username) => new TUser() { UserName = username };
         #endregion
     }
