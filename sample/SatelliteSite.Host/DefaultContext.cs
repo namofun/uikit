@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using SatelliteSite.Entities;
+using SatelliteSite.IdentityModule.Entities;
 
 namespace SatelliteSite
 {
