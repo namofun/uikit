@@ -14,6 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ahead", "ahead", "{9B64D1B5
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{962F1EFF-AAFA-4BD8-8793-EF1736E568B7}"
 	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
 		build\Microsoft.AspNetCore.Hosting.GitVersions.props = build\Microsoft.AspNetCore.Hosting.GitVersions.props
 		build\NugetPackage.props = build\NugetPackage.props
 		build\SatelliteSite.Abstraction.props = build\SatelliteSite.Abstraction.props
@@ -33,7 +34,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Abstraction",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.DataAccess", "src\DataAccess.Abstraction\SatelliteSite.DataAccess.csproj", "{228E6DC1-15DB-4290-9979-D141FDC5D38B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SatelliteSite.IdentityCore", "src\Identity.Abstraction\SatelliteSite.IdentityCore.csproj", "{B43A591E-98F8-4045-A524-48685C7E0673}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.IdentityCore", "src\Identity.Abstraction\SatelliteSite.IdentityCore.csproj", "{B43A591E-98F8-4045-A524-48685C7E0673}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
