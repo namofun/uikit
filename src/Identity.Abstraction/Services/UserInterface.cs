@@ -29,6 +29,18 @@ namespace SatelliteSite.IdentityModule.Services
         bool HasUserName(string username);
 
         /// <summary>
+        /// Checks whether the user has a password.
+        /// </summary>
+        /// <returns>Whether the user has a password.</returns>
+        bool HasPassword();
+
+        /// <summary>
+        /// Gets or sets a flag indicating if a user has confirmed their email address.
+        /// </summary>
+        /// <value>True if the email address has been confirmed, otherwise false.</value>
+        bool EmailConfirmed { get; set; }
+
+        /// <summary>
         /// Gets or sets the user name for this user.
         /// </summary>
         string UserName { get; set; }

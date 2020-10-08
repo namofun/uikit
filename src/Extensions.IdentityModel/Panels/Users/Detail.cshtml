@@ -1,8 +1,8 @@
-﻿@model User
+﻿@model IUser
 @inject IMenuProvider Menu
 @{
     ViewData["Title"] = "User u" + Model.Id;
-    IEnumerable<Role> roles = ViewBag.Roles;
+    IEnumerable<IRole> roles = ViewBag.Roles;
 }
 
 <h2 class="mt-2">@ViewData["Title"]</h2>
@@ -14,7 +14,7 @@
             <tr><th>Login</th><td class="text-monospace text-small">@Model.UserName</td></tr>
             <tr><th>Nick name</th><td>@Model.NickName</td></tr>
             <tr><th>Email @(Model.EmailConfirmed ? "" : "?")</th><td>@Model.Email</td></tr>
-            <tr><th>Password</th><td>@(Model.PasswordHash == null ? "Not set" : "Set")</td></tr>
+            <tr><th>Password</th><td>@(Model.HasPassword() ? "Set" : "Not set")</td></tr>
             <tr><th>Register date</th><td>@Html.CstTime(Model.RegisterTime)</td></tr>
             <tr><th>Plan</th><td>@Model.Plan</td></tr>
         </table>

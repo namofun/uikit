@@ -32,6 +32,12 @@ namespace SatelliteSite.IdentityModule.Entities
         public virtual bool SubscribeNews { get; set; } = true;
 
         /// <inheritdoc />
+        public bool HasPassword()
+        {
+            return PasswordHash != null;
+        }
+
+        /// <inheritdoc />
         public bool HasUserName(string username)
         {
             return NormalizedUserName == username.ToUpper();

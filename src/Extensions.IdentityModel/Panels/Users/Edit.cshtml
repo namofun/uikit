@@ -1,7 +1,7 @@
 ﻿@model UserEditModel
 @{
     ViewData["Title"] = "Edit user u" + Model.UserId;
-    Dictionary<int, Role> roles = ViewBag.Roles;
+    IReadOnlyDictionary<int, IRole> roles = ViewBag.Roles;
 }
 
 <h2 class="mt-2">@ViewData["Title"]</h2>

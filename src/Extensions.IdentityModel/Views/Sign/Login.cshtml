@@ -1,11 +1,8 @@
-﻿@using Microsoft.AspNetCore.Identity
-@model LoginModel
-@inject SignInManager<User> SignInManager
+﻿@model LoginModel
 
 @{
     ViewData["Title"] = "Sign In";
     Layout = "_WindowLayout";
-    //var loginProviders = await SignInManager.GetExternalAuthenticationSchemesAsync();
 }
 
 <div asp-validation-summary="All" class="text-danger"></div>

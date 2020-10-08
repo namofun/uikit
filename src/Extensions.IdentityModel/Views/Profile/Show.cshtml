@@ -1,7 +1,7 @@
 ﻿@inject IMenuProvider Menu
 @{
     ViewData["Title"] = "View User";
-    User user = ViewBag.User;
+    IUser user = ViewBag.User;
 }
 
 @await Menu.Extend(SatelliteSite.IdentityModule.ExtensionPointDefaults.UserDetail).RenderAsync(Component)
