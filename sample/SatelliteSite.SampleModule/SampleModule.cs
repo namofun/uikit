@@ -2,8 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using SatelliteSite;
 using SatelliteSite.SampleModule.Services;
 using System.Threading.Tasks;
+
+[assembly: ConfigurationInteger(1, "Weather", "random_count", 5, "The count of random weather items.")]
+[assembly: ConfigurationString(2, "Weather", "default_name", "Hello", "The name of default.")]
 
 namespace SatelliteSite.SampleModule
 {
