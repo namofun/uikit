@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
@@ -8,10 +9,11 @@ using Microsoft.Extensions.DependencyInjection;
 using SatelliteSite.Entities;
 using SatelliteSite.IdentityModule.Services;
 using System;
+using System.Linq;
 
 namespace SatelliteSite.IdentityModule
 {
-    public class IdentityModule<TUser, TRole, TContext> : AbstractModule
+    public class IdentityModule<TUser, TRole, TContext> : AbstractModule, IAuthorizationPolicyRegistry
         where TUser : Entities.User, new()
         where TRole : Entities.Role, new()
         where TContext : IdentityDbContext<TUser, TRole, int>
@@ -76,8 +78,10 @@ namespace SatelliteSite.IdentityModule
             services.AddAuthorization(
                 options =>
                 {
-                    options.AddPolicy("EmailVerified", b => b.RequireClaim("email_verified", "true"));
-                    options.AddPolicy("HasDashboard", b => b.RequireClaim("dashboard", "true"));
+                    var policyContainer = new AuthorizationPolicyContainer();
+                    Startup.Modules.OfType<IAuthorizationPolicyRegistry>().ToList()
+                        .ForEach(r => r.RegisterPolicies(policyContainer));
+                    policyContainer.Apply(options);
                 });
 
             services.AddScoped<IUserManager>(s => s.GetRequiredService<UserManager<TUser, TRole>>());
@@ -118,6 +122,12 @@ namespace SatelliteSite.IdentityModule
             menus.Component(ExtensionPointDefaults.UserDetail);
 
             menus.Component(ExtensionPointDefaults.DashboardUserDetail);
+        }
+
+        public void RegisterPolicies(IAuthorizationPolicyContainer container)
+        {
+            container.AddPolicy("EmailVerified", b => b.RequireClaim("email_verified", "true"));
+            container.AddPolicy2("HasDashboard", b => b.AcceptRole("Administrator"));
         }
     }
 }
