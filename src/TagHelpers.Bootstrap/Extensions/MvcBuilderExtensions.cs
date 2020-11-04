@@ -61,7 +61,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="modules">The list of <see cref="AbstractModule"/>.</param>
         /// <param name="isDevelopment">Whether the current environment is development.</param>
         /// <returns>The <see cref="IMvcBuilder"/> to chain the conventions.</returns>
-        public static IMvcBuilder AddOnboardingModules(this IMvcBuilder builder, ICollection<AbstractModule> modules, bool isDevelopment)
+        public static IMvcBuilder AddOnboardingModules(this IMvcBuilder builder, IReadOnlyCollection<AbstractModule> modules, bool isDevelopment)
         {
             var lst = new List<ApplicationPart>();
             PeerFileProvider? tree = null;

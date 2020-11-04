@@ -27,7 +27,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <returns>The <see cref="IHostBuilder"/></returns>
         public static IHostBuilder AddModule<TModule>(this IHostBuilder builder) where TModule : AbstractModule, new()
         {
-            Startup.Modules.Add(new TModule());
+            ((List<AbstractModule>)Startup.Modules).Add(new TModule());
             return builder;
         }
 
@@ -107,7 +107,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="builder">The route builder</param>
         /// <param name="modules">The endpoint configuration list</param>
         /// <returns>The route builder</returns>
-        internal static void MapModules(this IEndpointRouteBuilder builder, ICollection<AbstractModule> modules)
+        internal static void MapModules(this IEndpointRouteBuilder builder, IReadOnlyCollection<AbstractModule> modules)
         {
             foreach (var module in modules)
             {

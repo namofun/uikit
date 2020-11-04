@@ -24,7 +24,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// The modules to configure
         /// </summary>
-        internal static ICollection<AbstractModule> Modules { get; } = new List<AbstractModule>();
+        public static IReadOnlyCollection<AbstractModule> Modules { get; } = new List<AbstractModule>();
 
         /// <summary>
         /// Create an instance of <see cref="Startup"/>
