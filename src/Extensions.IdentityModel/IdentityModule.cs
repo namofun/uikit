@@ -6,10 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SatelliteSite;
 using SatelliteSite.Entities;
 using SatelliteSite.IdentityModule.Services;
 using System;
 using System.Linq;
+
+[assembly: RoleDefinition(1, "Administrator", "admin", "Administrative User")]
+[assembly: RoleDefinition(2, "Blocked", "blocked", "Blocked User")]
 
 namespace SatelliteSite.IdentityModule
 {
