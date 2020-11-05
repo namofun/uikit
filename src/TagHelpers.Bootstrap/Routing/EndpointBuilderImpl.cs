@@ -90,7 +90,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
         public static DefaultEndpointBuilder<TModule> FactoryInternal<TModule>(TModule module, IEndpointRouteBuilder builder) where TModule : AbstractModule
         {
-            return new DefaultEndpointBuilder<TModule>(builder, module.Area);
+            return new DefaultEndpointBuilder<TModule>(builder, module.Area, module.Conventions);
         }
 
         private void Initialize()
@@ -170,12 +170,15 @@ namespace Microsoft.AspNetCore.Mvc.Routing
     {
         public IEndpointRouteBuilder Builder { get; }
 
+        public Action<IEndpointConventionBuilder> DefaultConvention { get; }
+
         public string AreaName { get; }
 
-        public DefaultEndpointBuilder(IEndpointRouteBuilder builder, string areaName)
+        public DefaultEndpointBuilder(IEndpointRouteBuilder builder, string areaName, Action<IEndpointConventionBuilder> convention)
         {
             AreaName = areaName;
             Builder = builder;
+            DefaultConvention = convention;
         }
 
         private T GetRequiredService<T>()
@@ -234,12 +237,13 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
                 return invoker.InvokeAsync();
             })
-            .WithDisplayName(_ => $"Swagger Document ({name})");
+            .WithDisplayName(_ => $"Swagger Document ({name})")
+            .WithDefaults(DefaultConvention);
         }
 
         public ControllerActionEndpointConventionBuilder MapControllers()
         {
-            return GetOrCreateDataSource().ConventionBuilder;
+            return GetOrCreateDataSource().ConventionBuilder.WithDefaults(DefaultConvention);
         }
 
         public IErrorHandlerBuilder WithErrorHandler(string area, string controller, string action)
@@ -251,27 +255,27 @@ namespace Microsoft.AspNetCore.Mvc.Routing
                 .Where(s => s.ActionName.Equals(action, StringComparison.OrdinalIgnoreCase))
                 .Where(s => s.RouteValues.TryGetValue("area", out var AreaName) && AreaName.Equals(area, StringComparison.OrdinalIgnoreCase))
                 .Single();
-            return new DefaultErrorHandlerBuilder(ad, Builder);
+            return new DefaultErrorHandlerBuilder(ad, Builder, DefaultConvention);
         }
 
         public IEndpointConventionBuilder MapFallNotFound(string pattern)
         {
-            return Builder.MapNotFound(pattern);
+            return Builder.MapNotFound(pattern).WithDefaults(DefaultConvention);
         }
 
         public IEndpointConventionBuilder MapFallback(string pattern, RequestDelegate requestDelegate)
         {
-            return Builder.MapFallback(pattern, requestDelegate);
+            return Builder.MapFallback(pattern, requestDelegate).WithDefaults(DefaultConvention);
         }
 
         public HubEndpointConventionBuilder MapHub<THub>(string pattern, Action<HttpConnectionDispatcherOptions>? configureOptions = null) where THub : Hub
         {
-            return Builder.MapHub<THub>(pattern, configureOptions ?? (options => { }));
+            return Builder.MapHub<THub>(pattern, configureOptions ?? (options => { })).WithDefaults(DefaultConvention);
         }
 
         public IEndpointConventionBuilder MapRequestDelegate(string pattern, RequestDelegate requestDelegate)
         {
-            return Builder.Map(pattern, requestDelegate);
+            return Builder.Map(pattern, requestDelegate).WithDefaults(DefaultConvention);
         }
     }
 
@@ -282,12 +286,15 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
         public ActionDescriptor ActionDescriptor { get; }
 
+        public Action<IEndpointConventionBuilder> DefaultConvention { get; }
+
         public IEndpointRouteBuilder Builder { get; }
 
-        public DefaultErrorHandlerBuilder(ActionDescriptor actionDescriptor, IEndpointRouteBuilder builder)
+        public DefaultErrorHandlerBuilder(ActionDescriptor actionDescriptor, IEndpointRouteBuilder builder, Action<IEndpointConventionBuilder> convention)
         {
             ActionDescriptor = actionDescriptor;
             Builder = builder;
+            DefaultConvention = convention;
         }
 
         public IErrorHandlerBuilder MapFallbackNotFound(string pattern)
@@ -307,7 +314,8 @@ namespace Microsoft.AspNetCore.Mvc.Routing
                     .CreateInvoker(actionContext);
 
                 return invoker.InvokeAsync();
-            });
+            })
+            .WithDefaults(DefaultConvention);
 
             return this;
         }

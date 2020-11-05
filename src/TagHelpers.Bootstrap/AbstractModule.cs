@@ -10,6 +10,11 @@ namespace Microsoft.AspNetCore.Mvc
     public abstract class AbstractModule
     {
         /// <summary>
+        /// The default convention for all endpoints.
+        /// </summary>
+        internal System.Action<IEndpointConventionBuilder> Conventions { get; set; } = _ => { };
+
+        /// <summary>
         /// The real area name
         /// </summary>
         public abstract string Area { get; }

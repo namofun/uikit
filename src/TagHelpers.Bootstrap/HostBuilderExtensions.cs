@@ -27,7 +27,19 @@ namespace Microsoft.AspNetCore.Mvc
         /// <returns>The <see cref="IHostBuilder"/></returns>
         public static IHostBuilder AddModule<TModule>(this IHostBuilder builder) where TModule : AbstractModule, new()
         {
-            ((List<AbstractModule>)Startup.Modules).Add(new TModule());
+            return AddModule<TModule>(builder, _ => { });
+        }
+
+        /// <summary>
+        /// Add a module and configure them in the next constructing pipeline.
+        /// </summary>
+        /// <typeparam name="TModule">The only <see cref="AbstractModule"/> in that Assembly</typeparam>
+        /// <param name="builder">The <see cref="IHostBuilder"/></param>
+        /// <param name="convention">The conventions for all endpoints</param>
+        /// <returns>The <see cref="IHostBuilder"/></returns>
+        public static IHostBuilder AddModule<TModule>(this IHostBuilder builder, Action<IEndpointConventionBuilder> convention) where TModule : AbstractModule, new()
+        {
+            ((List<AbstractModule>)Startup.Modules).Add(new TModule { Conventions = convention });
             return builder;
         }
 
@@ -147,6 +159,18 @@ namespace Microsoft.AspNetCore.Mvc
         public static IEndpointConventionBuilder WithDisplayName(this IEndpointConventionBuilder builder, Func<string, string> configure)
         {
             builder.Add(b => b.DisplayName = configure.Invoke(b.DisplayName));
+            return builder;
+        }
+
+        /// <summary>
+        /// Conventions in default.
+        /// </summary>
+        /// <param name="builder">The endpoint convention builder.</param>
+        /// <param name="configure">The configure delegate.</param>
+        /// <returns>The endpoint convention builder to chain the configurations.</returns>
+        internal static TEndpointConventionBuilder WithDefaults<TEndpointConventionBuilder>(this TEndpointConventionBuilder builder, Action<IEndpointConventionBuilder> configure) where TEndpointConventionBuilder : IEndpointConventionBuilder
+        {
+            configure.Invoke(builder);
             return builder;
         }
     }
