@@ -20,6 +20,11 @@ namespace Microsoft.AspNetCore.Mvc
         public abstract void Initialize();
 
         /// <summary>
+        /// Whether the module gives Identity support
+        /// </summary>
+        public virtual bool ProvideIdentity => false;
+
+        /// <summary>
         /// Register the endpoints with some more configurations.
         /// </summary>
         /// <param name="endpoints">The endpoint route builder</param>

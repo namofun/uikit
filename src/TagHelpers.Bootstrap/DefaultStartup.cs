@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -86,16 +85,6 @@ namespace Microsoft.AspNetCore.Mvc
             if (assemblies.Length > 0)
                 services.AddMediatR(assemblies);
 
-            /*
-            if (Configuration["IdentityServer:Enabled"] == "True")
-                services.AddIdentityServer()
-                    .AddAspNetIdentity<User>()
-                    .AddInMemoryClients(Configuration.GetSection("IdentityServer:Clients"))
-                    .AddInMemoryIdentityResources(Configuration.GetSection("IdentityServer:Scopes"))
-                    .AddInMemoryApiResources(Configuration.GetSection("IdentityServer:Apis"))
-                    .AddDeveloperSigningCredential();
-            */
-
             services.AddSingleton(
                 HtmlEncoder.Create(
                     UnicodeRanges.BasicLatin,
@@ -129,24 +118,11 @@ namespace Microsoft.AspNetCore.Mvc
             {
                 app.UseDeveloperExceptionPage();
                 app.UseMiddleware<AjaxExceptionMiddleware>();
-                //app.UseDatabaseErrorPage();
-                app.UseStatusCodePage();
-            }
-            else if (Environment.EnvironmentName == "Test")
-            {
-                app.UseForwardedHeaders(new ForwardedHeadersOptions
-                {
-                    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-                });
-
-                app.UseDeveloperExceptionPage();
-                app.UseMiddleware<AjaxExceptionMiddleware>();
-                //app.UseDatabaseErrorPage();
+                app.UseDatabaseErrorPage();
                 app.UseStatusCodePage();
             }
             else
             {
-                //app.UseMiddleware<RealIpMiddleware>();
                 app.UseHttpsRedirection();
                 app.UseExceptionHandler("/error");
                 app.UseStatusCodePage();
@@ -158,12 +134,11 @@ namespace Microsoft.AspNetCore.Mvc
             app.UseCookiePolicy();
             app.UseSession();
 
-            //if (Configuration["IdentityServer:Enabled"] == "True")
-            //    app.UseIdentityServer();
-
             app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
+
+            if (Modules.Any(m => m.ProvideIdentity))
+                app.UseAuthentication()
+                   .UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

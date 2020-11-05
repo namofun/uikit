@@ -24,6 +24,8 @@ namespace SatelliteSite.IdentityModule
     {
         public override string Area => "Account";
 
+        public override bool ProvideIdentity => true;
+
         public override void Initialize()
         {
         }
@@ -132,6 +134,7 @@ namespace SatelliteSite.IdentityModule
         {
             container.AddPolicy("EmailVerified", b => b.RequireClaim("email_verified", "true"));
             container.AddPolicy2("HasDashboard", b => b.AcceptRole("Administrator"));
+            container.AddPolicy2("ReadConfiguration", b => b.AcceptRole("Administrator"));
         }
     }
 }

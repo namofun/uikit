@@ -17,7 +17,7 @@ namespace SatelliteSite.Substrate.Apis
         /// <param name="configs"></param>
         /// <response code="200">The configuration variables</response>
         [HttpGet]
-        [Authorize(Roles = "Judgehost,Administrator")]
+        [Authorize("ReadConfiguration")]
         public async Task<IActionResult> Config(string? name,
             [FromServices] IConfigurationRegistry configs)
         {
