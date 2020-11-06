@@ -135,12 +135,17 @@ namespace Microsoft.AspNetCore.Mvc
             app.UseSession();
 
             app.UseRouting();
+            app.UseCors();
 
             if (Modules.Any(m => m.ProvideIdentity))
-                app.UseAuthentication()
-                   .UseAuthorization();
+            {
+                app.UseAuthentication();
+                app.UseAuthorization();
+            }
             else if (Environment.IsDevelopment())
+            {
                 app.UseFakeAuthorization();
+            }
 
             app.UseEndpoints(endpoints =>
             {
