@@ -43,7 +43,7 @@ namespace SatelliteSite
         public string GenerateDefaultConcurrencyStamp()
         {
             var guidValue = new byte[16];
-            int seedBase = Name.GetHashCode() ^ ShortName.GetHashCode() ^ Description.GetHashCode() ^ Id;
+            int seedBase = GetMyHashCode(Name) ^ GetMyHashCode(ShortName) ^ GetMyHashCode(Description) ^ Id;
 
             ulong k1 = (ulong)seedBase * (ulong)seedBase;
             ulong k2 = k1 ^ (k1 << 23);
@@ -53,6 +53,14 @@ namespace SatelliteSite
             for (int i = 0; i < 8; i++) guidValue[i + 8] = (byte)((k3 >> (i << 3)) & 255);
 
             return new Guid(guidValue).ToString("D");
+
+            static int GetMyHashCode(string content)
+            {
+                int result = 0;
+                for (int i = 0; i < content.Length; i++)
+                    result = result * 61357 + content[i];
+                return result;
+            }
         }
 
         /// <summary>
