@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using SatelliteSite.Entities;
 using SatelliteSite.Services;
 using System;
@@ -19,6 +20,26 @@ namespace Microsoft.AspNetCore.Mvc
     /// </summary>
     public static class HostBuilderModulingExtensions
     {
+        /// <summary>
+        /// Adds a fake middleware to the specified <see cref="IApplicationBuilder"/>,
+        /// which adds <c>__AuthorizationMiddlewareWithEndpointInvoked</c> to items so that
+        /// <see cref="EndpointMiddleware"/> do not throw an exception.
+        /// </summary>
+        /// <param name="app">The <see cref="IApplicationBuilder"/> to add the middleware to.</param>
+        /// <returns>A reference to this instance after the operation has completed.</returns>
+        public static IApplicationBuilder UseFakeAuthorization(this IApplicationBuilder app)
+        {
+            app.ApplicationServices
+                .GetRequiredService<ILogger<Startup>>()
+                .LogWarning("No modules providing identity feature. Fake authorization will be used.");
+
+            return app.Use((httpContext, next) =>
+            {
+                httpContext.Items["__AuthorizationMiddlewareWithEndpointInvoked"] = true;
+                return next();
+            });
+        }
+
         /// <summary>
         /// Add a module and configure them in the next constructing pipeline.
         /// </summary>

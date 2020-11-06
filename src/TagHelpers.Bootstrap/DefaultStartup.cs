@@ -139,6 +139,8 @@ namespace Microsoft.AspNetCore.Mvc
             if (Modules.Any(m => m.ProvideIdentity))
                 app.UseAuthentication()
                    .UseAuthorization();
+            else if (Environment.IsDevelopment())
+                app.UseFakeAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
