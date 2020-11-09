@@ -112,6 +112,9 @@ namespace SatelliteSite.IdentityModule.Controllers
 
             if (!result.Succeeded) return ErrorView(result, model);
 
+            if (user.Id == 1)
+                await UserManager.AddToRoleAsync(user, "Administrator");
+
             var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
             var callbackUrl = Url.Action(
                 action: "ConfirmEmail",
@@ -119,9 +122,6 @@ namespace SatelliteSite.IdentityModule.Controllers
                 values: new { userId = $"{user.Id}", code, area = "Account" },
                 protocol: Request.Scheme);
             await emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
-
-            if (user.Id == 1)
-                await UserManager.AddToRoleAsync(user, "Administrator");
 
             await signInManager.SignInAsync(user, isPersistent: false);
             return RedirectToLocal(returnUrl);
