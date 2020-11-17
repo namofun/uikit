@@ -7,6 +7,7 @@ This is a project for ASP.NET Core module design standard,  designed as Satellit
 - [SatelliteSite.Abstraction](https://nuget.xylab.fun/packages/SatelliteSite.Abstraction): Commonly used classes and extension methods
 - [SatelliteSite.DataAccess](https://nuget.xylab.fun/packages/SatelliteSite.DataAccess): Several abstractions for Entity Framework Core
 - [SatelliteSite.Substrate](https://nuget.xylab.fun/packages/SatelliteSite.Substrate): ASP.NET Core Library with modern module design
+- [SatelliteSite.IdentityCore](https://nuget.xylab.fun/packages/SatelliteSite.IdentityCore): Identity abstractions based on Microsoft.Extensions.Identity.Store
 - [SatelliteSite.IdentityModule](https://nuget.xylab.fun/packages/SatelliteSite.IdentityModule): Default User Identity Module based on IdentityEFCore
 
 ## UI components
