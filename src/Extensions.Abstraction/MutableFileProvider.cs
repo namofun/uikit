@@ -53,4 +53,11 @@ namespace Microsoft.Extensions.FileProviders
         /// <returns>The task for removing files.</returns>
         Task<bool> RemoveFileAsync(string subpath);
     }
+
+    /// <summary>
+    /// The mutable file provider for wwwroot.
+    /// </summary>
+    public interface IWwwrootFileProvider : IMutableFileProvider
+    {
+    }
 }

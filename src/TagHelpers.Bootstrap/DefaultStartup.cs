@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
@@ -97,6 +98,9 @@ namespace Microsoft.AspNetCore.Mvc
                 .AddSessionStateTempDataProvider()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                 .AddOnboardingModules(Modules, Environment.IsDevelopment());
+
+            if (!string.IsNullOrWhiteSpace(Environment.WebRootPath))
+                services.AddSingleton<IWwwrootFileProvider, WwwrootFileProvider>();
 
             services.AddSingleton<ReExecuteEndpointMatcher>();
 
