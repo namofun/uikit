@@ -340,19 +340,5 @@ ASALocalRun/
 healthchecksdb
 
 # Library Manager restored components
-/src/TagHelpers.Bootstrap/wwwroot/lib/ace
-/src/TagHelpers.Bootstrap/wwwroot/lib/bootstrap
-/src/TagHelpers.Bootstrap/wwwroot/lib/d3
-/src/TagHelpers.Bootstrap/wwwroot/lib/datatables
-/src/TagHelpers.Bootstrap/wwwroot/lib/editor-md
-/src/TagHelpers.Bootstrap/wwwroot/lib/font-awesome
-/src/TagHelpers.Bootstrap/wwwroot/lib/jquery
-/src/TagHelpers.Bootstrap/wwwroot/lib/jquery-validation
-/src/TagHelpers.Bootstrap/wwwroot/lib/jquery-validation-unobtrusive
-/src/TagHelpers.Bootstrap/wwwroot/lib/jscolor
-/src/TagHelpers.Bootstrap/wwwroot/lib/katex
-/src/TagHelpers.Bootstrap/wwwroot/lib/nvd3
-/src/TagHelpers.Bootstrap/wwwroot/lib/file-saver
-/src/TagHelpers.Bootstrap/wwwroot/lib/select2
-/src/TagHelpers.Bootstrap/wwwroot/lib/qrcodejs
+/src/StaticWebAssets/wwwroot
 /sample/SatelliteSite.Host/Migrations

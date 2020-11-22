@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <DescriptionAttach>Static web assets</DescriptionAttach>
+  </PropertyGroup>
+
+  <Import Project="..\..\build\NugetPackage.props" />
+
+  <PropertyGroup>
+    <PackageVersion>1.0.3</PackageVersion>
+
+    <ResolveCurrentProjectStaticWebAssetsInputsDependsOn>
+      SetStaticWebAssetsBasePath;
+      $(ResolveCurrentProjectStaticWebAssetsInputsDependsOn)
+    </ResolveCurrentProjectStaticWebAssetsInputsDependsOn>
+  </PropertyGroup>
+
+  <Target Name="SetStaticWebAssetsBasePath">
+    <PropertyGroup>
+      <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
+    </PropertyGroup>
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.76" PrivateAssets="All" />
+    <PackageReference Include="SatelliteSite.Abstraction" Version="1.0.0-preview11" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Extensions.Abstraction\SatelliteSite.Abstraction.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="libman.json" Pack="false">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
