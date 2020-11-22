@@ -340,5 +340,21 @@ ASALocalRun/
 healthchecksdb
 
 # Library Manager restored components
-/src/StaticWebAssets/wwwroot
+/src/StaticWebAssets/wwwroot/lib/ace
+/src/StaticWebAssets/wwwroot/lib/bootstrap
+/src/StaticWebAssets/wwwroot/lib/d3
+/src/StaticWebAssets/wwwroot/lib/datatables
+/src/StaticWebAssets/wwwroot/lib/editor-md
+/src/StaticWebAssets/wwwroot/lib/font-awesome
+/src/StaticWebAssets/wwwroot/lib/jquery
+/src/StaticWebAssets/wwwroot/lib/jquery-validation
+/src/StaticWebAssets/wwwroot/lib/jquery-validation-unobtrusive
+/src/StaticWebAssets/wwwroot/lib/jscolor
+/src/StaticWebAssets/wwwroot/lib/katex
+/src/StaticWebAssets/wwwroot/lib/nvd3
+/src/StaticWebAssets/wwwroot/lib/file-saver
+/src/StaticWebAssets/wwwroot/lib/qrcodejs
+/src/StaticWebAssets/wwwroot/lib/select2/js
+/src/StaticWebAssets/wwwroot/lib/select2/css/*
+!/src/StaticWebAssets/wwwroot/lib/select2/css/select2-bootstrap.min.css
 /sample/SatelliteSite.Host/Migrations

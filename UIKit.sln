@@ -18,8 +18,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{962F1EFF
 		build\Microsoft.AspNetCore.Hosting.GitVersions.props = build\Microsoft.AspNetCore.Hosting.GitVersions.props
 		build\NugetPackage.props = build\NugetPackage.props
 		build\SatelliteSite.Abstraction.props = build\SatelliteSite.Abstraction.props
-		build\SatelliteSite.Substrate.props = build\SatelliteSite.Substrate.props
-		build\StaticWebAssetsBathPath.targets = build\StaticWebAssetsBathPath.targets
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Substrate", "src\TagHelpers.Bootstrap\SatelliteSite.Substrate.csproj", "{26576939-06BA-439B-A8B8-FF7408DB6341}"
@@ -36,7 +34,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.DataAccess", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.IdentityCore", "src\Identity.Abstraction\SatelliteSite.IdentityCore.csproj", "{B43A591E-98F8-4045-A524-48685C7E0673}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SatelliteSite.StaticWebAssets", "src\StaticWebAssets\SatelliteSite.StaticWebAssets.csproj", "{EF8A697A-28F0-4E21-A056-820CBF92EFF3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.StaticWebAssets", "src\StaticWebAssets\SatelliteSite.StaticWebAssets.csproj", "{EF8A697A-28F0-4E21-A056-820CBF92EFF3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
