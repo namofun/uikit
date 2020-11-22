@@ -16,11 +16,19 @@ namespace SatelliteSite.IdentityModule.Services
         where TUser : User, new()
         where TRole : Role, new()
     {
+        private bool _disposed = false;
+
+        /// <summary>
+        /// The store for roles
+        /// </summary>
+        protected IRoleStore<TRole> RoleStore { get; }
+
         /// <summary>
         /// Construct a new instance of <see cref="UserManagerBase{TUser,TRole}"/>.
         /// </summary>
         public UserManagerBase(
             IUserStore<TUser> store,
+            IRoleStore<TRole> roleStore,
             IOptions<IdentityOptions> optionsAccessor,
             IPasswordHasher<TUser> passwordHasher,
             IEnumerable<IUserValidator<TUser>> userValidators,
@@ -39,6 +47,7 @@ namespace SatelliteSite.IdentityModule.Services
                   services,
                   logger)
         {
+            RoleStore = roleStore;
         }
 
         /// <inheritdoc />
@@ -175,6 +184,11 @@ namespace SatelliteSite.IdentityModule.Services
         Task<IdentityResult> IUserManager.ConfirmEmailAsync(IUser user, string token) => ConfirmEmailAsync((TUser)user, token);
         Task<IdentityResult> IUserManager.SetEmailAsync(IUser user, string email) => SetEmailAsync((TUser)user, email);
         async Task<IUser> IUserManager.GetUserAsync(ClaimsPrincipal principal) => await GetUserAsync(principal);
+        Task<IdentityResult> IUserManager.CreateAsync(IRole role) => RoleStore.CreateAsync((TRole)role, CancellationToken);
+        Task<IdentityResult> IUserManager.UpdateAsync(IRole role) => RoleStore.UpdateAsync((TRole)role, CancellationToken);
+        Task<IdentityResult> IUserManager.DeleteAsync(IRole role) => RoleStore.DeleteAsync((TRole)role, CancellationToken);
+        async Task<IRole> IUserManager.FindRoleByNameAsync(string roleName) => await RoleStore.FindByNameAsync(NormalizeName(roleName), CancellationToken);
+        async Task<IRole> IUserManager.FindRoleByIdAsync(int roleId) => await RoleStore.FindByIdAsync($"{roleId}", CancellationToken);
 
         int? IUserManager.GetUserId(ClaimsPrincipal principal)
         {
@@ -190,6 +204,19 @@ namespace SatelliteSite.IdentityModule.Services
         }
 
         IUser IUserManager.CreateEmpty(string username) => new TUser() { UserName = username };
+        IRole IUserManager.CreateEmptyRole(string roleName) => new TRole { Name = roleName };
         #endregion
+
+        /// <inheritdoc />
+        public abstract Task<bool> RoleExistsAsync(string roleName);
+
+        /// <inheritdoc />
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && !_disposed)
+                RoleStore.Dispose();
+            base.Dispose(disposing);
+            _disposed = true;
+        }
     }
 }

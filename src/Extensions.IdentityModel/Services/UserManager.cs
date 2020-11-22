@@ -22,6 +22,7 @@ namespace SatelliteSite.IdentityModule.Services
         /// </summary>
         public UserManager(
             IUserStore<TUser> store,
+            IRoleStore<TRole> roleStore,
             IOptions<IdentityOptions> optionsAccessor,
             IPasswordHasher<TUser> passwordHasher,
             IEnumerable<IUserValidator<TUser>> userValidators,
@@ -31,6 +32,7 @@ namespace SatelliteSite.IdentityModule.Services
             IServiceProvider services,
             ILogger<UserManager<TUser, TRole>> logger)
             : base(store,
+                  roleStore,
                   optionsAccessor,
                   passwordHasher,
                   userValidators,
@@ -107,6 +109,14 @@ namespace SatelliteSite.IdentityModule.Services
                 .OrderBy(u => u.Id)
                 .Select(u => u.Email)
                 .ToListAsync();
+        }
+
+        /// <inheritdoc />
+        public override Task<bool> RoleExistsAsync(string roleName)
+        {
+            ThrowIfDisposed();
+            roleName = NormalizeName(roleName);
+            return Context.Roles.Where(r => r.NormalizedName == roleName).AnyAsync();
         }
     }
 }

@@ -19,11 +19,25 @@ namespace SatelliteSite.IdentityModule.Services
         Task<IdentityResult> CreateAsync(IUser user);
 
         /// <summary>
+        /// Creates the specified role in the backing store, as an asynchronous operation.
+        /// </summary>
+        /// <param name="role">The role to create.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
+        Task<IdentityResult> CreateAsync(IRole role);
+
+        /// <summary>
         /// Finds and returns a user, if any, who has the specified user name.
         /// </summary>
         /// <param name="userName">The user name to search for.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified userName if it exists.</returns>
         Task<IUser> FindByNameAsync(string userName);
+
+        /// <summary>
+        /// Finds and returns a role, if any, who has the specified role name.
+        /// </summary>
+        /// <param name="roleName">The role name to search for.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the role matching the specified roleName if it exists.</returns>
+        Task<IRole> FindRoleByNameAsync(string roleName);
 
         /// <summary>
         /// Finds and returns a user, if any, who has the specified email.
@@ -38,6 +52,13 @@ namespace SatelliteSite.IdentityModule.Services
         /// <param name="userId">The user ID to search for.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the user matching the specified userId if it exists.</returns>
         Task<IUser> FindByIdAsync(int userId);
+
+        /// <summary>
+        /// Finds and returns a role, if any, who has the specified role ID.
+        /// </summary>
+        /// <param name="roleId">The role ID to search for.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the role matching the specified roleId if it exists.</returns>
+        Task<IRole> FindRoleByIdAsync(int roleId);
 
         /// <summary>
         /// Gets the paged list of users.
@@ -62,11 +83,39 @@ namespace SatelliteSite.IdentityModule.Services
         Task<IdentityResult> DeleteAsync(IUser user);
 
         /// <summary>
+        /// Updates the specified role in the backing store.
+        /// </summary>
+        /// <param name="role">The user to update.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
+        Task<IdentityResult> UpdateAsync(IRole role);
+
+        /// <summary>
+        /// Deletes the specified role from the backing store.
+        /// </summary>
+        /// <param name="role">The user to delete.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
+        Task<IdentityResult> DeleteAsync(IRole role);
+
+        /// <summary>
         /// Create empty one to continuous creation.
         /// </summary>
         /// <param name="username">The username.</param>
         /// <returns>A brand new <see cref="IUser"/>.</returns>
         IUser CreateEmpty(string username);
+
+        /// <summary>
+        /// Create empty one to continuous creation.
+        /// </summary>
+        /// <param name="roleName">The role name.</param>
+        /// <returns>A brand new <see cref="IRole"/>.</returns>
+        IRole CreateEmptyRole(string roleName);
+
+        /// <summary>
+        /// Gets a flag indicating whether the specified roleName exists.
+        /// </summary>
+        /// <param name="roleName">The role name whose existence should be checked.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing true if the role name exists, otherwise false.</returns>
+        Task<bool> RoleExistsAsync(string roleName);
 
         /// <summary>
         /// Normalize email for consistent comparisons.
