@@ -4,11 +4,11 @@
 
 This is a project for ASP.NET Core module design standard,  designed as Satellite Site first. With this module, you can build your module application faster.
 
-- ![https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.Abstraction%2Fshields-io.json](https://nuget.xylab.fun/packages/SatelliteSite.Abstraction): Commonly used classes and extension methods
-- ![https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.DataAccess%2Fshields-io.json](https://nuget.xylab.fun/packages/SatelliteSite.DataAccess): Several abstractions for Entity Framework Core
-- ![https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.Substrate%2Fshields-io.json](https://nuget.xylab.fun/packages/SatelliteSite.Substrate): ASP.NET Core Library with modern module design
-- ![https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.IdentityCore%2Fshields-io.json](https://nuget.xylab.fun/packages/SatelliteSite.IdentityCore): Identity abstractions based on Microsoft.Extensions.Identity.Store
-- ![https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.IdentityModule%2Fshields-io.json](https://nuget.xylab.fun/packages/SatelliteSite.IdentityModule): Default User Identity Module based on IdentityEFCore
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.Abstraction%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.Abstraction): Commonly used classes and extension methods
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.DataAccess%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.DataAccess): Several abstractions for Entity Framework Core
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.Substrate%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.Substrate): ASP.NET Core Library with modern module design
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.IdentityCore%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.IdentityCore): Identity abstractions based on Microsoft.Extensions.Identity.Store
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.IdentityModule%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.IdentityModule): Default User Identity Module based on IdentityEFCore
 
 ## UI components
 
