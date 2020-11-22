@@ -81,7 +81,7 @@ namespace Microsoft.AspNetCore.Mvc
 
                     conf.HasEntry(0)
                         .HasLink("Dashboard", "Root", "Config")
-                        .HasTitle(string.Empty, "Configurations")
+                        .HasTitle(string.Empty, "Configuration settings")
                         .RequireRoles("Administrator");
                 });
 
