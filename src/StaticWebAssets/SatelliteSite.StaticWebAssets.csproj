@@ -24,7 +24,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.76" PrivateAssets="All" />
-    <PackageReference Include="SatelliteSite.Abstraction" Version="1.0.0-preview11" />
+    <PackageReference Include="SatelliteSite.Abstraction" Version="1.0.15" />
   </ItemGroup>
 
   <ItemGroup>
