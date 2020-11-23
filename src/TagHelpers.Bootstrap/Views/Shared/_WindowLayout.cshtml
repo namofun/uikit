@@ -7,7 +7,7 @@
 
 @if (ViewData.ContainsKey("InAjax"))
 {
-<form action="javascript:;" method="post">
+<form action="javascript:;" id="form-@ViewData["HandleKey"]" method="post">
     @Html.AntiForgeryToken()
     <div class="modal fade" id="modal-@ViewData["HandleKey"]" tabindex="-1" role="dialog" aria-labelledby="modal-@ViewData["HandleKey"]-label" aria-hidden="true">
         <div class="modal-dialog" style="@styleAjax" role="document">
@@ -78,7 +78,7 @@ else
             <h2>@ViewData["Title"]</h2>
 
             <hr />
-            <form action="javascript:;" method="post">
+            <form action="javascript:;" id="form-@ViewData["HandleKey"]" method="post">
                 @Html.AntiForgeryToken()
                 @RenderBody()
 
