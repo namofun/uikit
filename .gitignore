@@ -354,6 +354,7 @@ healthchecksdb
 /src/StaticWebAssets/wwwroot/lib/nvd3
 /src/StaticWebAssets/wwwroot/lib/file-saver
 /src/StaticWebAssets/wwwroot/lib/qrcodejs
+/src/StaticWebAssets/wwwroot/lib/clipboard-js
 /src/StaticWebAssets/wwwroot/lib/select2/js
 /src/StaticWebAssets/wwwroot/lib/select2/css/*
 !/src/StaticWebAssets/wwwroot/lib/select2/css/select2-bootstrap.min.css
