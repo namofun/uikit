@@ -40,8 +40,9 @@ namespace Microsoft.AspNetCore.Mvc.Rendering
             if (!_dt.HasValue) return "";
             var dt = _dt.Value;
 
-            if (cnStyle) dt.ToString("yyyy/MM/dd HH:mm:ss");
-            if (dt.Offset == TimeSpan.FromHours(8))
+            if (cnStyle)
+                return dt.ToString("yyyy/MM/dd HH:mm:ss");
+            else if (dt.Offset == TimeSpan.FromHours(8))
                 return dt.ToString("ddd, dd MMM yyyy HH':'mm':'ss 'CST'", EnglishCulture);
             else
                 return dt.ToUniversalTime().ToString("R", EnglishCulture);
