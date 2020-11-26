@@ -204,7 +204,7 @@ namespace SatelliteSite.IdentityModule.Services
         }
 
         IUser IUserManager.CreateEmpty(string username) => new TUser() { UserName = username };
-        IRole IUserManager.CreateEmptyRole(string roleName) => new TRole { Name = roleName };
+        IRole IUserManager.CreateEmptyRole(string roleName) => new TRole { Name = roleName, NormalizedName = NormalizeName(roleName) };
         #endregion
 
         /// <inheritdoc />
