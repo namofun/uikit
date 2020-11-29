@@ -86,42 +86,40 @@ namespace Microsoft.AspNetCore.Mvc
         {
             if (DataAccessExtensions.MigrationAssembly == null)
                 throw new ArgumentNullException("The migration assembly is invalid.");
-
-            // auditlogger and configuration registry
-            builder.ConfigureServices(services =>
-            {
-                services.AddScoped<IAuditlogger, Auditlogger<TContext>>();
-                services.AddScoped<IConfigurationRegistry, ConfigurationRegistry<TContext>>();
-                services.AddDbModelSupplier<TContext, CoreEntityConfiguration<TContext>>();
-            });
+            further ??= _ => { };
 
             // register webservices
-            builder.ConfigureWebHostDefaults(builder =>
+            return builder.ConfigureWebHostDefaults(builder =>
             {
                 builder.UseStaticWebAssets();
                 builder.UseStartup<Startup>();
                 builder.UseSetting(WebHostDefaults.ApplicationKey, DataAccessExtensions.MigrationAssembly);
-            });
 
-            // module services
-            builder.ConfigureServices((context, services) =>
-            {
-                var menuContributor = new ConcreteMenuContributor();
-                menuContributor.ConfigureDefaults();
-
-                foreach (var module in Startup.Modules)
+                builder.ConfigureServices((context, services) =>
                 {
-                    var type = typeof(ModuleEndpointDataSource<>).MakeGenericType(module.GetType());
-                    services.AddSingleton(type);
-                    module.RegisterServices(services, context.Configuration);
-                    module.RegisterMenu(menuContributor);
-                }
+                    // auditlogger and configuration registry
+                    services.AddScoped<IAuditlogger, Auditlogger<TContext>>();
+                    services.AddScoped<IConfigurationRegistry, ConfigurationRegistry<TContext>>();
+                    services.AddDbModelSupplier<TContext, CoreEntityConfiguration<TContext>>();
 
-                menuContributor.Contribute();
-                services.AddSingleton<IMenuProvider>(menuContributor);
+                    // module services
+                    var menuContributor = new ConcreteMenuContributor();
+                    menuContributor.ConfigureDefaults();
+
+                    foreach (var module in Startup.Modules)
+                    {
+                        var type = typeof(ModuleEndpointDataSource<>).MakeGenericType(module.GetType());
+                        services.AddSingleton(type);
+                        module.RegisterServices(services, context.Configuration, context.HostingEnvironment);
+                        module.RegisterMenu(menuContributor);
+                    }
+
+                    menuContributor.Contribute();
+                    services.AddSingleton<IMenuProvider>(menuContributor);
+                });
+
+                further.Invoke(builder);
             });
-
-            return builder.ConfigureWebHost(further ?? (_ => { }));
         }
 
         /// <summary>
