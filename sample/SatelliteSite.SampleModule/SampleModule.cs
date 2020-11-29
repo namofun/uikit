@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using SatelliteSite;
+using SatelliteSite.SampleModule.Components.Weather;
 using SatelliteSite.SampleModule.Services;
 using System.Threading.Tasks;
 
@@ -69,6 +70,12 @@ namespace SatelliteSite.SampleModule
                     .ActiveWhenController("Weather")
                     .HasIdentifier("menu_weather");
             });
+
+            menus.Component("Component_UserDetail")
+                .HasComponent<WeatherViewComponent>(10);
+
+            menus.Component("Component_DashboardUserDetail")
+                .HasComponent<WeatherViewComponent>(10);
         }
     }
 }
