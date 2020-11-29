@@ -44,8 +44,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         public async Task<IActionResult> Claims(string username)
         {
             var user = await GetUserAsync();
-            if (user.HasUserName(username))
-                return NotFound();
+            if (!user.HasUserName(username)) return NotFound();
             return View();
         }
 
@@ -65,8 +64,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         public async Task<IActionResult> Edit(string username)
         {
             var user = await GetUserAsync();
-            if (user.HasUserName(username))
-                return NotFound();
+            if (!user.HasUserName(username)) return NotFound();
 
             var model = new IndexViewModel
             {
@@ -89,8 +87,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         public async Task<IActionResult> ChangePassword(string username)
         {
             var user = await GetUserAsync();
-            if (user.HasUserName(username))
-                return NotFound();
+            if (!user.HasUserName(username)) return NotFound();
 
             var hasPassword = await UserManager.HasPasswordAsync(user);
             if (!hasPassword)
@@ -110,8 +107,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var user = await GetUserAsync();
-            if (user.HasUserName(username))
-                return NotFound();
+            if (!user.HasUserName(username)) return NotFound();
 
             var changePasswordResult = await UserManager
                 .ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
@@ -129,8 +125,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         public async Task<IActionResult> SetPassword(string username)
         {
             var user = await GetUserAsync();
-            if (user.HasUserName(username))
-                return NotFound();
+            if (!user.HasUserName(username)) return NotFound();
 
             var hasPassword = await UserManager.HasPasswordAsync(user);
             if (hasPassword)
@@ -150,8 +145,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var user = await GetUserAsync();
-            if (user.HasUserName(username))
-                return NotFound();
+            if (!user.HasUserName(username)) return NotFound();
 
             var addPasswordResult = await UserManager
                 .AddPasswordAsync(user, model.NewPassword);
@@ -175,8 +169,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var user = await GetUserAsync();
-            if (user.HasUserName(username))
-                return NotFound();
+            if (!user.HasUserName(username)) return NotFound();
 
             var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
             var callbackUrl = Url.Action(
@@ -212,8 +205,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             try
             {
                 var user = await GetUserAsync();
-                if (user.HasUserName(username))
-                    return NotFound();
+                if (!user.HasUserName(username)) return NotFound();
 
                 var email = user.Email;
                 if (model.Email != email)
