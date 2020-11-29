@@ -101,7 +101,7 @@ namespace Microsoft.Extensions.DependencyInjection
                             tree["Areas"]["Dashboard"]["Views"].Append(new PhysicalFileProvider(dir2));
                         var dir3 = Path.Combine(rdpa.Path, "Components");
                         if (Directory.Exists(dir3))
-                            tree["Views"]["Components"].Append(new PhysicalFileProvider(dir3));
+                            tree["Views"]["Shared"]["Components"].Append(new PhysicalFileProvider(dir3));
                     }
                 }
                 else
