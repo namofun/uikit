@@ -37,16 +37,17 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         }
 
         /// <inheritdoc />
-        public async Task<IHtmlContent> RenderAsync(IViewComponentHelper helper)
+        public async Task<IHtmlContent> RenderAsync(IViewComponentHelper helper, object? model = null)
         {
+            model ??= param;
             Contribute();
             if (Components.Count == 0)
                 return HtmlString.Empty;
             else if (Components.Count == 1)
-                return await helper.InvokeAsync(Components.First().Item2, param);
+                return await helper.InvokeAsync(Components.First().Item2, model);
             var builder = new HtmlContentBuilder(Components.Count);
             foreach (var (_, item) in Components)
-                builder.AppendHtml(await helper.InvokeAsync(item, param));
+                builder.AppendHtml(await helper.InvokeAsync(item, model));
             return builder;
         }
     }

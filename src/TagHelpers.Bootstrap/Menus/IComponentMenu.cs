@@ -14,8 +14,9 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         /// Render the menus.
         /// </summary>
         /// <param name="helper">The view component helper.</param>
+        /// <param name="model">The param model.</param>
         /// <returns>The task for rendering.</returns>
-        Task<IHtmlContent> RenderAsync(IViewComponentHelper helper);
+        Task<IHtmlContent> RenderAsync(IViewComponentHelper helper, object? model = null);
     }
 
     /// <summary>
