@@ -349,7 +349,10 @@ healthchecksdb
 /src/StaticWebAssets/wwwroot/lib/jquery
 /src/StaticWebAssets/wwwroot/lib/jquery-validation
 /src/StaticWebAssets/wwwroot/lib/jquery-validation-unobtrusive
-/src/StaticWebAssets/wwwroot/lib/jscolor
+/src/StaticWebAssets/wwwroot/lib/jscolor/*
+!/src/StaticWebAssets/wwwroot/lib/jscolor/hs.png
+!/src/StaticWebAssets/wwwroot/lib/jscolor/arrow.gif
+!/src/StaticWebAssets/wwwroot/lib/jscolor/cross.gif
 /src/StaticWebAssets/wwwroot/lib/katex
 /src/StaticWebAssets/wwwroot/lib/nvd3
 /src/StaticWebAssets/wwwroot/lib/file-saver
