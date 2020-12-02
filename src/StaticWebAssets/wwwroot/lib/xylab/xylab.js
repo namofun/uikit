@@ -193,7 +193,7 @@ function initXylabFunctions() {
 	});
 
 	// input-output-copier
-	if (ClipboardJS !== undefined) {
+	if (window.ClipboardJS !== undefined) {
 		new ClipboardJS('.input-output-copier', { text: function (trigger) { return $($(trigger).data('clipboard-target')).text(); } }).on('success', function (e) {
 			notice('The example ' + $(e.trigger).data('sample-type') + ' has been copied into the clipboard', 'success');
 		});
