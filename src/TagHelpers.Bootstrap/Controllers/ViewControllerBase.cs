@@ -95,6 +95,7 @@ namespace Microsoft.AspNetCore.Mvc
         [NonAction]
         public ShowMessageResult Message(string title, string message, BootstrapColor type = BootstrapColor.primary)
         {
+            if (InAjax) ViewData["IgnoreCancelButton"] = true;
             return new ShowMessageResult
             {
                 ViewData = ViewData,
