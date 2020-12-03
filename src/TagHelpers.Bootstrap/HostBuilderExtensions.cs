@@ -68,12 +68,12 @@ namespace Microsoft.AspNetCore.Mvc
         /// Initializes a new instance of the <see cref="IWebHostBuilder"/> class with pre-configured defaults.
         /// </summary>
         /// <remarks>
-        /// The following defaults are applied to the <see cref="IWebHostBuilder"/>: <br />
-        /// - Use Kestrel as the web server and configure it using the application's configuration providers. <br />
-        /// - Adds the HostFiltering middleware. <br />
-        /// - Adds the ForwardedHeaders middleware if <c>ASPNETCORE_FORWARDEDHEADERS_ENABLED</c>=true. <br />
-        /// - Enable IIS integration. <br />
-        /// - Use the moduled built-in <see cref="Startup"/> configurations.
+        /// The following defaults are applied to the <see cref="IWebHostBuilder"/>:
+        /// <list type="bullet">Use Kestrel as the web server and configure it using the application's configuration providers.</list>
+        /// <list type="bullet">Adds the HostFiltering middleware.</list>
+        /// <list type="bullet">Adds the ForwardedHeaders middleware if <c>ASPNETCORE_FORWARDEDHEADERS_ENABLED</c>=true.</list>
+        /// <list type="bullet">Enable IIS integration.</list>
+        /// <list type="bullet">Use the moduled built-in <see cref="Startup"/> configurations.</list>
         /// </remarks>
         /// <typeparam name="TContext">The default core service <see cref="DbContext"/>.</typeparam>
         /// <param name="builder">The <see cref="IHostBuilder"/> instance to configure.</param>

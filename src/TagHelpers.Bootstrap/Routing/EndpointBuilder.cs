@@ -48,12 +48,14 @@ namespace Microsoft.AspNetCore.Builder
 
         /// <summary>
         /// Adds a specialized <see cref="RouteEndpoint"/> to the <see cref="IEndpointRouteBuilder"/>
-        /// that will match the provided pattern with the lowest possible priority. <br />
+        /// that will match the provided pattern with the lowest possible priority.
+        /// </summary>
+        /// <remarks>
         /// If such error handler is set up, the routes registered by
         /// <see cref="IErrorHandlerBuilder.MapFallbackNotFound(string)" /> and
         /// <see cref="IErrorHandlerBuilder.MapStatusCode(string)" />
         /// will be handled with this handler.
-        /// </summary>
+        /// </remarks>
         /// <param name="area">The name of area.</param>
         /// <param name="controller">The name of controller.</param>
         /// <param name="action">The name of action.</param>
@@ -82,9 +84,9 @@ namespace Microsoft.AspNetCore.Builder
 
         /// <summary>
         /// Adds a specialized <see cref="RouteEndpoint"/> to the <see cref="IEndpointRouteBuilder"/>
-        /// that will match the provided pattern with the lowest possible priority. <br />
-        /// In this pattern, routes will explicitly end with no response body but a status code 404.
+        /// that will match the provided pattern with the lowest possible priority.
         /// </summary>
+        /// <remarks>In this pattern, routes will explicitly end with no response body but a status code 404.</remarks>
         /// <param name="pattern">The route pattern.</param>
         /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
         public IEndpointConventionBuilder MapFallbackNotFound(string pattern)
@@ -104,18 +106,18 @@ namespace Microsoft.AspNetCore.Builder
     {
         /// <summary>
         /// Adds a specialized <see cref="RouteEndpoint"/> to the <see cref="IEndpointRouteBuilder"/>
-        /// that will match the provided pattern with the lowest possible priority. <br />
-        /// In this pattern, the error handler will be routed when url is not routed.
+        /// that will match the provided pattern with the lowest possible priority.
         /// </summary>
+        /// <remarks>In this pattern, the error handler will be routed when url is not routed.</remarks>
         /// <param name="pattern">The route pattern.</param>
         /// <returns>A <see cref="IErrorHandlerBuilder"/> that can be used to further customize the error handler.</returns>
         IErrorHandlerBuilder MapFallbackNotFound(string pattern);
 
         /// <summary>
         /// Adds a specialized <see cref="RouteEndpoint"/> to the <see cref="IEndpointRouteBuilder"/>
-        /// that will match the provided pattern with the lowest possible priority. <br />
-        /// In this pattern, the error handler will be routed when previous execution of endpoint is not success.
+        /// that will match the provided pattern with the lowest possible priority.
         /// </summary>
+        /// <remarks>In this pattern, the error handler will be routed when previous execution of endpoint is not success.</remarks>
         /// <param name="pattern">The route pattern.</param>
         /// <returns>A <see cref="IErrorHandlerBuilder"/> that can be used to further customize the error handler.</returns>
         IErrorHandlerBuilder MapStatusCode(string pattern);

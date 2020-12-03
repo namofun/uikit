@@ -25,9 +25,9 @@ namespace Microsoft.AspNetCore.Mvc.DataTables
         /// <param name="draw">The click id from ajax request</param>
         /// <param name="count">The count of total records</param>
         /// <param name="serializerSettings">
-        /// The serializer settings to be used by the formatter.<br />
-        /// When using <see cref="System.Text.Json"/>, this should be an instance of <see cref="System.Text.Json.JsonSerializerOptions"/>.<br />
-        /// When using <see cref="Newtonsoft.Json"/>, this should be an instance of <see cref="Newtonsoft.Json.JsonSerializerSettings"/>.
+        /// The serializer settings to be used by the formatter.
+        /// <list type="bullet">When using <see cref="System.Text.Json"/>, this should be an instance of <see cref="System.Text.Json.JsonSerializerOptions"/>.</list>
+        /// <list type="bullet">When using <see cref="Newtonsoft.Json"/>, this should be an instance of <see cref="Newtonsoft.Json.JsonSerializerSettings"/>.</list>
         /// </param>
         public DataTableAjaxResult(IEnumerable<T> data, int draw, int count, object serializerSettings) : base(new { draw, recordsTotal = count, recordsFiltered = count, data }, serializerSettings)
         {
