@@ -8,7 +8,7 @@
   <Import Project="..\..\build\NugetPackage.props" />
 
   <PropertyGroup>
-    <PackageVersion>1.0.7</PackageVersion>
+    <PackageVersion>1.0.8</PackageVersion>
 
     <ResolveCurrentProjectStaticWebAssetsInputsDependsOn>
       SetStaticWebAssetsBasePath;
