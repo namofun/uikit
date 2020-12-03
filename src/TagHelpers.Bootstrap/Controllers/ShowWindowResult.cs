@@ -6,6 +6,12 @@ namespace Microsoft.AspNetCore.Mvc
     /// <summary>
     /// Represents an <see cref="ActionResult"/> that renders a window to the response.
     /// </summary>
+    /// <remarks>
+    /// <para>There's several useful <c>ViewData</c> keys for modal views.</para>
+    /// <list type="bullet"><c>FormAjaxUpload</c>: Enable ajaxupload feature.</list>
+    /// <list type="bullet"><c>MaxWidth</c>: Change the max modal width.</list>
+    /// <list type="bullet"><c>IgnoreCancelButton</c>: Do not show the cancel button.</list>
+    /// </remarks>
     public class ShowWindowResult : ViewResult
     {
         /// <inheritdoc />

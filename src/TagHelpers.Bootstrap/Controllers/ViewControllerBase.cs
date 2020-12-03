@@ -178,6 +178,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// Creates a <see cref="ShowWindowResult"/> object that renders a view to the response.
         /// </summary>
         /// <returns>The created <see cref="ShowWindowResult"/> object for the response.</returns>
+        /// <inheritdoc cref="ShowWindowResult" />
         [NonAction]
         public ShowWindowResult Window()
         {
@@ -191,6 +192,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// </summary>
         /// <param name="model">The model that is rendered by the view.</param>
         /// <returns>The created <see cref="ShowWindowResult"/> object for the response.</returns>
+        /// <inheritdoc cref="ShowWindowResult" />
         [NonAction]
         public ShowWindowResult Window(object model)
         {
@@ -203,6 +205,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// </summary>
         /// <param name="viewName">The name or path of the view that is rendered to the response.</param>
         /// <returns>The created <see cref="ShowWindowResult"/> object for the response.</returns>
+        /// <inheritdoc cref="ShowWindowResult" />
         [NonAction]
         public ShowWindowResult Window(string viewName)
         {
@@ -217,6 +220,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="viewName">The name or path of the view that is rendered to the response.</param>
         /// <param name="model">The model that is rendered by the view.</param>
         /// <returns>The created <see cref="ShowWindowResult"/> object for the response.</returns>
+        /// <inheritdoc cref="ShowWindowResult" />
         [NonAction]
         public ShowWindowResult Window(string? viewName, object? model)
         {
