@@ -47,13 +47,13 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
     /// <summary>
     /// Dynamicly add attributes to tags.
     /// </summary>
-    [HtmlTargetElement("div", Attributes = "[class=modal-dialog]," + UseStaticBackdropKey)]
+    [HtmlTargetElement("div", Attributes = "[class='modal fade']," + UseStaticBackdropKey)]
     public class DynamicAttribute2TagHelper : XysTagHelper
     {
         private const string UseStaticBackdropKey = "bs-modal-static-backdrop";
 
         /// <summary>
-        /// Whether to add use-backdrop
+        /// Whether to add data-backdrop
         /// </summary>
         [HtmlAttributeName(UseStaticBackdropKey)]
         public bool UseStaticBackdrop { get; set; }

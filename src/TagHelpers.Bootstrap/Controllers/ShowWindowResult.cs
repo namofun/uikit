@@ -11,6 +11,7 @@ namespace Microsoft.AspNetCore.Mvc
     /// <list type="bullet"><c>FormAjaxUpload</c>: Enable ajaxupload feature.</list>
     /// <list type="bullet"><c>MaxWidth</c>: Change the max modal width.</list>
     /// <list type="bullet"><c>IgnoreCancelButton</c>: Do not show the cancel button.</list>
+    /// <list type="bullet"><c>StaticBackdrop</c>: Set the backdrop as static and ignore keyboard ESC.</list>
     /// </remarks>
     public class ShowWindowResult : ViewResult
     {
