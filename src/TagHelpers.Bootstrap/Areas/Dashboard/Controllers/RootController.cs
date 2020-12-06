@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Options;
@@ -29,6 +30,16 @@ namespace SatelliteSite.Substrate.Dashboards
         {
             var edss = options.Value.Private<ICollection<EndpointDataSource>>("_endpointDataSources");
             return View(edss);
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> Updates(
+            [FromServices] IMediator mediator)
+        {
+            var model = new DashboardUpdates(HttpContext);
+            await mediator.Publish(model);
+            return Content(model.ToString(), "application/json");
         }
 
 
