@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using SatelliteSite.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -108,6 +109,8 @@ namespace Microsoft.AspNetCore.Mvc
 
             services.AddApiExplorer(o => o.DocInclusionPredicate((a, b) => b.GroupName == a))
                 .AddSecurityScheme("basic", Microsoft.OpenApi.Models.SecuritySchemeType.Http);
+
+            services.AddSingleton<IApiDocumentProvider, ApiDocumentProvider>();
         }
 
         /// <summary>
