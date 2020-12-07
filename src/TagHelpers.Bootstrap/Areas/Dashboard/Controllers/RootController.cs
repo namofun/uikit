@@ -101,12 +101,24 @@ namespace SatelliteSite.Substrate.Dashboards
 
             foreach (var item in items)
             {
+                if (item.Type == "bool" &&
+                    !models.Config.ContainsKey(item.Name))
+                    models.Config.Add(item.Name, "off");
+
                 if (!models.Config.ContainsKey(item.Name)
                     || models.Config[item.Name] == null)
                     continue;
 
-                var newVal = models.Config[item.Name];
-                if (item.Type == "string") newVal = newVal.ToJson();
+                var origVal = models.Config[item.Name];
+
+                var newVal = item.Type switch
+                {
+                    "string" => origVal.ToJson(),
+                    "int" => origVal,
+                    "bool" => (origVal == "on" || origVal == "true" || origVal == "yes" || origVal == "1") ? "true" : "false",
+                    _ => throw new NotSupportedException(),
+                };
+
                 if (newVal == item.Value) continue;
 
                 await registry.UpdateAsync(item.Name, newVal);

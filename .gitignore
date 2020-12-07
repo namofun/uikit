@@ -342,6 +342,7 @@ healthchecksdb
 # Library Manager restored components
 /src/StaticWebAssets/wwwroot/lib/ace
 /src/StaticWebAssets/wwwroot/lib/bootstrap
+/src/StaticWebAssets/wwwroot/lib/bootstrap-toggle
 /src/StaticWebAssets/wwwroot/lib/d3
 /src/StaticWebAssets/wwwroot/lib/datatables
 /src/StaticWebAssets/wwwroot/lib/editor-md

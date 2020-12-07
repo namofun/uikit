@@ -98,6 +98,7 @@ namespace SatelliteSite
 
             (typeString, value) =
                 ConvertValueType<int>("int") ??
+                ConvertValueType<bool>("bool") ??
                 ConvertNullable<DateTimeOffset>("datetime") ??
                 ConvertRefType<string>("string") ??
                 throw new ArgumentException($"Type {Type.Name} is not supported yet.");
@@ -153,6 +154,27 @@ namespace SatelliteSite
         /// <param name="description">The description</param>
         public ConfigurationIntegerAttribute(int priority, string category, string name, int value, string description)
             : base(priority, category, name, typeof(int), value, description)
+        {
+        }
+    }
+
+    /// <summary>
+    /// An attribute attached to an assembly indicating that
+    /// the module requires this configuration item.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = true)]
+    public sealed class ConfigurationBooleanAttribute : ConfigurationItemAttribute
+    {
+        /// <summary>
+        /// Construct instance of <see cref="ConfigurationItemAttribute"/>.
+        /// </summary>
+        /// <param name="priority">The display priority</param>
+        /// <param name="category">The category</param>
+        /// <param name="name">The name</param>
+        /// <param name="value">The default value</param>
+        /// <param name="description">The description</param>
+        public ConfigurationBooleanAttribute(int priority, string category, string name, bool value, string description)
+            : base(priority, category, name, typeof(bool), value, description)
         {
         }
     }

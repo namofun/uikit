@@ -67,6 +67,10 @@
     {
       "library": "clipboard.js@2.0.6",
       "destination": "wwwroot/lib/clipboard-js/"
+    },
+    {
+      "library": "bootstrap-toggle@2.2.2",
+      "destination": "wwwroot/lib/bootstrap-toggle/"
     }
   ]
 }

@@ -1,39 +1,86 @@
 ﻿@model ILookup<string, Entities.Configuration>
 @{
     ViewData["Title"] = "Configuration";
-}
+    static string GetFormattedName(string origin)
+    {
+        return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(origin.Replace('_', ' '));
+    }
+} 
 
 <h2 class="mt-2 mb-3">@ViewData["Title"]</h2>
+<script src="~/lib/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
+<link href="~/lib/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet" />
+<style>
+/* fixes for bootstrap-toggle and bootstrap4 */
+.toggle-off {
+	box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+}
+.toggle.off {
+	border-color: rgba(0, 0, 0, .25);
+}
+.toggle-handle {
+	background-color: white;
+	border: thin rgba(0, 0, 0, .25) solid;
+}
+.listtoggles {
+	width: 6em;
+}
+.btn-xs,
+.btn-group-xs > .btn {
+	padding: 1px 5px;
+	font-size: 12px;
+	line-height: 1.5;
+	border-radius: 3px;
+	font-family: Roboto, sans-serif;
+}
+.btn.toggle-on {
+	right: initial;
+}
+</style>
 
 <form asp-action="Config" method="post">
-    @foreach (var group in Model)
+@foreach (var group in Model)
+{
+    <div class="card">
+        <div class="card-header">@group.Key Options</div>
+        <div class="card-body pt-0 pb-0">
+            <ul class="list-group list-group-flush">
+@foreach (var little in group)
+{
+                <li class="list-group-item" style="padding:0;padding-top:1rem;">
+                    <div class="form-group">
+    @if (little.Type == "int")
     {
-        <div class="card">
-            <div class="card-header">@group.Key Options</div>
-            <div class="card-body">
-                <ul class="list-group list-group-flush">
-                    @foreach (var little in group)
-                    {
-                        var (type, val) = little.Type == "int"
-                            ? ("number", little.Value)
-                            : ("text", little.Value.AsJson<string>());
-                        <li class="list-group-item" style="padding:0;padding-top:10px;">
-                            <div class="form-group">
-                                @little.Name
-                                <input class="form-control form-control-sm"
-                                       style="margin-left:5px;width:7em;text-align:right;display:inline-block;"
-                                       type="@type"
-                                       name="config[@little.Name]" id="@little.Name"
-                                       value="@val">
-                                <br />
-                                <small class="text-muted">@little.Description</small>
-                            </div>
-                        </li>
-                    }
-                </ul>
-            </div>
-        </div>
+        <label for="config_@little.Name">@GetFormattedName(little.Name):</label>
+        <input class="form-control form-control-sm"
+               style="margin-left:5px;width:7em;text-align:right;display:inline-block;"
+               type="number" name="config[@little.Name]" id="config_@little.Name"
+               value="@little.Value" />
+        <br />
     }
-
-    <button type="submit" class="btn btn-primary mt-4">Save</button>
+    else if (little.Type == "string")
+    {
+        <label for="config_@little.Name">@GetFormattedName(little.Name):</label>
+        <input class="form-control form-control-sm mb-1"
+               style="width:30em;"
+               type="text" name="config[@little.Name]" id="config_@little.Name"
+               value="@(little.Value.AsJson<string>())" />
+    }
+    else if (little.Type == "bool")
+    {
+        <label for="config_@little.Name" onclick="$('#config_@little.Name').bootstrapToggle('toggle')">@GetFormattedName(little.Name):</label>
+        <input type="checkbox" data-toggle="toggle" data-size="mini" data-on="Yes" data-off="No"
+               name="config[@little.Name]" id="config_@little.Name" bs-checked-attr="@(little.Value.AsJson<bool>())" />
+        <br />
+    }
+                        <small class="text-muted">@little.Description</small>
+                    </div>
+                </li>
+}
+            </ul>
+        </div>
+    </div>
+    <br />
+}
+    <button type="submit" class="btn btn-primary">Save</button>
 </form>
