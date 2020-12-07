@@ -84,7 +84,7 @@ namespace Microsoft.AspNetCore.Mvc
             Action<IWebHostBuilder>? further = null)
             where TContext : DbContext
         {
-            if (DataAccessExtensions.MigrationAssembly == null)
+            if (HostBuilderDataAccessExtensions.MigrationAssembly == null)
                 throw new ArgumentNullException("The migration assembly is invalid.");
             further ??= _ => { };
 
@@ -93,7 +93,7 @@ namespace Microsoft.AspNetCore.Mvc
             {
                 builder.UseStaticWebAssets();
                 builder.UseStartup<Startup>();
-                builder.UseSetting(WebHostDefaults.ApplicationKey, DataAccessExtensions.MigrationAssembly);
+                builder.UseSetting(WebHostDefaults.ApplicationKey, HostBuilderDataAccessExtensions.MigrationAssembly);
 
                 builder.ConfigureServices((context, services) =>
                 {

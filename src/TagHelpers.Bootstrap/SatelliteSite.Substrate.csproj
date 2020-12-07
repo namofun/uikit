@@ -18,6 +18,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="$(AspNetCoreVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="$(AspNetCoreVersion)" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerEndpoint" Version="5.1.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Bulk.InMemory" Version="$(EFCoreBulkVersion)" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Bulk.SqlServer" Version="$(EFCoreBulkVersion)" />
   </ItemGroup>
 
   <ItemGroup>

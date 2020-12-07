@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.Hosting
     /// <summary>
     /// Data access extensions for Substrate.
     /// </summary>
-    public static class DataAccessExtensions
+    public static class HostBuilderDataAccessExtensions
     {
         /// <summary>
         /// The name of migration assembly
@@ -62,13 +62,32 @@ namespace Microsoft.Extensions.Hosting
             this IHostBuilder builder,
             string connectionStringName) where TContext : DbContext
         {
-            _ = MigrationAssembly ?? throw new ArgumentNullException("The migration assembly is invalid.");
+            _ = MigrationAssembly ?? throw new ArgumentException("The migration assembly is invalid.");
             return builder.AddDatabase<TContext>((conf, opt) =>
             {
                 opt.UseSqlServer(
                     conf.GetConnectionString(connectionStringName),
-                    o => o.MigrationsAssembly(MigrationAssembly));
-                opt.UseBulkExtensions();
+                    o => o.MigrationsAssembly(MigrationAssembly).UseBulk());
+            });
+        }
+
+        /// <summary>
+        /// Add a <see cref="DbContext"/> and configure them in the next constructing pipeline.
+        /// </summary>
+        /// <typeparam name="TContext">The required <see cref="DbContext"/>.</typeparam>
+        /// <param name="builder">The <see cref="IHostBuilder"/></param>
+        /// <param name="databaseName">The in-memory database name</param>
+        /// <returns>The <see cref="IHostBuilder"/></returns>
+        public static IHostBuilder AddDatabaseInMemory<TContext>(
+            this IHostBuilder builder,
+            string databaseName) where TContext : DbContext
+        {
+            _ = MigrationAssembly ?? throw new ArgumentException("The migration assembly is invalid.");
+            return builder.AddDatabase<TContext>((conf, opt) =>
+            {
+                opt.UseInMemoryDatabase(
+                    databaseName,
+                    o => o.UseBulk());
             });
         }
     }
