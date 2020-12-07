@@ -6,11 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using SatelliteSite;
 using SatelliteSite.Entities;
 using SatelliteSite.IdentityModule.Services;
 using System;
-using System.Linq;
 
 [assembly: RoleDefinition(1, "Administrator", "admin", "Administrative User")]
 [assembly: RoleDefinition(2, "Blocked", "blocked", "Blocked User")]
@@ -81,14 +81,8 @@ namespace SatelliteSite.IdentityModule
                     options.Events = new BasicAuthenticationValidator();
                 });
 
-            services.AddAuthorization(
-                options =>
-                {
-                    var policyContainer = new AuthorizationPolicyContainer();
-                    Startup.Modules.OfType<IAuthorizationPolicyRegistry>().ToList()
-                        .ForEach(r => r.RegisterPolicies(policyContainer));
-                    policyContainer.Apply(options);
-                });
+            services.AddAuthorization();
+            services.AddSingleton<IConfigureOptions<AuthorizationOptions>, ConfigureAuthoraztionPolicy>();
 
             services.AddScoped<IUserManager>(s => s.GetRequiredService<UserManager<TUser, TRole>>());
             services.AddScoped<ISignInManager>(s => s.GetRequiredService<SignInManager2<TUser>>());

@@ -8,10 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SatelliteSite.Entities;
-using SatelliteSite.Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Globalization;
 
 namespace Microsoft.AspNetCore.Mvc
@@ -76,9 +75,14 @@ namespace Microsoft.AspNetCore.Mvc
         /// <returns>The <see cref="IHostBuilder"/></returns>
         public static IHostBuilder AddModule<TModule>(this IHostBuilder builder, Action<IEndpointConventionBuilder> convention) where TModule : AbstractModule, new()
         {
-            ((List<AbstractModule>)Startup.Modules).Add(new TModule { Conventions = convention });
+            Modules.Add(new TModule { Conventions = convention });
             return builder;
         }
+
+        /// <summary>
+        /// The reference for mutable modules
+        /// </summary>
+        private static List<AbstractModule> Modules => (List<AbstractModule>)Startup.Modules;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IWebHostBuilder"/> class with pre-configured defaults.
@@ -104,6 +108,8 @@ namespace Microsoft.AspNetCore.Mvc
                 throw new ArgumentNullException("The migration assembly is invalid.");
             further ??= _ => { };
 
+            Modules.Insert(0, new SatelliteSite.Substrate.DefaultModule<TContext>());
+
             // register webservices
             return builder.ConfigureWebHostDefaults(builder =>
             {
@@ -113,16 +119,12 @@ namespace Microsoft.AspNetCore.Mvc
 
                 builder.ConfigureServices((context, services) =>
                 {
-                    // auditlogger and configuration registry
-                    services.AddScoped<IAuditlogger, Auditlogger<TContext>>();
-                    services.AddScoped<IConfigurationRegistry, ConfigurationRegistry<TContext>>();
-                    services.AddDbModelSupplier<TContext, CoreEntityConfiguration<TContext>>();
+                    services.AddSingleton(new ReadOnlyCollection<AbstractModule>(Modules));
 
                     // module services
                     var menuContributor = new ConcreteMenuContributor();
-                    menuContributor.ConfigureDefaults();
 
-                    foreach (var module in Startup.Modules)
+                    foreach (var module in Modules)
                     {
                         var type = typeof(ModuleEndpointDataSource<>).MakeGenericType(module.GetType());
                         services.AddSingleton(type);
@@ -136,16 +138,6 @@ namespace Microsoft.AspNetCore.Mvc
 
                 further.Invoke(builder);
             });
-        }
-
-        /// <summary>
-        /// Apply the substrate endpoint into the route builder.
-        /// </summary>
-        /// <param name="builder">The route builder</param>
-        /// <returns>The route builder</returns>
-        internal static void MapSubstrate(this IEndpointRouteBuilder builder)
-        {
-            builder.DataSources.Add(new RootEndpointDataSource(builder.ServiceProvider));
         }
 
         /// <summary>

@@ -153,7 +153,6 @@ namespace Microsoft.AspNetCore.Mvc
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapSubstrate();
                 endpoints.MapModules(Modules);
 
                 endpoints.MapNotFound("/api/{**slug}");

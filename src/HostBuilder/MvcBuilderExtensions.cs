@@ -94,8 +94,10 @@ namespace Microsoft.Extensions.DependencyInjection
                     {
                         tree ??= new PeerFileProvider();
                         var dir1 = Path.Combine(rdpa.Path, "Views");
-                        if (Directory.Exists(dir1))
+                        if (Directory.Exists(dir1) && !string.IsNullOrEmpty(areaName))
                             tree["Areas"][areaName]["Views"].Append(new PhysicalFileProvider(dir1));
+                        else if (Directory.Exists(dir1) && string.IsNullOrEmpty(areaName))
+                            tree["Views"].Append(new PhysicalFileProvider(dir1));
                         var dir2 = Path.Combine(rdpa.Path, "Panels");
                         if (Directory.Exists(dir2))
                             tree["Areas"]["Dashboard"]["Views"].Append(new PhysicalFileProvider(dir2));
@@ -126,7 +128,8 @@ namespace Microsoft.Extensions.DependencyInjection
                 (tree ??= new PeerFileProvider()).Append(new PhysicalFileProvider(selfCheck.Path));
 
             foreach (var module in modules)
-                Add(module.GetType().Assembly, module.Area);
+                if (module.GetType().Assembly != typeof(AbstractModule).Assembly)
+                    Add(module.GetType().Assembly, module.Area);
 
             if (isDevelopment && tree != null)
                 builder.AddRazorRuntimeCompilation(options => options.FileProviders.Add(tree));

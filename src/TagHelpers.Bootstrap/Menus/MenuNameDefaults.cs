@@ -57,62 +57,6 @@ namespace Microsoft.AspNetCore.Mvc
         public const string MainNavbar = Menu_ + nameof(MainNavbar);
 
         /// <summary>
-        /// Configure the defaults for menus.
-        /// </summary>
-        /// <param name="menus">The menu contributor.</param>
-        internal static void ConfigureDefaults(this IMenuContributor menus)
-        {
-            menus.Menu(MainNavbar, menu =>
-            {
-
-            });
-
-            menus.Menu(DashboardNavbar, admin =>
-            {
-
-            });
-
-            menus.Menu(DashboardContent, menu =>
-            {
-                menu.HasSubmenu(DashboardConfigurations, 0, conf =>
-                {
-                    conf.HasTitle(string.Empty, "Infrastructure")
-                        .HasLink("javascript:;");
-
-                    conf.HasEntry(0)
-                        .HasLink("Dashboard", "Root", "Config")
-                        .HasTitle(string.Empty, "Configuration settings")
-                        .RequireRoles("Administrator");
-                });
-
-                menu.HasSubmenu(DashboardUsers, 100, user =>
-                {
-                    user.HasTitle(string.Empty, "Users")
-                        .HasLink("javascript:;");
-                });
-
-                menu.HasSubmenu(DashboardDocuments, 200, docs =>
-                {
-                    docs.HasTitle(string.Empty, "Documentation")
-                        .HasLink("javascript:;");
-
-                    docs.HasEntry(100)
-                        .HasTitle(string.Empty, "Sitemaps")
-                        .HasLink("Dashboard", "Root", "Endpoints");
-
-                    docs.HasEntry(101)
-                        .HasTitle(string.Empty, "Component Versions")
-                        .HasLink("Dashboard", "Root", "Versions");
-
-                    docs.HasEntry(102)
-                        .HasTitle(string.Empty, "Auditlogs")
-                        .HasLink("Dashboard", "Root", "Auditlog")
-                        .RequireRoles("Administrator");
-                });
-            });
-        }
-
-        /// <summary>
         /// The default error string
         /// </summary>
         internal const string EverConfigured = "This configuration has been set before. Configurations cannot be override.";

@@ -28,7 +28,7 @@ namespace Microsoft.AspNetCore.Razor.Hosting
         {
             if (fileName.StartsWith("/Panels/"))
                 return "/Areas/Dashboard/Views" + fileName["/Panels".Length..];
-            else if (fileName.StartsWith("/Views/") && areaName == null)
+            else if (fileName.StartsWith("/Views/") && string.IsNullOrEmpty(areaName))
                 return fileName;
             else if (fileName.StartsWith("/Views/"))
                 return "/Areas/" + areaName + fileName;

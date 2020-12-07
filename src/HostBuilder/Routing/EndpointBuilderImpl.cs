@@ -132,13 +132,6 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         }
     }
 
-    internal class RootEndpointDataSource : ModuleEndpointDataSourceBase
-    {
-        public RootEndpointDataSource(IServiceProvider serviceProvider) : base(serviceProvider, typeof(RootEndpointDataSource))
-        {
-        }
-    }
-
     internal class ModuleEndpointDataSource<TModule> : ModuleEndpointDataSourceBase where TModule : AbstractModule
     {
         public ModuleEndpointDataSource(IServiceProvider serviceProvider) : base(serviceProvider, typeof(TModule))
