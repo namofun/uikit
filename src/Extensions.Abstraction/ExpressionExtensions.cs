@@ -40,7 +40,9 @@ namespace System.Linq.Expressions
             /// <inheritdoc />
             public override Expression Visit(Expression node)
             {
-                return Changes.TryGetValue(node, out var exp) ? exp : base.Visit(node);
+                return node != null
+                    ? Changes.TryGetValue(node, out var exp) ? exp : base.Visit(node) // original expression or new expression
+                    : null!; // Static members in a class will make the main expression be null, but not Expression.Constant(null)
             }
         }
 

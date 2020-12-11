@@ -84,7 +84,7 @@ namespace System.Collections.Generic
             Content = content;
             CurrentPage = curPage;
             TotalCount = totalCount;
-            TotalPage = (content.Count - 1) / perPage + 1;
+            TotalPage = (totalCount - 1) / perPage + 1;
             CountPerPage = perPage;
         }
     }
@@ -149,7 +149,7 @@ namespace System.Collections.Generic
                 Selector = selector;
                 CurrentPage = curPage;
                 TotalCount = totalCount;
-                TotalPage = (content.Count - 1) / perPage + 1;
+                TotalPage = (totalCount - 1) / perPage + 1;
                 CountPerPage = perPage;
             }
 
@@ -164,7 +164,7 @@ namespace System.Collections.Generic
                 Selector = selector;
                 CurrentPage = content.CurrentPage;
                 TotalCount = content.TotalCount;
-                TotalPage = (content.Count - 1) / content.CountPerPage + 1;
+                TotalPage = (content.TotalCount - 1) / content.CountPerPage + 1;
                 CountPerPage = content.CountPerPage;
             }
         }
