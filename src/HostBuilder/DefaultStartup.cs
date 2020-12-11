@@ -23,11 +23,6 @@ namespace Microsoft.AspNetCore.Mvc
     public class Startup
     {
         /// <summary>
-        /// The modules to configure
-        /// </summary>
-        public static IReadOnlyCollection<AbstractModule> Modules { get; } = new List<AbstractModule>();
-
-        /// <summary>
         /// Create an instance of <see cref="Startup"/>
         /// </summary>
         /// <param name="configuration">The <see cref="IConfiguration"/></param>
@@ -36,6 +31,7 @@ namespace Microsoft.AspNetCore.Mvc
         {
             Configuration = configuration;
             Environment = env;
+            Modules = ((ISubstrateEnvironment)env).Modules;
         }
 
         /// <summary>
@@ -47,6 +43,11 @@ namespace Microsoft.AspNetCore.Mvc
         /// The environment with web host specified settings
         /// </summary>
         public IWebHostEnvironment Environment { get; }
+
+        /// <summary>
+        /// The modules to configure
+        /// </summary>
+        public IReadOnlyCollection<AbstractModule> Modules { get; }
 
         /// <summary>
         /// AssemblyLoadFileDelegate for <see cref="ApplicationParts.RelatedAssemblyAttribute"/>.

@@ -75,14 +75,35 @@ namespace Microsoft.AspNetCore.Mvc
         /// <returns>The <see cref="IHostBuilder"/></returns>
         public static IHostBuilder AddModule<TModule>(this IHostBuilder builder, Action<IEndpointConventionBuilder> convention) where TModule : AbstractModule, new()
         {
-            Modules.Add(new TModule { Conventions = convention });
+            builder.Modules().Add(new TModule { Conventions = convention });
             return builder;
         }
 
         /// <summary>
-        /// The reference for mutable modules
+        /// Gets the list of mutable modules.
         /// </summary>
-        private static List<AbstractModule> Modules => (List<AbstractModule>)Startup.Modules;
+        /// <param name="builder">The host builder.</param>
+        /// <returns>The list for modules.</returns>
+        private static List<AbstractModule> Modules(this IHostBuilder builder)
+        {
+            if (!builder.Properties.ContainsKey("Substrate.Modules"))
+                builder.Properties.Add("Substrate.Modules", new List<AbstractModule>());
+            return (List<AbstractModule>)builder.Properties["Substrate.Modules"];
+        }
+
+        /// <summary>
+        /// Configure the <see cref="WebHostBuilderContext.HostingEnvironment"/> to be <see cref="SubstrateEnvironment"/>.
+        /// </summary>
+        /// <param name="builder">The builder.</param>
+        /// <param name="modules">The modules.</param>
+        /// <returns>The builder.</returns>
+        private static IWebHostBuilder ConfigureEnvironment(this IWebHostBuilder builder, IReadOnlyCollection<AbstractModule> modules)
+        {
+            return builder.ConfigureAppConfiguration((ctx, cb) =>
+            {
+                ctx.HostingEnvironment = new SubstrateEnvironment(ctx.HostingEnvironment, modules);
+            });
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IWebHostBuilder"/> class with pre-configured defaults.
@@ -107,24 +128,26 @@ namespace Microsoft.AspNetCore.Mvc
             bool shouldUseMigrationAssembly = builder.MigrationAssembly(out var migrationAssembly);
             further ??= _ => { };
 
-            Modules.Insert(0, new SatelliteSite.Substrate.DefaultModule<TContext>());
+            var modules = builder.Modules();
+            modules.Insert(0, new SatelliteSite.Substrate.DefaultModule<TContext>());
 
             // register webservices
             return builder.ConfigureWebHostDefaults(builder =>
             {
                 builder.UseStaticWebAssets();
+                builder.ConfigureEnvironment(modules);
                 builder.UseStartup<Startup>();
                 if (shouldUseMigrationAssembly)
                     builder.UseSetting(WebHostDefaults.ApplicationKey, migrationAssembly);
 
                 builder.ConfigureServices((context, services) =>
                 {
-                    services.AddSingleton(new ReadOnlyCollection<AbstractModule>(Modules));
+                    services.AddSingleton(new ReadOnlyCollection<AbstractModule>(modules));
 
                     // module services
                     var menuContributor = new ConcreteMenuContributor();
 
-                    foreach (var module in Modules)
+                    foreach (var module in modules)
                     {
                         var type = typeof(ModuleEndpointDataSource<>).MakeGenericType(module.GetType());
                         services.AddSingleton(type);
