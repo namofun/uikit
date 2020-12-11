@@ -30,7 +30,8 @@ namespace Microsoft.Extensions.Hosting
             try
             {
                 var context = services.GetRequiredService<TContext>();
-                if (context.Database.GetPendingMigrations().Any())
+                if (HostBuilderDataAccessExtensions.ShouldUseMigrationAssembly &&
+                    context.Database.GetPendingMigrations().Any())
                     context.Database.Migrate();
             }
             catch (Exception ex)

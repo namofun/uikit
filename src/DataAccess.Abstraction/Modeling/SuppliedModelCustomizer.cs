@@ -1,15 +1,8 @@
-﻿using System.Collections.Generic;
-
-namespace Microsoft.EntityFrameworkCore.Infrastructure
+﻿namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <inheritdoc />
-    public class SuppliedModelCustomizer<T> : RelationalModelCustomizer where T : DbContext
+    public class SuppliedModelCustomizer<T> : ModelCustomizer where T : DbContext
     {
-        /// <summary>
-        /// The holder list
-        /// </summary>
-        public static List<IDbModelSupplier<T>> Holder { get; } = new List<IDbModelSupplier<T>>();
-
         /// <inheritdoc />
         public SuppliedModelCustomizer(ModelCustomizerDependencies dependencies)
             : base(dependencies)
@@ -21,7 +14,10 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
         {
             base.Customize(modelBuilder, context);
 
-            foreach (var supplier in Holder)
+            var service = context.GetService<IDbContextOptions>()
+                .FindExtension<ModelSupplierService<T>>();
+
+            foreach (var supplier in service.Holder)
             {
                 supplier.Configure(modelBuilder);
             }

@@ -17,6 +17,11 @@ namespace Microsoft.Extensions.Hosting
         public static string? MigrationAssembly { get; set; }
 
         /// <summary>
+        /// Should we use the field of <see cref="MigrationAssembly"/>?
+        /// </summary>
+        internal static bool ShouldUseMigrationAssembly { get; set; } = true;
+
+        /// <summary>
         /// Mark the migration assembly.
         /// </summary>
         /// <typeparam name="T">The program class.</typeparam>
@@ -27,6 +32,17 @@ namespace Microsoft.Extensions.Hosting
             MigrationAssembly
                 = typeof(T).Assembly.GetName().Name
                 ?? throw new ArgumentNullException("The migration assembly is invalid.");
+            return builder;
+        }
+
+        /// <summary>
+        /// Disable the MigrationAssembly because we are in tests.
+        /// </summary>
+        /// <param name="builder">The <see cref="IHostBuilder"/></param>
+        /// <returns>The <see cref="IHostBuilder"/></returns>
+        public static IHostBuilder MarkTest(this IHostBuilder builder)
+        {
+            ShouldUseMigrationAssembly = false;
             return builder;
         }
 
@@ -43,11 +59,15 @@ namespace Microsoft.Extensions.Hosting
         {
             return builder.ConfigureServices((context, services) =>
             {
-                services.AddDbContext<TContext>(options =>
-                {
-                    options.ReplaceService<IModelCustomizer, SuppliedModelCustomizer<TContext>>();
-                    configures.Invoke(context.Configuration, options);
-                });
+                services.AddSingleton<ModelSupplierService<TContext>>();
+                services.AddDbContext<TContext>(
+                    optionsLifetime: ServiceLifetime.Singleton,
+                    optionsAction: (services, options) =>
+                    {
+                        var mss = services.GetRequiredService<ModelSupplierService<TContext>>();
+                        ((IDbContextOptionsBuilderInfrastructure)options).AddOrUpdateExtension(mss);
+                        configures.Invoke(context.Configuration, options);
+                    });
             });
         }
 
@@ -62,7 +82,9 @@ namespace Microsoft.Extensions.Hosting
             this IHostBuilder builder,
             string connectionStringName) where TContext : DbContext
         {
-            _ = MigrationAssembly ?? throw new ArgumentException("The migration assembly is invalid.");
+            if (ShouldUseMigrationAssembly && MigrationAssembly == null)
+                throw new ArgumentException("The migration assembly is invalid.");
+
             return builder.AddDatabase<TContext>((conf, opt) =>
             {
                 opt.UseSqlServer(
@@ -82,7 +104,6 @@ namespace Microsoft.Extensions.Hosting
             this IHostBuilder builder,
             string databaseName) where TContext : DbContext
         {
-            _ = MigrationAssembly ?? throw new ArgumentException("The migration assembly is invalid.");
             return builder.AddDatabase<TContext>((conf, opt) =>
             {
                 opt.UseInMemoryDatabase(

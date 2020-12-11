@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace Microsoft.EntityFrameworkCore
 {
@@ -19,7 +18,7 @@ namespace Microsoft.EntityFrameworkCore
             where TContext : DbContext
             where TSupplier : class, IDbModelSupplier<TContext>, new()
         {
-            SuppliedModelCustomizer<TContext>.Holder.Add(new TSupplier());
+            services.AddSingleton<IDbModelSupplier<TContext>>(new TSupplier());
             return services;
         }
     }

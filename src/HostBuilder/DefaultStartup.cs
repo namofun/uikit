@@ -63,16 +63,22 @@ namespace Microsoft.AspNetCore.Mvc
         }
 
         /// <summary>
-        /// This method gets called by the runtime. Use this method to add services to the container.
+        /// Setup the <see cref="AssemblyLoadFileDelegate"/>.
         /// </summary>
-        /// <param name="services">The dependency injection builder</param>
-        public void ConfigureServices(IServiceCollection services)
+        static Startup()
         {
             typeof(ApplicationParts.RelatedAssemblyAttribute)
                 .GetFields(BindingFlags.Static | BindingFlags.NonPublic)
                 .Single(f => f.Name == nameof(AssemblyLoadFileDelegate))
                 .SetValue(null, new Func<string, Assembly>(AssemblyLoadFileDelegate));
+        }
 
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to add services to the container.
+        /// </summary>
+        /// <param name="services">The dependency injection builder</param>
+        public void ConfigureServices(IServiceCollection services)
+        {
             services.AddMemoryCache();
 
             services.Configure<CookiePolicyOptions>(options =>
