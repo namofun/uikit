@@ -1,13 +1,15 @@
 ﻿#nullable enable
-using System.Text.Json;
+using System.Buffers;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using System.Buffers;
-using System;
+using System.Text.Json;
 
 namespace System
 {
+    /// <summary>
+    /// The basic extensions that is used frequently.
+    /// </summary>
     public static class BasicExtensions
     {
         /// <summary>
