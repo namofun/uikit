@@ -42,6 +42,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{BEC090CD-1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SatelliteSite.Abstraction.Tests", "test\Abstraction.Test\SatelliteSite.Abstraction.Tests.csproj", "{95E32FFC-A23D-484E-A63F-7D050779CAF1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SatelliteSite.DataAccess.Tests", "test\DataAccess.Test\SatelliteSite.DataAccess.Tests.csproj", "{D723E17F-E2F7-4986-8474-2BBDE691D885}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,10 @@ Global
 		{95E32FFC-A23D-484E-A63F-7D050779CAF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95E32FFC-A23D-484E-A63F-7D050779CAF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95E32FFC-A23D-484E-A63F-7D050779CAF1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D723E17F-E2F7-4986-8474-2BBDE691D885}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D723E17F-E2F7-4986-8474-2BBDE691D885}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D723E17F-E2F7-4986-8474-2BBDE691D885}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D723E17F-E2F7-4986-8474-2BBDE691D885}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -103,6 +109,7 @@ Global
 		{EF8A697A-28F0-4E21-A056-820CBF92EFF3} = {65EF0846-B58D-4C79-B254-456B61BC845B}
 		{6457BBF3-0CAE-4462-B84D-ACEC4D7CE195} = {65EF0846-B58D-4C79-B254-456B61BC845B}
 		{95E32FFC-A23D-484E-A63F-7D050779CAF1} = {BEC090CD-1B34-4028-868B-EFE21BFD177F}
+		{D723E17F-E2F7-4986-8474-2BBDE691D885} = {BEC090CD-1B34-4028-868B-EFE21BFD177F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D2DCECCB-DCBD-4EC2-A75F-CE8B756096A1}
