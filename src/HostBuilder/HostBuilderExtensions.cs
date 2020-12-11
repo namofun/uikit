@@ -104,9 +104,7 @@ namespace Microsoft.AspNetCore.Mvc
             Action<IWebHostBuilder>? further = null)
             where TContext : DbContext
         {
-            if (HostBuilderDataAccessExtensions.ShouldUseMigrationAssembly &&
-                HostBuilderDataAccessExtensions.MigrationAssembly == null)
-                throw new ArgumentNullException("The migration assembly is invalid.");
+            bool shouldUseMigrationAssembly = builder.MigrationAssembly(out var migrationAssembly);
             further ??= _ => { };
 
             Modules.Insert(0, new SatelliteSite.Substrate.DefaultModule<TContext>());
@@ -116,8 +114,8 @@ namespace Microsoft.AspNetCore.Mvc
             {
                 builder.UseStaticWebAssets();
                 builder.UseStartup<Startup>();
-                if (HostBuilderDataAccessExtensions.ShouldUseMigrationAssembly)
-                    builder.UseSetting(WebHostDefaults.ApplicationKey, HostBuilderDataAccessExtensions.MigrationAssembly);
+                if (shouldUseMigrationAssembly)
+                    builder.UseSetting(WebHostDefaults.ApplicationKey, migrationAssembly);
 
                 builder.ConfigureServices((context, services) =>
                 {

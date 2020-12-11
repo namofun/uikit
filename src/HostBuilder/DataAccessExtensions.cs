@@ -12,16 +12,6 @@ namespace Microsoft.Extensions.Hosting
     public static class HostBuilderDataAccessExtensions
     {
         /// <summary>
-        /// The name of migration assembly
-        /// </summary>
-        public static string? MigrationAssembly { get; set; }
-
-        /// <summary>
-        /// Should we use the field of <see cref="MigrationAssembly"/>?
-        /// </summary>
-        internal static bool ShouldUseMigrationAssembly { get; set; } = true;
-
-        /// <summary>
         /// Mark the migration assembly.
         /// </summary>
         /// <typeparam name="T">The program class.</typeparam>
@@ -29,8 +19,8 @@ namespace Microsoft.Extensions.Hosting
         /// <returns>The <see cref="IHostBuilder"/></returns>
         public static IHostBuilder MarkDomain<T>(this IHostBuilder builder)
         {
-            MigrationAssembly
-                = typeof(T).Assembly.GetName().Name
+            builder.Properties["MigrationAssembly"]
+                =  typeof(T).Assembly.GetName().Name
                 ?? throw new ArgumentNullException("The migration assembly is invalid.");
             return builder;
         }
@@ -42,8 +32,29 @@ namespace Microsoft.Extensions.Hosting
         /// <returns>The <see cref="IHostBuilder"/></returns>
         public static IHostBuilder MarkTest(this IHostBuilder builder)
         {
-            ShouldUseMigrationAssembly = false;
+            builder.Properties["ShouldNotUseMigrationAssembly"] = true;
             return builder;
+        }
+
+        /// <summary>
+        /// Get the migration assembly information.
+        /// </summary>
+        /// <param name="builder">The host builder.</param>
+        /// <param name="assemblyName">The assembly name.</param>
+        /// <returns>Whether migration assembly is used.</returns>
+        internal static bool MigrationAssembly(this IHostBuilder builder, out string? assemblyName)
+        {
+            if (builder.Properties.ContainsKey("ShouldNotUseMigrationAssembly"))
+            {
+                assemblyName = null;
+                return false;
+            }
+
+            if (!builder.Properties.TryGetValue("MigrationAssembly", out var ma) || !(ma is string maa))
+                throw new ArgumentException("The migration assembly is invalid.");
+
+            assemblyName = maa;
+            return true;
         }
 
         /// <summary>
@@ -82,14 +93,20 @@ namespace Microsoft.Extensions.Hosting
             this IHostBuilder builder,
             string connectionStringName) where TContext : DbContext
         {
-            if (ShouldUseMigrationAssembly && MigrationAssembly == null)
+            if (!builder.Properties.ContainsKey("ShouldNotUseMigrationAssembly") &&
+                !builder.Properties.ContainsKey("MigrationAssembly"))
                 throw new ArgumentException("The migration assembly is invalid.");
 
             return builder.AddDatabase<TContext>((conf, opt) =>
             {
                 opt.UseSqlServer(
                     conf.GetConnectionString(connectionStringName),
-                    o => o.MigrationsAssembly(MigrationAssembly).UseBulk());
+                    sqlServerOptionsAction: o =>
+                    {
+                        o.UseBulk();
+                        if (!builder.Properties.ContainsKey("ShouldNotUseMigrationAssembly"))
+                            o.MigrationsAssembly((string)builder.Properties["MigrationAssembly"]);
+                    });
             });
         }
 
@@ -106,9 +123,7 @@ namespace Microsoft.Extensions.Hosting
         {
             return builder.AddDatabase<TContext>((conf, opt) =>
             {
-                opt.UseInMemoryDatabase(
-                    databaseName,
-                    o => o.UseBulk());
+                opt.UseInMemoryDatabase(databaseName, o => o.UseBulk());
             });
         }
     }

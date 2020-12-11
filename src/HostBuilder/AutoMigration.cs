@@ -19,9 +19,9 @@ namespace Microsoft.Extensions.Hosting
         /// <summary>
         /// Automatically migrate the <see cref="DbContext"/> to the newest migration.
         /// </summary>
-        /// <typeparam name="TContext">The concrete <see cref="DbContext"/> type</typeparam>
-        /// <param name="host">The <see cref="IHost"/></param>
-        /// <returns>The <see cref="IHost"/></returns>
+        /// <typeparam name="TContext">The concrete <see cref="DbContext"/> type.</typeparam>
+        /// <param name="host">The <see cref="IHost"/>.</param>
+        /// <returns>The <see cref="IHost"/>.</returns>
         public static IHost AutoMigrate<TContext>(this IHost host) where TContext : DbContext
         {
             using var scope = host.Services.CreateScope();
@@ -30,14 +30,65 @@ namespace Microsoft.Extensions.Hosting
             try
             {
                 var context = services.GetRequiredService<TContext>();
-                if (HostBuilderDataAccessExtensions.ShouldUseMigrationAssembly &&
-                    context.Database.GetPendingMigrations().Any())
+                if (context.Database.GetPendingMigrations().Any())
                     context.Database.Migrate();
             }
             catch (Exception ex)
             {
                 var logger = services.GetRequiredService<ILogger<AutoMigration>>();
                 logger.LogError(ex, "An error occurred during migrating the database.");
+                throw;
+            }
+
+            return host;
+        }
+
+        /// <summary>
+        /// Automatically create the database instance.
+        /// </summary>
+        /// <typeparam name="TContext">The concrete <see cref="DbContext"/> type.</typeparam>
+        /// <param name="host">The <see cref="IHost"/>.</param>
+        /// <returns>The <see cref="IHost"/>.</returns>
+        public static IHost EnsureCreated<TContext>(this IHost host) where TContext : DbContext
+        {
+            using var scope = host.Services.CreateScope();
+            var services = scope.ServiceProvider;
+
+            try
+            {
+                var context = services.GetRequiredService<TContext>();
+                context.Database.EnsureCreated();
+            }
+            catch (Exception ex)
+            {
+                var logger = services.GetRequiredService<ILogger<AutoMigration>>();
+                logger.LogError(ex, "An error occurred during creating the database.");
+                throw;
+            }
+
+            return host;
+        }
+
+        /// <summary>
+        /// Automatically delete the database instance.
+        /// </summary>
+        /// <typeparam name="TContext">The concrete <see cref="DbContext"/> type.</typeparam>
+        /// <param name="host">The <see cref="IHost"/>.</param>
+        /// <returns>The <see cref="IHost"/>.</returns>
+        public static IHost EnsureDeleted<TContext>(this IHost host) where TContext : DbContext
+        {
+            using var scope = host.Services.CreateScope();
+            var services = scope.ServiceProvider;
+
+            try
+            {
+                var context = services.GetRequiredService<TContext>();
+                context.Database.EnsureDeleted();
+            }
+            catch (Exception ex)
+            {
+                var logger = services.GetRequiredService<ILogger<AutoMigration>>();
+                logger.LogError(ex, "An error occurred during dropping the database.");
                 throw;
             }
 
