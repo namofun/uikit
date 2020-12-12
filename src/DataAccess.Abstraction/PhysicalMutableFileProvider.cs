@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.FileProviders
@@ -67,7 +68,7 @@ namespace Microsoft.Extensions.FileProviders
             using var stream = new FileStream(
                 fileInfo.PhysicalPath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096,
                 FileOptions.Asynchronous | FileOptions.SequentialScan);
-            using var streamWriter = new StreamWriter(stream, System.Text.Encoding.UTF8);
+            using var streamWriter = new StreamWriter(stream, new UTF8Encoding(false));
             await streamWriter.WriteAsync(content);
             return fileInfo;
         }
