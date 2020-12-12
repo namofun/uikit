@@ -106,6 +106,7 @@ namespace SatelliteSite.Tests
                 throw new InvalidOperationException($"Invalid assembly debug path \"{localDebugPath.Path}\".");
 
             _host = CreateHostBuilder()
+                .UseEnvironment("Testing")
                 .ConfigureWebHost(builder =>
                 {
                     builder.UseContentRoot(localDebugPath.Path);
