@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Nullable>enable</Nullable>
+    <RootNamespace>SatelliteSite.Tests</RootNamespace>
+    <DescriptionAttach>The test server tools</DescriptionAttach>
+  </PropertyGroup>
+
+  <Import Project="..\..\build\NugetPackage.props" />
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(AspNetCoreVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HostBuilder\SatelliteSite.HostBuilder.csproj" />
+  </ItemGroup>
+
+</Project>
