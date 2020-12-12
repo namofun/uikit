@@ -189,6 +189,8 @@ namespace SatelliteSite.IdentityModule.Services
         Task<IdentityResult> IUserManager.DeleteAsync(IRole role) => RoleStore.DeleteAsync((TRole)role, CancellationToken);
         async Task<IRole> IUserManager.FindRoleByNameAsync(string roleName) => await RoleStore.FindByNameAsync(NormalizeName(roleName), CancellationToken);
         async Task<IRole> IUserManager.FindRoleByIdAsync(int roleId) => await RoleStore.FindByIdAsync($"{roleId}", CancellationToken);
+        Task<bool> IUserManager.IsLockedOutAsync(IUser user) => IsLockedOutAsync((TUser)user);
+        Task<IdentityResult> IUserManager.SetLockoutEndDateAsync(IUser user, DateTimeOffset? lockoutEnd) => SetLockoutEndDateAsync((TUser)user, lockoutEnd);
 
         int? IUserManager.GetUserId(ClaimsPrincipal principal)
         {
@@ -218,5 +220,8 @@ namespace SatelliteSite.IdentityModule.Services
             base.Dispose(disposing);
             _disposed = true;
         }
+
+        /// <inheritdoc />
+        public abstract Task BatchLockOutAsync(IEnumerable<int> query);
     }
 }

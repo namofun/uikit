@@ -118,5 +118,14 @@ namespace SatelliteSite.IdentityModule.Services
             roleName = NormalizeName(roleName);
             return Context.Roles.Where(r => r.NormalizedName == roleName).AnyAsync();
         }
+
+        /// <inheritdoc />
+        public override Task BatchLockOutAsync(IEnumerable<int> query)
+        {
+            ThrowIfDisposed();
+            return Context.Users
+                .Where(u => query.Contains(u.Id))
+                .BatchUpdateAsync(u => new TUser { LockoutEnd = DateTimeOffset.MaxValue });
+        }
     }
 }

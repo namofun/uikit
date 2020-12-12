@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -143,6 +144,28 @@ namespace SatelliteSite.IdentityModule.Services
         /// <param name="providedPassword">The password supplied for comparison.</param>
         /// <returns>A <see cref="PasswordVerificationResult"/> indicating the result of a password hash comparison.</returns>
         PasswordVerificationResult VerifyPassword(IUser user, string providedPassword);
+
+        /// <summary>
+        /// Returns a flag indicating whether the specified user his locked out, as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user whose locked out status should be retrieved.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, true if the specified user is locked out, otherwise false.</returns>
+        Task<bool> IsLockedOutAsync(IUser user);
+
+        /// <summary>
+        /// Locks out a user until the specified end date has passed. Setting a end date in the past immediately unlocks a user.
+        /// </summary>
+        /// <param name="user">The user whose lockout date should be set.</param>
+        /// <param name="lockoutEnd">The <see cref="DateTimeOffset"/> after which the user's lockout should end.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
+        Task<IdentityResult> SetLockoutEndDateAsync(IUser user, DateTimeOffset? lockoutEnd);
+
+        /// <summary>
+        /// Locks out all users with its ID in the query.
+        /// </summary>
+        /// <param name="query">The user IDs whom should be locked out.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
+        Task BatchLockOutAsync(IEnumerable<int> query);
 
         #region Email
 
