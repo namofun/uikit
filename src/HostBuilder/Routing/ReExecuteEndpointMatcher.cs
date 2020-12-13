@@ -22,6 +22,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         private Func<HttpContext, Task>? PassTwo;
         private readonly IOptions<RouteOptions> _options;
         private readonly IServiceProvider _serviceProvider;
+        private readonly List<(string, RoutePattern, ActionDescriptor)> _fallbacks;
 
         /// <summary>
         /// Instantiate the <see cref="ReExecuteEndpointMatcher"/>.
@@ -31,6 +32,19 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         {
             _serviceProvider = serviceProvider;
             _options = _serviceProvider.GetRequiredService<IOptions<RouteOptions>>();
+            _fallbacks = new List<(string, RoutePattern, ActionDescriptor)>();
+        }
+
+        /// <summary>
+        /// Add the pattern and action descriptor to the fallback list.
+        /// </summary>
+        /// <param name="actionDescriptor">The action descriptor.</param>
+        /// <param name="pattern">The pattern string.</param>
+        public void Add(string pattern, ActionDescriptor actionDescriptor)
+        {
+            if (Fallbacks != null)
+                throw new InvalidOperationException("Patterns can't be added after finalizing endpoint building.");
+            _fallbacks.Add((pattern, RoutePatternFactory.Parse(pattern), actionDescriptor));
         }
 
         /// <summary>
@@ -38,7 +52,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         /// </summary>
         public void BuildPassOne()
         {
-            Fallbacks = DefaultErrorHandlerBuilder._fallbacks
+            Fallbacks = _fallbacks
                 .OrderByDescending(a => a.Item2.PathSegments.Count)
                 .ThenBy(a => a.Item1)
                 .ToList();

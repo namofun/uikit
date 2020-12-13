@@ -274,9 +274,6 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
     internal class DefaultErrorHandlerBuilder : IErrorHandlerBuilder
     {
-        public static readonly List<(string, RoutePattern, ActionDescriptor)> _fallbacks
-            = new List<(string, RoutePattern, ActionDescriptor)>();
-
         public ActionDescriptor ActionDescriptor { get; }
 
         public Action<IEndpointConventionBuilder> DefaultConvention { get; }
@@ -315,7 +312,9 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
         public IErrorHandlerBuilder MapStatusCode(string pattern)
         {
-            _fallbacks.Add((pattern, RoutePatternFactory.Parse(pattern), ActionDescriptor));
+            Builder.ServiceProvider
+                .GetRequiredService<ReExecuteEndpointMatcher>()
+                .Add(pattern, ActionDescriptor);
             return this;
         }
     }
