@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SatelliteSite.SampleModule.Services;
 
 namespace SatelliteSite.SampleModule.Controllers
@@ -17,6 +18,12 @@ namespace SatelliteSite.SampleModule.Controllers
         public IActionResult Home()
         {
             return View(Service.Forecast());
+        }
+
+        [Authorize]
+        public IActionResult Claims(string roleName)
+        {
+            return Json(User.IsInRole(roleName));
         }
     }
 }

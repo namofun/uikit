@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
@@ -35,10 +36,10 @@ namespace SatelliteSite.Tests
         /// <param name="scopeContent">The scope runner.</param>
         /// <returns>The task for running the scoped operation.</returns>
         public static async Task RunScoped(
-            this IServiceProvider services,
+            this SubstrateApplicationBase services,
             Func<IServiceProvider, Task> scopeContent)
         {
-            using var scope = services.CreateScope();
+            using var scope = services.Services.CreateScope();
             await scopeContent.Invoke(scope.ServiceProvider);
         }
 
@@ -48,11 +49,48 @@ namespace SatelliteSite.Tests
         /// <param name="services">The service provider to create the scope.</param>
         /// <param name="scopeContent">The scope runner.</param>
         public static void RunScoped(
-            this IServiceProvider services,
+            this SubstrateApplicationBase services,
             Action<IServiceProvider> scopeContent)
         {
-            using var scope = services.CreateScope();
+            using var scope = services.Services.CreateScope();
             scopeContent.Invoke(scope.ServiceProvider);
+        }
+
+        /// <summary>
+        /// Login the http client.
+        /// </summary>
+        /// <param name="client">The http client.</param>
+        /// <param name="Username">The username to login.</param>
+        /// <param name="Password">The password to login.</param>
+        /// <param name="RememberMe">The remember me option.</param>
+        /// <returns>Whether login succeeded.</returns>
+        public static async Task<bool> LoginAsync(
+            this HttpClient client,
+            string Username, string Password, bool RememberMe = false)
+        {
+            string __RequestVerificationToken;
+            using (var root = await client.GetAsync("/account/login?returnUrl=%2F"))
+            {
+                var body = await root.Content.ReadAsStringAsync();
+                const string flag = "<input name=\"__RequestVerificationToken\" type=\"hidden\" value=\"";
+                var idx = body.IndexOf(flag) + flag.Length;
+                var idxEnd = body.IndexOf('"', idx);
+                __RequestVerificationToken = body[idx..idxEnd];
+            }
+
+            using (var root = await client.PostAsync(
+                "/account/login?returnUrl=%2F",
+                new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    [nameof(Username)] = Username,
+                    [nameof(Password)] = Password,
+                    [nameof(__RequestVerificationToken)] = __RequestVerificationToken,
+                    [nameof(RememberMe)] = RememberMe.ToString().ToLower(),
+                })))
+            {
+                var content = await root.Content.ReadAsStringAsync();
+                return !content.Contains("Invalid login attempt.");
+            }
         }
 
         private static readonly Func<WebApplicationFactoryClientOptions, DelegatingHandler[]> CreateHandlersDelegate =

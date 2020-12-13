@@ -23,7 +23,7 @@ namespace SatelliteSite.Tests
     /// instances used to send <see cref="HttpRequestMessage"/> to the <see cref="TestServer"/>.
     /// </para>
     /// </summary>
-    public abstract class SubstrateApplicationBase : IDisposable, IServiceProvider
+    public abstract class SubstrateApplicationBase : IDisposable
     {
         private bool _disposed;
         private TestServer? _server;
@@ -145,6 +145,18 @@ namespace SatelliteSite.Tests
         /// redirects and handles cookies.
         /// </summary>
         /// <returns>The <see cref="HttpClient"/>.</returns>
+        public HttpClient CreateClient(Action<WebApplicationFactoryClientOptions> optionsAction)
+        {
+            var options = new WebApplicationFactoryClientOptions();
+            optionsAction?.Invoke(options);
+            return CreateClient(options);
+        }
+
+        /// <summary>
+        /// Creates an instance of <see cref="HttpClient"/> that automatically follows
+        /// redirects and handles cookies.
+        /// </summary>
+        /// <returns>The <see cref="HttpClient"/>.</returns>
         public HttpClient CreateClient(WebApplicationFactoryClientOptions options) =>
             CreateDefaultClient(options.BaseAddress, options.CreateHandlers());
 
@@ -251,9 +263,5 @@ namespace SatelliteSite.Tests
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
-
-        /// <inheritdoc />
-        public object GetService(Type serviceType) =>
-            Services.GetService(serviceType);
     }
 }
