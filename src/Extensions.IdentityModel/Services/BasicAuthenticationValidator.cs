@@ -10,18 +10,15 @@ namespace SatelliteSite.IdentityModule.Services
 {
     public class BasicAuthenticationValidator : BasicAuthenticationEvents
     {
-        public BasicAuthenticationValidator()
+        private readonly IMemoryCache _cache;
+
+        public BasicAuthenticationValidator(IMemoryCache cache)
         {
+            _cache = cache;
             OnValidateCredentials = ValidateAsync;
         }
 
-        private readonly static IMemoryCache _cache =
-            new MemoryCache(new MemoryCacheOptions()
-            {
-                Clock = new Microsoft.Extensions.Internal.SystemClock()
-            });
-
-        private static async Task ValidateAsync(ValidateCredentialsContext context)
+        private async Task ValidateAsync(ValidateCredentialsContext context)
         {
             if (string.IsNullOrWhiteSpace(context.Username))
             {

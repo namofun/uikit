@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Options;
 using SatelliteSite;
 using SatelliteSite.Entities;
@@ -61,6 +63,12 @@ namespace SatelliteSite.IdentityModule
                 IUserClaimsPrincipalFactory<TUser>,
                 UserClaimsPrincipalFactory<TUser, TRole, TContext>>();
 
+            var memoryCacheOptions = new MemoryCacheOptions() { Clock = new SystemClock() };
+            var basicCache = new MemoryCache(memoryCacheOptions);
+            var cookieCache = new SlideExpirationService(new MemoryCache(memoryCacheOptions));
+
+            services.AddSingleton(cookieCache);
+
             services.ConfigureApplicationCookie(
                 options =>
                 {
@@ -70,7 +78,7 @@ namespace SatelliteSite.IdentityModule
                     options.LogoutPath = "/account/logout";
                     options.AccessDeniedPath = "/account/access-denied";
                     options.SlidingExpiration = true;
-                    options.Events = new CookieAuthenticationValidator();
+                    options.Events = new CookieAuthenticationValidator(cookieCache);
                 });
 
             services.AddAuthentication()
@@ -78,7 +86,7 @@ namespace SatelliteSite.IdentityModule
                 {
                     options.Realm = "Satellite Site";
                     options.AllowInsecureProtocol = true;
-                    options.Events = new BasicAuthenticationValidator();
+                    options.Events = new BasicAuthenticationValidator(basicCache);
                 });
 
             services.AddAuthorization();

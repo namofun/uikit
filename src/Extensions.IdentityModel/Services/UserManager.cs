@@ -30,7 +30,8 @@ namespace SatelliteSite.IdentityModule.Services
             ILookupNormalizer keyNormalizer,
             IdentityErrorDescriber errors,
             IServiceProvider services,
-            ILogger<UserManager<TUser, TRole>> logger)
+            ILogger<UserManager<TUser, TRole>> logger,
+            SlideExpirationService slideExpirationService)
             : base(store,
                   roleStore,
                   optionsAccessor,
@@ -46,12 +47,18 @@ namespace SatelliteSite.IdentityModule.Services
             if (contextProperty == null)
                 throw new InvalidOperationException("This user manager should be rewritten.");
             Context = (IdentityDbContext<TUser, TRole, int>)contextProperty.GetValue(store);
+            SlideExpirationStore = slideExpirationService;
         }
 
         /// <summary>
         /// Gets the database context for this store.
         /// </summary>
         private IdentityDbContext<TUser, TRole, int> Context { get; }
+
+        /// <summary>
+        /// Gets the expiration for this store.
+        /// </summary>
+        private SlideExpirationService SlideExpirationStore { get; }
 
         /// <inheritdoc />
         public override bool SupportsUserTwoFactor => false;
@@ -62,10 +69,7 @@ namespace SatelliteSite.IdentityModule.Services
         /// <inheritdoc />
         public override Task<IdentityResult> SlideExpirationAsync(TUser user)
         {
-            CookieAuthenticationValidator._cache.Set(
-                key: "SlideExpiration: " + user.NormalizedUserName,
-                value: DateTimeOffset.UtcNow,
-                absoluteExpirationRelativeToNow: TimeSpan.FromMinutes(20));
+            SlideExpirationStore.Set(user.UserName);
             return Task.FromResult(IdentityResult.Success);
         }
 

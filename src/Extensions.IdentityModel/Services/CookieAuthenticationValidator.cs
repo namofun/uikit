@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Threading.Tasks;
 
@@ -11,8 +10,11 @@ namespace SatelliteSite.IdentityModule.Services
 {
     public class CookieAuthenticationValidator : CookieAuthenticationEvents
     {
-        public CookieAuthenticationValidator()
+        private readonly SlideExpirationService _cache;
+
+        public CookieAuthenticationValidator(SlideExpirationService cache)
         {
+            _cache = cache;
             OnValidatePrincipal = ValidatePrincipalImpl;
             OnRedirectToLogin = c => RedirectImpl(c, 401);
             OnRedirectToAccessDenied = c => RedirectImpl(c, 403);
@@ -20,21 +22,14 @@ namespace SatelliteSite.IdentityModule.Services
             OnRedirectToReturnUrl = c => RedirectImpl(c, null);
         }
 
-        internal readonly static IMemoryCache _cache =
-            new MemoryCache(new MemoryCacheOptions()
-            {
-                Clock = new Microsoft.Extensions.Internal.SystemClock()
-            });
-
-        private static async Task ValidatePrincipalImpl(CookieValidatePrincipalContext context)
+        private async Task ValidatePrincipalImpl(CookieValidatePrincipalContext context)
         {
             var userName = context.Principal.GetUserName();
             DateTimeOffset? orig = context.Properties.IssuedUtc;
             userName = userName?.Normalize().ToUpperInvariant();
 
             if (userName != null &&
-                _cache.TryGetValue("SlideExpiration: " + userName, out DateTimeOffset last) &&
-                last > context.Properties.IssuedUtc)
+                _cache.Get(userName, context.Properties.IssuedUtc))
                 context.Properties.IssuedUtc = null;
 
             await SecurityStampValidator.ValidatePrincipalAsync(context);
