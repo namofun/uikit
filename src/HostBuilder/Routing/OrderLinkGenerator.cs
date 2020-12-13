@@ -20,7 +20,7 @@ namespace Microsoft.AspNetCore.Routing
         private readonly Func<RouteEndpoint, TemplateBinder> _createTemplateBinder;
         private readonly FieldInfo _requiredKeys;
         const string typeName = "Microsoft.AspNetCore.Routing.DefaultLinkGenerator";
-        internal static Type? typeInner;
+        internal static readonly Type? typeInner = typeof(Route).Assembly.GetType("Microsoft.AspNetCore.Routing.DefaultLinkGenerator");
 
         /// <summary>
         /// Create instance of <see cref="LinkGenerator"/> that wrapped the real generator inner.

@@ -49,7 +49,8 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IMvcBuilder ReplaceDefaultLinkGenerator(this IMvcBuilder builder)
         {
             var old = builder.Services.FirstOrDefault(s => s.ServiceType == typeof(LinkGenerator));
-            OrderLinkGenerator.typeInner = old.ImplementationType;
+            if (OrderLinkGenerator.typeInner == null)
+                throw new TypeLoadException("No Microsoft.AspNetCore.Routing.DefaultLinkGenerator found.");
             builder.Services.Replace(ServiceDescriptor.Singleton<LinkGenerator, OrderLinkGenerator>());
             return builder;
         }
