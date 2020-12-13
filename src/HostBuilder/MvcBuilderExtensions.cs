@@ -42,6 +42,19 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
+        /// Add the <see cref="SubstrateControllerConvention"/> into conventions and container.
+        /// </summary>
+        /// <param name="builder">The <see cref="IMvcBuilder"/></param>
+        /// <returns>The <see cref="IMvcBuilder"/></returns>
+        public static IMvcBuilder UseSubstrateConventions(this IMvcBuilder builder)
+        {
+            var convention = new SubstrateControllerConvention();
+            builder.Services.AddSingleton(convention);
+            builder.Services.Configure<MvcOptions>(options => options.Conventions.Add(convention));
+            return builder;
+        }
+
+        /// <summary>
         /// Replace the default <see cref="LinkGenerator"/> implemention with more routing token prob.
         /// </summary>
         /// <param name="builder">The <see cref="IMvcBuilder"/></param>

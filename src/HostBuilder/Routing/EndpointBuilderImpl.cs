@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -21,7 +20,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using AE = Microsoft.AspNetCore.Mvc.Routing.ApiExplorerVisibilityAttribute;
 
 namespace Microsoft.AspNetCore.Mvc.Routing
 {
@@ -194,7 +192,8 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         public IEndpointConventionBuilder MapApiDocument(string name, string title, string description, string version)
         {
             var assembly = typeof(TModule).Assembly;
-            AE.DeclaredAssemblyModule.TryAdd(assembly.FullName!, name);
+            GetRequiredService<SubstrateControllerConvention>()
+                .Declare(assembly.FullName!, name);
 
             var sgo = GetRequiredService<IOptions<SwaggerGenOptions>>().Value;
 

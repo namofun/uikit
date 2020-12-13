@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.Routing;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -11,7 +10,6 @@ namespace Microsoft.AspNetCore.Mvc
     /// <summary>
     /// A base class for an MVC controller with view and ajax support.
     /// </summary>
-    [ApiExplorerVisibility(false)]
     public abstract class ViewControllerBase : Controller
     {
         /// <summary>

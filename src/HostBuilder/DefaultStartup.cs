@@ -102,6 +102,7 @@ namespace Microsoft.AspNetCore.Mvc
             services.AddControllersWithViews()
                 .AddTimeSpanJsonConverter()
                 .UseSlugifyParameterTransformer()
+                .UseSubstrateConventions()
                 .ReplaceDefaultLinkGenerator()
                 .AddSessionStateTempDataProvider()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
