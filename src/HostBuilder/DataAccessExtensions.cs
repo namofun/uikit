@@ -66,7 +66,8 @@ namespace Microsoft.Extensions.Hosting
         /// <returns>The <see cref="IHostBuilder"/></returns>
         public static IHostBuilder AddDatabase<TContext>(
             this IHostBuilder builder,
-            Action<IConfiguration, DbContextOptionsBuilder> configures) where TContext : DbContext
+            Action<IConfiguration, DbContextOptionsBuilder> configures)
+            where TContext : DbContext
         {
             return builder.ConfigureServices((context, services) =>
             {
@@ -86,12 +87,17 @@ namespace Microsoft.Extensions.Hosting
         /// Add a <see cref="DbContext"/> and configure them in the next constructing pipeline.
         /// </summary>
         /// <typeparam name="TContext">The required <see cref="DbContext"/>.</typeparam>
-        /// <param name="builder">The <see cref="IHostBuilder"/></param>
-        /// <param name="connectionStringName">The connection string name</param>
-        /// <returns>The <see cref="IHostBuilder"/></returns>
+        /// <param name="builder">The <see cref="IHostBuilder"/>.</param>
+        /// <param name="connectionStringName">The connection string name.</param>
+        /// <param name="configures1">The dbcontext options builder.</param>
+        /// <param name="configures2">The provider options builder.</param>
+        /// <returns>The <see cref="IHostBuilder"/>.</returns>
         public static IHostBuilder AddDatabaseMssql<TContext>(
             this IHostBuilder builder,
-            string connectionStringName) where TContext : DbContext
+            string connectionStringName,
+            Action<DbContextOptionsBuilder>? configures1 = null,
+            Action<SqlServerDbContextOptionsBuilder>? configures2 = null)
+            where TContext : DbContext
         {
             if (!builder.Properties.ContainsKey("ShouldNotUseMigrationAssembly") &&
                 !builder.Properties.ContainsKey("MigrationAssembly"))
@@ -106,7 +112,10 @@ namespace Microsoft.Extensions.Hosting
                         o.UseBulk();
                         if (!builder.Properties.ContainsKey("ShouldNotUseMigrationAssembly"))
                             o.MigrationsAssembly((string)builder.Properties["MigrationAssembly"]);
+                        configures2?.Invoke(o);
                     });
+
+                configures1?.Invoke(opt);
             });
         }
 
@@ -114,16 +123,29 @@ namespace Microsoft.Extensions.Hosting
         /// Add a <see cref="DbContext"/> and configure them in the next constructing pipeline.
         /// </summary>
         /// <typeparam name="TContext">The required <see cref="DbContext"/>.</typeparam>
-        /// <param name="builder">The <see cref="IHostBuilder"/></param>
-        /// <param name="databaseName">The in-memory database name</param>
-        /// <returns>The <see cref="IHostBuilder"/></returns>
+        /// <param name="builder">The <see cref="IHostBuilder"/>.</param>
+        /// <param name="databaseName">The in-memory database name.</param>
+        /// <param name="configures1">The dbcontext options builder.</param>
+        /// <param name="configures2">The provider options builder.</param>
+        /// <returns>The <see cref="IHostBuilder"/>.</returns>
         public static IHostBuilder AddDatabaseInMemory<TContext>(
             this IHostBuilder builder,
-            string databaseName) where TContext : DbContext
+            string databaseName,
+            Action<DbContextOptionsBuilder>? configures1 = null,
+            Action<InMemoryDbContextOptionsBuilder>? configures2 = null)
+            where TContext : DbContext
         {
             return builder.AddDatabase<TContext>((conf, opt) =>
             {
-                opt.UseInMemoryDatabase(databaseName, o => o.UseBulk());
+                opt.UseInMemoryDatabase(
+                    databaseName,
+                    inMemoryOptionsAction: o =>
+                    {
+                        o.UseBulk();
+                        configures2?.Invoke(o);
+                    });
+
+                configures1?.Invoke(opt);
             });
         }
     }
