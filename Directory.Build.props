@@ -2,7 +2,7 @@
   <PropertyGroup>
     <GitRepositoryDirectory>$(MSBuildThisFileDirectory).git</GitRepositoryDirectory>
     <AspNetCoreVersion>3.1.10</AspNetCoreVersion>
-    <EFCoreBulkVersion>3.1.16</EFCoreBulkVersion>
+    <EFCoreBulkVersion>3.1.18</EFCoreBulkVersion>
   </PropertyGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)build\Microsoft.AspNetCore.Hosting.GitVersions.props" />
