@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Microsoft.OpenApi.Models;
@@ -234,7 +235,15 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
             var file = System.IO.Path.ChangeExtension(assembly.Location, "xml");
             if (System.IO.File.Exists(file))
+            {
                 sgo.IncludeXmlComments(file);
+            }
+            else
+            {
+                GetRequiredService<ILoggerFactory>()
+                    .CreateLogger("Microsoft.Hosting.Lifetime")
+                    .LogWarning($"Documentation '{file}' is not found. Specification comments will not be registered into swagger.");
+            }
 
             var actionLazy = new ControllerActionDescriptorLazy("Dashboard", "ApiDoc", "Display");
             return Builder.Map("/api/doc/" + name, context =>
