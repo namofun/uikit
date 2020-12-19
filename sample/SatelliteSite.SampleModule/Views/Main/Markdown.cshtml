@@ -1,0 +1,29 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Test Markdown";
+}
+
+<h2 class="mt-2 mb-3">@ViewData["Title"]</h2>
+<link rel="stylesheet" href="~/lib/editor-md/css/editormd.css" />
+<script src="~/lib/editor-md/editormd.js"></script>
+
+<div style="height:600px">
+    <div id="editormd"><textarea style="display:none;"></textarea></div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        var editor = editormd({
+            id: "editormd",
+            path: "/lib/editor-md/lib/",
+            tex: true,
+            imageUpload: true,
+            imageFormats: ["jpg", "jpeg", "gif", "png", "svg"],
+            imageUploadURL: "/api/static/images-upload?type=feig&id=34324",
+        });
+        editormd.katexURL = {
+            js: "/lib/katex/katex.min",
+            css: "/lib/katex/katex.min"
+        };
+    });
+</script>

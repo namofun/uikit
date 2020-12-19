@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Reflection;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -21,6 +22,18 @@ namespace Microsoft.Extensions.DependencyInjection
             where TImplementation : class, TService
         {
             return services.Replace(ServiceDescriptor.Scoped<TService, TImplementation>());
+        }
+
+        /// <summary>
+        /// Add the assembly to MediatR.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <param name="assembly">The handler assembly.</param>
+        /// <returns>The service collection.</returns>
+        public static IServiceCollection AddMediatRAssembly(this IServiceCollection services, Assembly assembly)
+        {
+            MediatR.Registration.ServiceRegistrar.AddMediatRClasses(services, new[] { assembly });
+            return services;
         }
     }
 }

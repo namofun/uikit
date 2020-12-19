@@ -20,6 +20,11 @@ namespace SatelliteSite.SampleModule.Controllers
             return View(Service.Forecast());
         }
 
+        public IActionResult Markdown()
+        {
+            return View();
+        }
+
         [Authorize]
         public IActionResult Claims(string roleName)
         {
