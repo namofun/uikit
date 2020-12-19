@@ -157,6 +157,34 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         }
     }
 
+    public class ControllerActionDescriptorLazy
+    {
+        private ControllerActionDescriptor? _value;
+        private readonly string _area, _controller, _action;
+
+        public ControllerActionDescriptorLazy(string area, string controller, string action)
+        {
+            _area = area;
+            _controller = controller;
+            _action = action;
+        }
+
+        public ControllerActionDescriptor GetValue(IServiceProvider services)
+        {
+            if (_value != null) return _value;
+
+            var adcp = services.GetRequiredService<IActionDescriptorCollectionProvider>();
+            var actions = adcp.ActionDescriptors.Items;
+            var action = actions.OfType<ControllerActionDescriptor>()
+                .Where(s => s.ControllerName.Equals(_controller, StringComparison.OrdinalIgnoreCase))
+                .Where(s => s.ActionName.Equals(_action, StringComparison.OrdinalIgnoreCase))
+                .Where(s => s.RouteValues.TryGetValue("area", out var AreaName) && AreaName.Equals(_area, StringComparison.OrdinalIgnoreCase))
+                .Single();
+
+            return _value = action;
+        }
+    }
+
     internal class DefaultEndpointBuilder<TModule> : IEndpointBuilder where TModule : AbstractModule
     {
         public IEndpointRouteBuilder Builder { get; }
@@ -208,20 +236,13 @@ namespace Microsoft.AspNetCore.Mvc.Routing
             if (System.IO.File.Exists(file))
                 sgo.IncludeXmlComments(file);
 
-            var adcp = GetRequiredService<IActionDescriptorCollectionProvider>();
-            var actions = adcp.ActionDescriptors.Items;
-            var action = actions.OfType<ControllerActionDescriptor>()
-                .Where(s => s.ControllerName.Equals("ApiDoc", StringComparison.OrdinalIgnoreCase))
-                .Where(s => s.ActionName.Equals("Display", StringComparison.OrdinalIgnoreCase))
-                .Where(s => s.RouteValues.TryGetValue("area", out var AreaName) && AreaName.Equals("Dashboard", StringComparison.OrdinalIgnoreCase))
-                .Single();
-
+            var actionLazy = new ControllerActionDescriptorLazy("Dashboard", "ApiDoc", "Display");
             return Builder.Map("/api/doc/" + name, context =>
             {
                 var routeData = new RouteData();
                 routeData.PushState(router: null, context.Request.RouteValues, new RouteValueDictionary());
                 routeData.Values["name"] = name;
-                var actionContext = new ActionContext(context, routeData, action);
+                var actionContext = new ActionContext(context, routeData, actionLazy.GetValue(context.RequestServices));
 
                 var invoker = context.RequestServices
                     .GetRequiredService<IActionInvokerFactory>()
@@ -240,13 +261,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
         public IErrorHandlerBuilder WithErrorHandler(string area, string controller, string action)
         {
-            var adcp = GetRequiredService<IActionDescriptorCollectionProvider>();
-            var actions = adcp.ActionDescriptors.Items;
-            var ad = actions.OfType<ControllerActionDescriptor>()
-                .Where(s => s.ControllerName.Equals(controller, StringComparison.OrdinalIgnoreCase))
-                .Where(s => s.ActionName.Equals(action, StringComparison.OrdinalIgnoreCase))
-                .Where(s => s.RouteValues.TryGetValue("area", out var AreaName) && AreaName.Equals(area, StringComparison.OrdinalIgnoreCase))
-                .Single();
+            var ad = new ControllerActionDescriptorLazy(area, controller, action);
             return new DefaultErrorHandlerBuilder(ad, Builder, DefaultConvention);
         }
 
@@ -273,13 +288,13 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
     internal class DefaultErrorHandlerBuilder : IErrorHandlerBuilder
     {
-        public ActionDescriptor ActionDescriptor { get; }
+        public ControllerActionDescriptorLazy ActionDescriptor { get; }
 
         public Action<IEndpointConventionBuilder> DefaultConvention { get; }
 
         public IEndpointRouteBuilder Builder { get; }
 
-        public DefaultErrorHandlerBuilder(ActionDescriptor actionDescriptor, IEndpointRouteBuilder builder, Action<IEndpointConventionBuilder> convention)
+        public DefaultErrorHandlerBuilder(ControllerActionDescriptorLazy actionDescriptor, IEndpointRouteBuilder builder, Action<IEndpointConventionBuilder> convention)
         {
             ActionDescriptor = actionDescriptor;
             Builder = builder;
@@ -296,7 +311,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
                 var routeData = new RouteData();
                 routeData.PushState(router: null, context.Request.RouteValues, new RouteValueDictionary());
-                var actionContext = new ActionContext(context, routeData, action);
+                var actionContext = new ActionContext(context, routeData, action.GetValue(context.RequestServices));
 
                 var invoker = context.RequestServices
                     .GetRequiredService<IActionInvokerFactory>()
