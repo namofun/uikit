@@ -15,9 +15,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{962F1EFF-AAFA-4BD8-8793-EF1736E568B7}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
-		build\Microsoft.AspNetCore.Hosting.GitVersions.props = build\Microsoft.AspNetCore.Hosting.GitVersions.props
 		build\NugetPackage.props = build\NugetPackage.props
-		build\SatelliteSite.Abstraction.props = build\SatelliteSite.Abstraction.props
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Substrate", "src\TagHelpers.Bootstrap\SatelliteSite.Substrate.csproj", "{26576939-06BA-439B-A8B8-FF7408DB6341}"
