@@ -6,6 +6,7 @@
     public enum AuditlogType
     {
         Judgehost = 0,
+        Affiliation = 1,
         TeamAffiliation = 1,
         Team = 2,
         User = 3,
@@ -19,9 +20,13 @@
         Judging = 11,
         Executable = 12,
         Rejudging = 13,
+        Category = 14,
         TeamCategory = 14,
         InternalError = 15,
+        News = 16,
         Configuration = 17,
+        Student = 18,
+        Sync = 19,
         Attachment = 20,
     }
 }
