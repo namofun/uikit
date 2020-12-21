@@ -129,7 +129,7 @@ namespace SatelliteSite.Tests
             var depsFileName = $"{EntryPointAssembly.GetName().Name}.deps.json";
             var depsFile = new FileInfo(Path.Combine(AppContext.BaseDirectory, depsFileName));
             if (!depsFile.Exists)
-                throw new InvalidOperationException($"Missing deps file {depsFile.FullName}");
+                throw new InvalidOperationException($"Missing deps file {depsFile.FullName}. Please make sure your test project made package-reference to Microsoft.AspNetCore.Mvc.Testing.");
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -14,6 +15,30 @@ namespace SatelliteSite.Tests
     /// </summary>
     public static class MiscTestsExtensions
     {
+        /// <remarks>To suppress the call to <see cref="IDisposable.Dispose"/></remarks>
+        private class DefaultAccessor : IApplicationAccessor
+        {
+            public SubstrateApplicationBase Instance { get; }
+
+            public DefaultAccessor(SubstrateApplicationBase @base)
+            {
+                Instance = @base;
+            }
+        }
+
+        /// <summary>
+        /// Disable the MigrationAssembly because we are in tests.
+        /// </summary>
+        /// <param name="builder">The <see cref="IHostBuilder"/></param>
+        /// <param name="base">The substrate application to test</param>
+        /// <returns>The <see cref="IHostBuilder"/></returns>
+        public static IHostBuilder MarkTest(this IHostBuilder builder, SubstrateApplicationBase @base)
+        {
+            builder.Properties["ShouldNotUseMigrationAssembly"] = true;
+            builder.ConfigureServices(svcs => svcs.AddSingleton<IApplicationAccessor>(new DefaultAccessor(@base)));
+            return builder;
+        }
+
         /// <summary>
         /// A <typeparamref name="T"/> representation of the JSON value.
         /// </summary>
