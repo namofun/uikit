@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Menus;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,6 +39,30 @@ namespace Microsoft.AspNetCore.Mvc
                 httpContext.Items["__AuthorizationMiddlewareWithEndpointInvoked"] = true;
                 return next();
             });
+        }
+
+        /// <summary>
+        /// Checks if a given Url matches rules and conditions, and modifies the HttpContext on match.
+        /// </summary>
+        /// <param name="app">The application builder</param>
+        /// <returns>The original application builder</returns>
+        public static IApplicationBuilder UseUrlRewriting(this IApplicationBuilder app)
+        {
+            if (app.ApplicationServices.GetRequiredService<IUrlHelperFactory>() is SubstrateUrlHelperFactory urlHelperFactory)
+            {
+                if (urlHelperFactory.RewriteRules.Count > 0)
+                {
+                    urlHelperFactory.Enabled = true;
+                    var options = new RewriteOptions();
+                    foreach (var rule in urlHelperFactory.RewriteRules)
+                        options.Add(rule);
+                    app.UseRewriter(options);
+                }
+
+                return app;
+            }
+
+            throw new InvalidOperationException("IUrlHelperFactory is not compatible with current configurations.");
         }
 
         /// <summary>

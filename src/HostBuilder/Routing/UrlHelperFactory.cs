@@ -50,6 +50,16 @@ namespace Microsoft.AspNetCore.Mvc.Routing
             _rewriteRules = rewriteRules.ToList();
         }
 
+        /// <summary>
+        /// The rewrite rules
+        /// </summary>
+        public IReadOnlyList<IRewriteRule> RewriteRules => _rewriteRules;
+
+        /// <summary>
+        /// Whether to enable url rewriting
+        /// </summary>
+        public bool Enabled { get; internal set; }
+
         /// <inheritdoc />
         public IUrlHelper GetUrlHelper(ActionContext context)
         {
@@ -61,7 +71,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
             if (httpContext.Items.TryGetValue(typeof(IUrlHelper), out var value) && value is IUrlHelper urlHelper)
                 return urlHelper;
 
-            if (_rewriteRules.Count == 0 || httpContext.Items.ContainsKey(SuppressFlag))
+            if (_rewriteRules.Count == 0 || !Enabled || httpContext.Items.ContainsKey(SuppressFlag))
                 urlHelper = _nEndpointRoutingUrlHelper(context, _linkGenerator);
             else
                 urlHelper = _nRewriteUrlHelper(context, _linkGenerator, _rewriteRules);

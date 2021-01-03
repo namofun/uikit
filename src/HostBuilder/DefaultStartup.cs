@@ -148,6 +148,7 @@ namespace Microsoft.AspNetCore.Mvc
                 app.UseHsts();
             }
 
+            app.UseUrlRewriting();
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseSession();
