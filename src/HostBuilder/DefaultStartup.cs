@@ -68,6 +68,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// </summary>
         static Startup()
         {
+            // For ASP.NET Core 3.1
             typeof(ApplicationParts.RelatedAssemblyAttribute)
                 .GetFields(BindingFlags.Static | BindingFlags.NonPublic)
                 .Single(f => f.Name == nameof(AssemblyLoadFileDelegate))

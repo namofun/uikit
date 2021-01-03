@@ -16,11 +16,6 @@ namespace Microsoft.AspNetCore.Mvc
         private readonly AuditlogType _type;
 
         /// <summary>
-        /// The original auditlog value
-        /// </summary>
-        private AuditlogType? _origin;
-
-        /// <summary>
         /// The name of http context item
         /// </summary>
         internal const string AuditlogTypeName = nameof(AuditlogType);
@@ -34,25 +29,13 @@ namespace Microsoft.AspNetCore.Mvc
         /// <inheritdoc />
         public void OnActionExecuted(ActionExecutedContext context)
         {
-            if (_origin.HasValue)
-            {
-                context.HttpContext.Items[AuditlogTypeName] = _origin.Value;
-            }
-            else
-            {
-                context.HttpContext.Items.Remove(AuditlogTypeName);
-            }
+            context.HttpContext.Items.Remove(AuditlogTypeName);
         }
 
         /// <inheritdoc />
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            if (context.HttpContext.Items.TryGetValue(AuditlogTypeName, out object? objVal))
-            {
-                _origin = (AuditlogType?)objVal;
-            }
-
-            context.HttpContext.Items.Add(nameof(AuditlogType), _type);
+            context.HttpContext.Items[AuditlogTypeName] = _type;
         }
     }
 }
