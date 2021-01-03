@@ -53,20 +53,12 @@ namespace SatelliteSite.Services
         }
 
         /// <inheritdoc />
-        public async Task<PagedViewList<Auditlog>> ViewLogsAsync(int? cid, int page, int pageCount)
+        public Task<IPagedList<Auditlog>> ViewLogsAsync(int? cid, int page, int pageCount)
         {
-            var count = await Auditlogs
-                .Where(a => a.ContestId == cid)
-                .CountAsync();
-
-            var query = await Auditlogs
+            return Auditlogs
                 .Where(a => a.ContestId == cid)
                 .OrderByDescending(a => a.LogId)
-                .Skip((page - 1) * pageCount)
-                .Take(pageCount)
-                .ToListAsync();
-
-            return new PagedViewList<Auditlog>(query, page, count, pageCount);
+                .ToPagedListAsync(page, pageCount);
         }
     }
 }

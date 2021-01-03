@@ -37,7 +37,7 @@ namespace SatelliteSite.Services
         /// <param name="page">The page to show.</param>
         /// <param name="pageCount">The count of pages to show.</param>
         /// <returns>The task with auditlogs.</returns>
-        Task<PagedViewList<Auditlog>> ViewLogsAsync(
+        Task<IPagedList<Auditlog>> ViewLogsAsync(
             int? cid,
             int page,
             int pageCount);
