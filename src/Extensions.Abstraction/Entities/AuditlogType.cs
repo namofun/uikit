@@ -28,5 +28,6 @@
         Student = 18,
         Sync = 19,
         Attachment = 20,
+        Printing = 21,
     }
 }

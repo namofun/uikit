@@ -1,5 +1,4 @@
 ﻿#nullable disable
-
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -26,6 +25,22 @@ namespace System.Linq
             Expression<Func<T, bool>> predicate)
         {
             return condition ? queryable.Where(predicate) : queryable;
+        }
+
+        /// <summary>
+        /// If the <paramref name="condition"/> satisfies, apply the <paramref name="selector"/> to the <paramref name="queryable"/>.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="queryable">The source queryable.</param>
+        /// <param name="condition">The apply condition.</param>
+        /// <param name="selector">The selector expression.</param>
+        /// <returns>The solved queryable.</returns>
+        public static IQueryable<T> SelectIf<T>(
+            this IQueryable<T> queryable,
+            bool condition,
+            Expression<Func<T, T>> selector)
+        {
+            return condition ? queryable.Select(selector) : queryable;
         }
 
         /// <summary>

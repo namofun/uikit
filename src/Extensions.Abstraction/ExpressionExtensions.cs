@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace System.Linq.Expressions
 {
@@ -356,6 +357,72 @@ namespace System.Linq.Expressions
                 var exp = Expression.Lambda<Func<T, bool>>(body!, param);
                 return exp;
             }
+        }
+
+        /// <summary>
+        /// Combine some expression with other if condition satisfies.
+        /// </summary>
+        /// <typeparam name="T1">The computed source type.</typeparam>
+        /// <typeparam name="T2">The computed source type.</typeparam>
+        /// <param name="expression">The expression to use.</param>
+        /// <param name="condition">The condition to satisfy.</param>
+        /// <param name="other">The other expression to combine.</param>
+        /// <returns>The combined expression.</returns>
+        public static Expression<Func<T1, T2, bool>> CombineIf<T1, T2>(
+            this Expression<Func<T1, T2, bool>> expression,
+            bool condition,
+            Expression<Func<T1, T2, bool>> other)
+        {
+            if (!condition) return expression;
+            return expression.Combine(other);
+        }
+
+        /// <summary>
+        /// Combine some expression with other if condition satisfies.
+        /// </summary>
+        /// <typeparam name="T">The computed source type.</typeparam>
+        /// <param name="expression">The expression to use.</param>
+        /// <param name="condition">The condition to satisfy.</param>
+        /// <param name="other">The other expression to combine.</param>
+        /// <returns>The combined expression.</returns>
+        public static Expression<Func<T, bool>> CombineIf<T>(
+            this Expression<Func<T, bool>> expression,
+            bool condition,
+            Expression<Func<T, bool>> other)
+        {
+            if (!condition) return expression;
+            return expression.Combine(other);
+        }
+    }
+
+    /// <summary>
+    /// Short class for representing a lambda expression.
+    /// </summary>
+    public static class Expr
+    {
+        /// <summary>
+        /// Of the expression.
+        /// </summary>
+        /// <typeparam name="T">The parameter type.</typeparam>
+        /// <param name="expression">The core expression.</param>
+        /// <returns>The same expression.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Expression<Func<T, bool>>? Of<T>(Expression<Func<T, bool>>? expression)
+        {
+            return expression;
+        }
+
+        /// <summary>
+        /// Of the expression.
+        /// </summary>
+        /// <typeparam name="T1">The parameter type 1.</typeparam>
+        /// <typeparam name="T2">The parameter type 2.</typeparam>
+        /// <param name="expression">The core expression.</param>
+        /// <returns>The same expression.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Expression<Func<T1, T2, bool>> Of<T1, T2>(Expression<Func<T1, T2, bool>> expression)
+        {
+            return expression;
         }
     }
 }

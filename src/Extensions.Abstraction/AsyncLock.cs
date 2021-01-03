@@ -37,7 +37,7 @@
         /// <summary>
         /// The releaser for locker.
         /// </summary>
-        private struct Releaser : IDisposable
+        private class Releaser : IDisposable
         {
             /// <summary>
             /// The locker.
