@@ -120,6 +120,8 @@ namespace Microsoft.AspNetCore.Mvc
                 .AddSecurityScheme("basic", Microsoft.OpenApi.Models.SecuritySchemeType.Http);
 
             services.AddSingleton<IApiDocumentProvider, ApiDocumentProvider>();
+
+            services.ReplaceSingleton<IUrlHelperFactory, SubstrateUrlHelperFactory>();
         }
 
         /// <summary>

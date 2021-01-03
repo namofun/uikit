@@ -80,6 +80,18 @@ namespace Microsoft.AspNetCore.Mvc
         }
 
         /// <summary>
+        /// Add a rewrite rule and configure them in the next constructing pipeline.
+        /// </summary>
+        /// <param name="builder">The <see cref="IHostBuilder"/></param>
+        /// <param name="rewriteRule">The <see cref="IRewriteRule"/></param>
+        /// <returns>The <see cref="IHostBuilder"/></returns>
+        public static IHostBuilder AddRewriteRule(this IHostBuilder builder, IRewriteRule rewriteRule)
+        {
+            builder.ConfigureServices(services => services.AddSingleton(rewriteRule));
+            return builder;
+        }
+
+        /// <summary>
         /// Gets the list of mutable modules.
         /// </summary>
         /// <param name="builder">The host builder.</param>

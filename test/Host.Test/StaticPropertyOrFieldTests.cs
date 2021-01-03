@@ -51,6 +51,8 @@ namespace SatelliteSite.Tests
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Mvc.Routing.ModuleEndpointDataSourceBase]::[AddEndpoints]"] = "Fast Reflect",
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Mvc.MenuNameDefaults]::[_containsWithComparer]"] = "Fast Reflect",
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Routing.OrderLinkGenerator]::[typeInner]"] = "Fast Reflect",
+                ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Mvc.Routing.SubstrateUrlHelperFactory]::[_nRewriteUrlHelper]"] = "Fast Reflect",
+                ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Mvc.Routing.SubstrateUrlHelperFactory]::[_nEndpointRoutingUrlHelper]"] = "Fast Reflect",
 
                 ["[SatelliteSite.Host]::[SatelliteSite.Program]::[Current]"] = "Global Entry Point",
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Mvc.Rendering.HtmlHelperExtensions]::[EnglishCulture]"] = "Global Entry Point",
