@@ -174,6 +174,8 @@ namespace Microsoft.AspNetCore.Mvc
                 builder.UseStaticWebAssets();
                 builder.ConfigureEnvironment(modules);
                 builder.UseStartup<Startup>();
+
+                // REVIEW: why should we specify the application key?
                 if (shouldUseMigrationAssembly)
                     builder.UseSetting(WebHostDefaults.ApplicationKey, migrationAssembly);
 

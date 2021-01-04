@@ -120,6 +120,10 @@ namespace Microsoft.Extensions.DependencyInjection
                             tree["Views"]["Shared"]["Components"].Append(new PhysicalFileProvider(dir3));
                     }
                 }
+                else if (assemblyName == "SatelliteSite.Substrate.Views")
+                {
+                    lst.Add(new CompiledRazorAssemblyPart(assembly));
+                }
                 else
                 {
                     lst.Add(new ViewsAssemblyPart(assembly, areaName));
@@ -138,12 +142,11 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var selfCheck = typeof(AbstractModule).Assembly
                 .GetCustomAttribute<LocalDebugPathAttribute>();
-            if (selfCheck != null)
+            if (selfCheck != null && Directory.Exists(selfCheck.Path))
                 (tree ??= new PeerFileProvider()).Append(new PhysicalFileProvider(selfCheck.Path));
 
             foreach (var module in modules)
-                if (module.GetType().Assembly != typeof(AbstractModule).Assembly)
-                    Add(module.GetType().Assembly, module.Area);
+                Add(module.GetType().Assembly, module.Area);
 
             if (isDevelopment && tree != null)
                 builder.AddRazorRuntimeCompilation(options => options.FileProviders.Add(tree));
@@ -152,10 +155,13 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 foreach (var part in lst)
                 {
+                    CompiledRazorAssemblyPart rcap;
+                    AssemblyPart rap;
+
                     switch (part)
                     {
                         case ViewsAssemblyPart vap:
-                            var rcap = apm.ApplicationParts
+                            rcap = apm.ApplicationParts
                                 .OfType<CompiledRazorAssemblyPart>()
                                 .SingleOrDefault(a => a.Assembly == vap.Assembly);
                             if (rcap != null)
@@ -164,12 +170,23 @@ namespace Microsoft.Extensions.DependencyInjection
                             break;
 
                         case AssemblyPart ap:
-                            var rap = apm.ApplicationParts
+                            rap = apm.ApplicationParts
                                 .OfType<AssemblyPart>()
-                                .Any(a => a.Assembly == ap.Assembly);
-                            if (!rap)
+                                .FirstOrDefault(a => a.Assembly == ap.Assembly);
+                            if (rap == null)
                                 apm.ApplicationParts.Add(ap);
                             break;
+
+                        case CompiledRazorAssemblyPart crap:
+                            rcap = apm.ApplicationParts
+                                .OfType<CompiledRazorAssemblyPart>()
+                                .SingleOrDefault(a => a.Assembly == crap.Assembly);
+                            if (rcap == null)
+                                apm.ApplicationParts.Add(crap);
+                            break;
+
+                        default:
+                            throw new NotImplementedException("Seems that HostBuilder-discovered shouldn't contain this one.");
                     }
                 }
             });

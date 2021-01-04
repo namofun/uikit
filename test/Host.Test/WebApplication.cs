@@ -11,7 +11,7 @@ namespace SatelliteSite.Tests
 
         protected override IHostBuilder CreateHostBuilder() =>
             Host.CreateDefaultBuilder()
-                .MarkDomain<Program>()
+                .MarkTest(this)
                 .AddModule<IdentityModule.IdentityModule<User, Role, DefaultContext>>()
                 .AddModule<SampleModule.SampleModule>()
                 .AddDatabaseInMemory<DefaultContext>("0x8c")
