@@ -191,6 +191,8 @@ namespace SatelliteSite.IdentityModule.Services
         async Task<IRole> IUserManager.FindRoleByIdAsync(int roleId) => await RoleStore.FindByIdAsync($"{roleId}", CancellationToken);
         Task<bool> IUserManager.IsLockedOutAsync(IUser user) => IsLockedOutAsync((TUser)user);
         Task<IdentityResult> IUserManager.SetLockoutEndDateAsync(IUser user, DateTimeOffset? lockoutEnd) => SetLockoutEndDateAsync((TUser)user, lockoutEnd);
+        Task<string> IUserManager.GenerateUserTokenAsync(IUser user, string tokenProvider, string purpose) => GenerateUserTokenAsync((TUser)user, tokenProvider, purpose);
+        Task<bool> IUserManager.VerifyUserTokenAsync(IUser user, string tokenProvider, string purpose, string token) => VerifyUserTokenAsync((TUser)user, tokenProvider, purpose, token);
 
         int? IUserManager.GetUserId(ClaimsPrincipal principal)
         {

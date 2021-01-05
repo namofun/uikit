@@ -167,6 +167,29 @@ namespace SatelliteSite.IdentityModule.Services
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
         Task BatchLockOutAsync(IEnumerable<int> query);
 
+        /// <summary>
+        /// Generates a token for the given user and purpose.
+        /// </summary>
+        /// <param name="user">The user the token will be for.</param>
+        /// <param name="tokenProvider">The provider which will generate the token.</param>
+        /// <param name="purpose">The purpose the token will be for.</param>
+        /// <returns>The <see cref="Task"/> that represents result of the asynchronous operation, a token for the given user and purpose.</returns>
+        Task<string> GenerateUserTokenAsync(IUser user, string tokenProvider, string purpose);
+
+        /// <summary>
+        /// Returns a flag indicating whether the specified <paramref name="token"/> is valid for
+        /// the given <paramref name="user"/> and <paramref name="purpose"/>.
+        /// </summary>
+        /// <param name="user">The user to validate the token against.</param>
+        /// <param name="tokenProvider">The token provider used to generate the token.</param>
+        /// <param name="purpose">The purpose the token should be generated for.</param>
+        /// <param name="token">The token to validate</param>
+        /// <returns>
+        /// The <see cref="Task"/> that represents the asynchronous operation, returning true if the <paramref name="token"/>
+        /// is valid, otherwise false.
+        /// </returns>
+        Task<bool> VerifyUserTokenAsync(IUser user, string tokenProvider, string purpose, string token);
+
         #region Email
 
         /// <summary>
