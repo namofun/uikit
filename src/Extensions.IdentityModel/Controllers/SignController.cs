@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SatelliteSite.IdentityModule.Models;
 using SatelliteSite.IdentityModule.Services;
+using SatelliteSite.Services;
 using System;
 using System.Threading.Tasks;
 
@@ -85,8 +86,17 @@ namespace SatelliteSite.IdentityModule.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Register(string returnUrl = null)
+        public async Task<IActionResult> Register(
+            [FromServices] IConfigurationRegistry config,
+            [FromQuery] string returnUrl = null)
         {
+            if (await config.GetBooleanAsync("enable_register") == false)
+                return Message(
+                    title: "Registration closed",
+                    message: "The registration of current site is closed now. " +
+                        "If you believe this was a mistake, please contact the site administrator.",
+                    type: BootstrapColor.secondary);
+
             ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
@@ -99,8 +109,16 @@ namespace SatelliteSite.IdentityModule.Controllers
             RegisterModel model,
             [FromServices] IEmailSender emailSender,
             [FromServices] ISignInManager signInManager,
+            [FromServices] IConfigurationRegistry config,
             [FromQuery] string returnUrl = null)
         {
+            if (await config.GetBooleanAsync("enable_register") == false)
+                return Message(
+                    title: "Registration closed",
+                    message: "The registration of current site is closed now. " +
+                        "If you believe this was a mistake, please contact the site administrator.",
+                    type: BootstrapColor.secondary);
+
             ViewData["ReturnUrl"] = returnUrl;
             if (!ModelState.IsValid) return View(model);
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SatelliteSite.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -65,6 +66,49 @@ namespace SatelliteSite.Services
                 .ToListAsync();
             return conf.OrderBy(c => c.DisplayPriority)
                 .ToLookup(c => c.Category);
+        }
+
+        /// <summary>
+        /// Gets the typed configuration with corresponding name.
+        /// </summary>
+        /// <param name="name">The configuration name.</param>
+        /// <param name="typeName">The configuration type name.</param>
+        /// <returns>The task for configuration result or <c>null</c>.</returns>
+        private async Task<T> GetValueAsync<T>(string name, string typeName)
+        {
+            var conf = await Configurations
+                .Where(c => c.Name == name && c.Type == typeName)
+                .Select(c => new { c.Value })
+                .SingleOrDefaultAsync();
+
+            if (conf == null)
+                throw new KeyNotFoundException($"The configuration {name} is not saved. Please check your migration status.");
+
+            return conf.Value.AsJson<T>();
+        }
+
+        /// <inheritdoc />
+        public Task<bool?> GetBooleanAsync(string name)
+        {
+            return GetValueAsync<bool?>(name, "bool");
+        }
+
+        /// <inheritdoc />
+        public Task<int?> GetIntegerAsync(string name)
+        {
+            return GetValueAsync<int?>(name, "int");
+        }
+
+        /// <inheritdoc />
+        public Task<DateTimeOffset?> GetDateTimeOffsetAsync(string name)
+        {
+            return GetValueAsync<DateTimeOffset?>(name, "datetime");
+        }
+
+        /// <inheritdoc />
+        public Task<string?> GetStringAsync(string name)
+        {
+            return GetValueAsync<string?>(name, "string");
         }
     }
 }

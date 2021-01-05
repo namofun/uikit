@@ -1,4 +1,5 @@
 ﻿using SatelliteSite.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,5 +38,33 @@ namespace SatelliteSite.Services
         /// <param name="name">The name of configuration. If null, then the whole list.</param>
         /// <returns>The configuration list.</returns>
         Task<List<Configuration>> GetAsync(string? name = null);
+
+        /// <summary>
+        /// Gets the boolean configuration with corresponding name.
+        /// </summary>
+        /// <param name="name">The configuration name.</param>
+        /// <returns>The task for configuration result or <c>null</c>.</returns>
+        Task<bool?> GetBooleanAsync(string name);
+        
+        /// <summary>
+        /// Gets the integer configuration with corresponding name.
+        /// </summary>
+        /// <param name="name">The configuration name.</param>
+        /// <returns>The task for configuration result or <c>null</c>.</returns>
+        Task<int?> GetIntegerAsync(string name);
+
+        /// <summary>
+        /// Gets the date time offset configuration with corresponding name.
+        /// </summary>
+        /// <param name="name">The configuration name.</param>
+        /// <returns>The task for configuration result or <c>null</c>.</returns>
+        Task<DateTimeOffset?> GetDateTimeOffsetAsync(string name);
+
+        /// <summary>
+        /// Gets the string with corresponding name.
+        /// </summary>
+        /// <param name="name">The configuration name.</param>
+        /// <returns>The task for configuration result or <c>null</c>.</returns>
+        Task<string?> GetStringAsync(string name);
     }
 }

@@ -16,6 +16,7 @@ using System;
 
 [assembly: RoleDefinition(1, "Administrator", "admin", "Administrative User")]
 [assembly: RoleDefinition(2, "Blocked", "blocked", "Blocked User")]
+[assembly: ConfigurationBoolean(0, "Identity", "enable_register", true, "Whether to allow user self registration.")]
 
 namespace SatelliteSite.IdentityModule
 {
