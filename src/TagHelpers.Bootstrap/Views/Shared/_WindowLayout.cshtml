@@ -3,6 +3,7 @@
     var (styleAjax, stylePlain) = ViewData.ContainsKey("MaxWidth")
         ? ($"max-width:{ViewData["MaxWidth"]}", $"max-width:{ViewData["MaxWidth"]}")
         : ("", "max-width:35rem");
+    var cancelText = (ViewData["CancelText"] as string) ?? "Cancel";
     // If you want to change form-action, please set ViewData["FormAjaxUpload"] = "Your URL";
 }
 
@@ -23,7 +24,7 @@
                     @RenderBody()
                 </div>
                 <div class="modal-footer">
-                    <button asp-no-viewdata-key="IgnoreCancelButton" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button asp-no-viewdata-key="IgnoreCancelButton" type="button" class="btn btn-secondary" data-dismiss="modal">@cancelText</button>
                     @RenderSection("Footer", required: false)
                 </div>
             </div>

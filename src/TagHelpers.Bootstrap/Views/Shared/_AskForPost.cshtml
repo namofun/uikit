@@ -1,8 +1,15 @@
 ﻿@{
     Layout = "_WindowLayout";
+    var messages = ((string)ViewData["Message"]).Split('\n');
 }
 
-<p>@ViewData["Message"]</p>
+<p>
+@for (int i = 0; i < messages.Length; i++)
+{
+    if (i > 0) {<br />}
+    @messages[i]
+}
+</p>
 
 @section Footer {
     <button asp-area="@ViewData["AreaName"]"

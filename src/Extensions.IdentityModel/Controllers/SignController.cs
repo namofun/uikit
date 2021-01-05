@@ -93,7 +93,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             if (await config.GetBooleanAsync("enable_register") == false)
                 return Message(
                     title: "Registration closed",
-                    message: "The registration of current site is closed now. " +
+                    message: "The registration of current site is closed now.\n" +
                         "If you believe this was a mistake, please contact the site administrator.",
                     type: BootstrapColor.secondary);
 
@@ -115,7 +115,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             if (await config.GetBooleanAsync("enable_register") == false)
                 return Message(
                     title: "Registration closed",
-                    message: "The registration of current site is closed now. " +
+                    message: "The registration of current site is closed now.\n" +
                         "If you believe this was a mistake, please contact the site administrator.",
                     type: BootstrapColor.secondary);
 

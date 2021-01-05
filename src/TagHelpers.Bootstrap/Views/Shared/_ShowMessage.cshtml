@@ -1,9 +1,20 @@
 ﻿@{
     Layout = "_WindowLayout";
+    ViewData["IgnoreCancelButton"] = true;
+    var messages = ((string)ViewData["Message"]).Split('\n');
 }
 
-<p>@ViewData["Message"]</p>
+<p>
+@for (int i = 0; i < messages.Length; i++)
+{
+    if (i > 0) {<br />}
+    @messages[i]
+}
+</p>
 
-@section Footer {
-    <button type="button" class="btn btn-@ViewData["MsgType"]" data-dismiss="modal">Ok</button>
+@if (ViewData.ContainsKey("InAjax"))
+{
+    @section Footer {
+        <button type="button" class="btn btn-@ViewData["MsgType"]" data-dismiss="modal">Ok</button>
+    }
 }
