@@ -127,6 +127,25 @@ namespace SatelliteSite.IdentityModule
                     .RequireRoles("Administrator");
             });
 
+            menus.Menu(ExtensionPointDefaults.UserDetailMenu, menu =>
+            {
+                menu.HasEntry(0)
+                    .HasLink("Account", "Profile", "Edit")
+                    .HasTitle("primary", "Edit profile")
+                    .RequireThat(c => c.HttpContext.User.GetUserName() == ((IUser)c.ViewData["User"]).UserName);
+
+                menu.HasEntry(10)
+                    .HasLink("Account", "Profile", "ChangePassword")
+                    .HasTitle("secondary", "Change password")
+                    .RequireThat(c => c.HttpContext.User.GetUserName() == ((IUser)c.ViewData["User"]).UserName);
+
+                menu.HasEntry(0)
+                    .HasLink((urlHelper, context) => urlHelper.Action("Detail", "Users", new { area = "Dashboard", uid = ((IUser)context.ViewData["User"]).Id }))
+                    .HasTitle("danger", "Dashboard")
+                    .RequireThat(c => c.HttpContext.User.GetUserName() != ((IUser)c.ViewData["User"]).UserName)
+                    .RequireRoles("Administrator");
+            });
+
             menus.Component(ExtensionPointDefaults.UserDetail);
 
             menus.Component(ExtensionPointDefaults.DashboardUserDetail);

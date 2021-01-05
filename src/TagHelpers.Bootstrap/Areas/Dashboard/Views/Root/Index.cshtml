@@ -3,7 +3,7 @@
     ViewData["Title"] = "Overview";
     var submenus = Menu.Find(MenuNameDefaults.DashboardContent)
         .OfType<ISubmenu>()
-        .Where(a => a.Any(b => b.Satisfy(Context)))
+        .Where(a => a.Any(b => b.Satisfy(ViewContext)))
         .ToList();
     int t = (submenus.Count + 1) / 2;
 }
@@ -22,7 +22,7 @@
                 <ul>
                     @foreach (var entry in item)
                     {
-                    <li asp-show-if="entry.Satisfy(Context)"><a href="@entry.GetLink(Url)">@entry.Title</a></li>
+                    <li asp-show-if="entry.Satisfy(ViewContext)"><a href="@entry.GetLink(Url, ViewContext)">@entry.Title</a></li>
                     }
                 </ul>
             </div>
@@ -40,7 +40,7 @@
                 <ul>
                     @foreach (var entry in item)
                     {
-                    <li asp-show-if="entry.Satisfy(Context)"><a href="@entry.GetLink(Url)">@entry.Title</a></li>
+                    <li asp-show-if="entry.Satisfy(ViewContext)"><a href="@entry.GetLink(Url, ViewContext)">@entry.Title</a></li>
                     }
                 </ul>
             </div>

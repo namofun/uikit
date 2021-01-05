@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +28,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         public Dictionary<string, object> Metadata { get; }
 
         /// <inheritdoc />
-        public List<Expression<Func<HttpContext, bool>>> Requirements { get; }
+        public List<Expression<Func<ViewContext, bool>>> Requirements { get; }
 
         /// <inheritdoc />
         public bool Finalized { get; set; }
@@ -50,7 +49,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         public ConcreteMenuBuilder(ConcreteMenuContributor contributor)
         {
             Contributor = contributor;
-            Requirements = new List<Expression<Func<HttpContext, bool>>>();
+            Requirements = new List<Expression<Func<ViewContext, bool>>>();
             Metadata = new Dictionary<string, object>();
             Submenus = new HashSet<string>();
             Entries = new List<IMenuEntryBase>();

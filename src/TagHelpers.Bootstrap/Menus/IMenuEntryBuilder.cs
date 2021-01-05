@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -57,7 +56,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         /// <summary>
         /// Provide requirements for this menu entry.
         /// </summary>
-        List<Expression<Func<HttpContext, bool>>> Requirements { get; }
+        List<Expression<Func<ViewContext, bool>>> Requirements { get; }
 
         /// <summary>
         /// Provide activities for this menu entry.

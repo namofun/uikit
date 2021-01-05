@@ -2,16 +2,16 @@
 @{
     ViewData["Title"] = "View User";
     IUser user = ViewBag.User;
+    var realMenu = Menu.Find(SatelliteSite.IdentityModule.ExtensionPointDefaults.UserDetailMenu)
+        .Where(a => a.Satisfy(ViewContext))
+        .ToList();
 }
 
 @await Menu.Extend(SatelliteSite.IdentityModule.ExtensionPointDefaults.UserDetail).RenderAsync(Component)
 
-<p class="mb-0 mt-3" asp-show-if="User.GetUserName() == user.UserName">
-    <a asp-action="Edit" class="btn btn-primary mb-1">Edit profile</a>
-    <a asp-action="ChangePassword" class="btn btn-secondary mb-1">Change password</a>
-    @*<a asp-action="List" asp-controller="TrainingTeam" class="btn btn-success mb-1">Teams</a>*@
-</p>
-
-<p class="mb-0 mt-3" asp-in-roles="Administrator" asp-show-if="User.GetUserName() != user.UserName">
-    <a asp-action="Detail" asp-controller="Users" asp-area="Dashboard" asp-route-uid="@user.Id" class="btn btn-danger mb-1">Dashboard</a>
+<p class="mb-0 mt-3" asp-show-if="realMenu.Count > 0">
+@foreach (var menu in realMenu)
+{
+    <a href="@menu.GetLink(Url, ViewContext)" class="btn btn-@menu.Icon mb-1">@menu.Title</a>
+}
 </p>

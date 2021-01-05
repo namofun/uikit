@@ -96,13 +96,27 @@ namespace Microsoft.AspNetCore.Mvc
                 throw new InvalidOperationException(ModelFinalized);
             if (that.Metadata.ContainsKey("Link"))
                 throw new InvalidOperationException(EverConfigured);
+            if (link == null)
+                throw new ArgumentNullException(nameof(link));
+            that.Metadata.Add("Link", link);
+            return that;
+        }
 
-            var rvd = new RouteValueDictionary
-            {
-                [nameof(link)] = link,
-            };
-
-            that.Metadata.Add("Link", rvd);
+        /// <summary>
+        /// Set the external link.
+        /// </summary>
+        /// <param name="that">The menu builder.</param>
+        /// <param name="linkFactory">The link factory.</param>
+        /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
+        public static TBuilder HasLink<TBuilder>(this TBuilder that, Func<IUrlHelper, ViewContext, string> linkFactory) where TBuilder : IMenuEntryBuilderBase
+        {
+            if (that.Finalized)
+                throw new InvalidOperationException(ModelFinalized);
+            if (that.Metadata.ContainsKey("Link"))
+                throw new InvalidOperationException(EverConfigured);
+            if (linkFactory == null)
+                throw new ArgumentNullException(nameof(linkFactory));
+            that.Metadata.Add("Link", linkFactory);
             return that;
         }
 
@@ -138,21 +152,12 @@ namespace Microsoft.AspNetCore.Mvc
             if (that.Metadata.ContainsKey("Link"))
                 throw new InvalidOperationException(EverConfigured);
 
-            var rvd = new RouteValueDictionary
+            var rvd = new RouteValueDictionary(routeValues)
             {
                 [nameof(area)] = area,
                 [nameof(controller)] = controller,
                 [nameof(action)] = action,
             };
-
-            if (routeValues != null)
-            {
-                var vtype = routeValues.GetType();
-                if ((!vtype.FullName?.StartsWith("<>f__AnonymousType")) ?? true)
-                    throw new ArgumentException(nameof(routeValues));
-                foreach (var p in vtype.GetProperties())
-                    rvd[p.Name] = p.GetValue(routeValues);
-            }
 
             that.Metadata.Add("Link", rvd);
             return that;
@@ -179,7 +184,8 @@ namespace Microsoft.AspNetCore.Mvc
             return that;
         }
 
-        private static MethodInfo? _containsWithComparer;
+        private static readonly MethodInfo _containsWithComparer
+            = new Func<IEnumerable<string?>, string, IEqualityComparer<string?>, bool>(Enumerable.Contains).GetMethodInfo()!;
 
         /// <summary>
         /// Create an expression for <see cref="ViewContext"/>.
@@ -189,13 +195,6 @@ namespace Microsoft.AspNetCore.Mvc
         /// <returns>The compiled view context.</returns>
         private static Expression<Func<ViewContext, bool>> CreateExpression(Expression<Func<ViewContext, string?>> src, string dest)
         {
-            if (_containsWithComparer == null)
-            {
-                Expression<Func<IEnumerable<string?>, bool>> exp = c => c.Contains(null!, null!);
-                var body = (MethodCallExpression)exp.Body;
-                _containsWithComparer = body.Method;
-            }
-
             var dests = dest.Split(',', StringSplitOptions.RemoveEmptyEntries);
             var call = Expression.Call(_containsWithComparer,
                 Expression.Constant(dests, typeof(IEnumerable<string>)),
@@ -269,6 +268,38 @@ namespace Microsoft.AspNetCore.Mvc
         }
 
         /// <summary>
+        /// Provide a function to detect the active status.
+        /// </summary>
+        /// <param name="that">The menu builder.</param>
+        /// <param name="active">The active condition lambda.</param>
+        /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
+        public static TBuilder ActiveWhen<TBuilder>(this TBuilder that, Expression<Func<ViewContext, bool>> active) where TBuilder : IMenuEntryBuilderBase
+        {
+            if (that.Finalized)
+                throw new InvalidOperationException(ModelFinalized);
+            if (active == null)
+                throw new ArgumentNullException(nameof(active));
+            that.Activities.Add(active);
+            return that;
+        }
+
+        /// <summary>
+        /// Require these delegate.
+        /// </summary>
+        /// <param name="that">The menu builder.</param>
+        /// <param name="requirement">The requirement expression.</param>
+        /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
+        public static TBuilder RequireThat<TBuilder>(this TBuilder that, Expression<Func<ViewContext, bool>> requirement) where TBuilder : IMenuEntryBuilderBase
+        {
+            if (that.Finalized)
+                throw new InvalidOperationException(ModelFinalized);
+            if (requirement == null)
+                throw new ArgumentNullException(nameof(requirement));
+            that.Requirements.Add(requirement);
+            return that;
+        }
+
+        /// <summary>
         /// Require these roles.
         /// </summary>
         /// <param name="that">The menu builder.</param>
@@ -278,7 +309,7 @@ namespace Microsoft.AspNetCore.Mvc
         {
             if (that.Finalized)
                 throw new InvalidOperationException(ModelFinalized);
-            that.Requirements.Add(c => c.User.IsInRoles(roles));
+            that.Requirements.Add(c => c.HttpContext.User.IsInRoles(roles));
             return that;
         }
 
@@ -293,7 +324,7 @@ namespace Microsoft.AspNetCore.Mvc
         {
             if (that.Finalized)
                 throw new InvalidOperationException(ModelFinalized);
-            that.Requirements.Add(c => c.User.HasClaim(claimKey, claimValue));
+            that.Requirements.Add(c => c.HttpContext.User.HasClaim(claimKey, claimValue));
             return that;
         }
     }

@@ -39,8 +39,9 @@ namespace Microsoft.AspNetCore.Mvc
         /// Get the destination link of menu entry.
         /// </summary>
         /// <param name="urlHelper">The <see cref="IUrlHelper"/> to generate links.</param>
+        /// <param name="actionContext">The <see cref="ActionContext"/>.</param>
         /// <returns>The generated link.</returns>
-        string GetLink(IUrlHelper urlHelper);
+        string GetLink(IUrlHelper urlHelper, ViewContext actionContext);
 
         /// <summary>
         /// Check whether this tag is active for such <see cref="ActionContext"/>.
@@ -61,7 +62,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// </summary>
         /// <param name="httpContext">The <see cref="HttpContext"/>.</param>
         /// <returns>The decision.</returns>
-        bool Satisfy(HttpContext httpContext);
+        bool Satisfy(ViewContext httpContext);
     }
 
     /// <summary>

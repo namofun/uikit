@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Routing;
 using System;
 using System.Collections.Generic;
@@ -24,7 +23,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         /// <summary>
         /// The internal require function.
         /// </summary>
-        private Func<HttpContext, bool>? Require { get; set; }
+        private Func<ViewContext, bool>? Require { get; set; }
 
         /// <summary>
         /// The internal activity function.
@@ -35,7 +34,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         public Dictionary<string, object> Metadata { get; } = new Dictionary<string, object>();
 
         /// <inheritdoc />
-        public List<Expression<Func<HttpContext, bool>>> Requirements { get; } = new List<Expression<Func<HttpContext, bool>>>();
+        public List<Expression<Func<ViewContext, bool>>> Requirements { get; } = new List<Expression<Func<ViewContext, bool>>>();
 
         /// <inheritdoc />
         public List<Expression<Func<ViewContext, bool>>> Activities { get; } = new List<Expression<Func<ViewContext, bool>>>();
@@ -67,29 +66,24 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         }
 
         /// <inheritdoc />
-        string IMenuEntryBase.GetLink(IUrlHelper urlHelper)
+        string IMenuEntryBase.GetLink(IUrlHelper urlHelper, ViewContext actionContext)
         {
-            var rvd = (RouteValueDictionary)Metadata["Link"];
-            if (rvd.Count == 1 && rvd.ContainsKey("link"))
-                return (string)rvd["link"];
-
-            if (rvd.Count == 3)
+            return Metadata["Link"] switch
             {
-                var ctrl = (string)rvd["controller"];
-                var act = (string)rvd["action"];
-                var area = (string)rvd["area"];
-                return urlHelper.Action(act, ctrl, new { area });
-            }
-
-            throw new NotImplementedException();
+                RouteValueDictionary rvd => urlHelper.Action(new Routing.UrlActionContext { Values = rvd }),
+                string rawLink => rawLink,
+                Func<IUrlHelper, ViewContext, string> factory => factory(urlHelper, actionContext),
+                _ => throw new NotSupportedException("The type of link " + Metadata["Link"].GetType().FullName + " is not supported."),
+            };
         }
 
         /// <inheritdoc />
-        bool IMenuEntryBase.Satisfy(HttpContext httpContext)
+        bool IMenuEntryBase.Satisfy(ViewContext actionContext)
         {
-            return Require!.Invoke(httpContext);
+            return Require!.Invoke(actionContext);
         }
 
+        /// <inheritdoc />
         public bool IsActive(ViewContext actionContext)
         {
             return Activity!.Invoke(actionContext);

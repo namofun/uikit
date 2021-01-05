@@ -11,6 +11,11 @@
         public const string UserDetail = "Component_UserDetail";
 
         /// <summary>
+        /// The user detail page <c>/profile/{username}</c> menu.
+        /// </summary>
+        public const string UserDetailMenu = "Menu_UserDetail";
+
+        /// <summary>
         /// The dashboard user detail page <c>/dashboard/users/{username}</c> component.
         /// </summary>
         public const string DashboardUserDetail = "Component_DashboardUserDetail";

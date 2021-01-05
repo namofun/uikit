@@ -71,7 +71,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             [FromServices] ISignInManager signInManager)
         {
             await signInManager.SignOutAsync();
-            return RedirectToAction("Index", "Home", new { area = "Misc" });
+            return Redirect("/");
         }
 
 
