@@ -12,15 +12,13 @@
         /// <inheritdoc />
         public override void Customize(ModelBuilder modelBuilder, DbContext context)
         {
-            base.Customize(modelBuilder, context);
-
             var service = context.GetService<IDbContextOptions>()
                 .FindExtension<ModelSupplierService<T>>();
 
             foreach (var supplier in service.Holder)
-            {
                 supplier.Configure(modelBuilder);
-            }
+
+            base.Customize(modelBuilder, context);
         }
     }
 }
