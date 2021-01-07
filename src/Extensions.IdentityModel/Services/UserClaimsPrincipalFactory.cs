@@ -1,17 +1,16 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace SatelliteSite.IdentityModule.Services
+namespace Microsoft.AspNetCore.Identity
 {
     public class UserClaimsPrincipalFactory<TUser, TRole, TContext> :
         UserClaimsPrincipalFactory<TUser>
-        where TUser : Entities.User, new()
-        where TRole : Entities.Role, new()
+        where TUser : SatelliteSite.IdentityModule.Entities.User, new()
+        where TRole : SatelliteSite.IdentityModule.Entities.Role, new()
         where TContext : IdentityDbContext<TUser, TRole, int>
     {
         public IdentityDbContext<TUser, TRole, int> Identity { get; }

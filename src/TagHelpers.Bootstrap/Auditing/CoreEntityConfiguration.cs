@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SatelliteSite.Entities;
 using System;
 using System.Linq;
 using System.Reflection;
 
-namespace SatelliteSite.Entities
+namespace SatelliteSite.Substrate
 {
     public class CoreEntityConfiguration<TContext> :
         EntityTypeConfigurationSupplier<TContext>,

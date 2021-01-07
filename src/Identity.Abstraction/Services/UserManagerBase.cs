@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SatelliteSite.IdentityModule.Entities;
 using System;
@@ -8,7 +7,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace SatelliteSite.IdentityModule.Services
+namespace Microsoft.AspNetCore.Identity
 {
     /// <inheritdoc cref="UserManager{TUser}" />
     public abstract class UserManagerBase<TUser, TRole> :
@@ -225,5 +224,8 @@ namespace SatelliteSite.IdentityModule.Services
 
         /// <inheritdoc />
         public abstract Task BatchLockOutAsync(IEnumerable<int> query);
+
+        /// <inheritdoc />
+        public abstract Task<Dictionary<int, string>> FindUserNamesAsync(IEnumerable<int> userIds);
     }
 }

@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace SatelliteSite.IdentityModule.Services
+namespace Microsoft.AspNetCore.Identity
 {
     /// <summary>
     /// Provides the APIs for user sign in.

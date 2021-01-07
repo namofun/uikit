@@ -1,16 +1,15 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 
-namespace SatelliteSite.IdentityModule.Services
+namespace Microsoft.AspNetCore.Identity
 {
     /// <inheritdoc />
     public class SignInManager2<TUser> :
         SignInManager<TUser>, ISignInManager
-        where TUser : Entities.User, new()
+        where TUser : SatelliteSite.IdentityModule.Entities.User, new()
     {
         /// <inheritdoc />
         public SignInManager2(

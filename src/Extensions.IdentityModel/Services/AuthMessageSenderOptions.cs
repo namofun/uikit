@@ -1,14 +1,14 @@
-﻿namespace SatelliteSite.IdentityModule.Services
+﻿namespace SatelliteSite.Services
 {
     public class AuthMessageSenderOptions
     {
-        public string Sender { get; set; }
+        public string Sender { get; set; } = "admin";
 
-        public string User { get; set; }
+        public string User { get; set; } = "admin@admin.com";
 
-        public string Key { get; set; }
+        public string Key { get; set; } = string.Empty;
 
-        public string Server { get; set; }
+        public string Server { get; set; } = "smtp.exmail.qq.com";
 
         public int Port { get; set; } = 465;
     }

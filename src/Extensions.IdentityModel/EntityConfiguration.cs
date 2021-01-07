@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace SatelliteSite.Entities
+namespace SatelliteSite.IdentityModule
 {
     public class IdentityEntityConfiguration<TUser, TRole, TContext> :
         IDbModelSupplier<TContext>

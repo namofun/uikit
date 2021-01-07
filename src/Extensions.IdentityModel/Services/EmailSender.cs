@@ -1,7 +1,7 @@
 ﻿using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
-namespace SatelliteSite.IdentityModule.Services
+namespace SatelliteSite.Services
 {
     /// <summary>
     /// The interface to provide mail sending functions.

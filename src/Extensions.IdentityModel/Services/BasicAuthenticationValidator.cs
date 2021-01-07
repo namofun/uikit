@@ -6,7 +6,7 @@ using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace SatelliteSite.IdentityModule.Services
+namespace Microsoft.AspNetCore.Authentication
 {
     public class BasicAuthenticationValidator : BasicAuthenticationEvents
     {

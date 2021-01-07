@@ -1,4 +1,4 @@
-﻿namespace SatelliteSite.Entities
+﻿namespace SatelliteSite
 {
     /// <summary>
     /// The event types for auditlogs.

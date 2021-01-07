@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using System;
 
-namespace SatelliteSite.IdentityModule.Services
+namespace Microsoft.AspNetCore.Authentication
 {
     public sealed class SlideExpirationService
     {

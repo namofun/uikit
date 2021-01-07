@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using SatelliteSite.IdentityModule.Services;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.DependencyInjection;
 using SatelliteSite.SampleModule.Models;
 using SatelliteSite.Services;
 using System.Collections.Generic;

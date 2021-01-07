@@ -1,18 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Internal;
 using Microsoft.Extensions.Options;
 using SatelliteSite;
-using SatelliteSite.Entities;
-using SatelliteSite.IdentityModule.Services;
+using SatelliteSite.Services;
 using System;
+using SystemClock = Microsoft.Extensions.Internal.SystemClock;
 
 [assembly: RoleDefinition(1, "Administrator", "admin", "Administrative User")]
 [assembly: RoleDefinition(2, "Blocked", "blocked", "Blocked User")]
@@ -23,7 +21,7 @@ namespace SatelliteSite.IdentityModule
     public class IdentityModule<TUser, TRole, TContext> : AbstractModule, IAuthorizationPolicyRegistry
         where TUser : Entities.User, new()
         where TRole : Entities.Role, new()
-        where TContext : IdentityDbContext<TUser, TRole, int>
+        where TContext : Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityDbContext<TUser, TRole, int>
     {
         public override string Area => "Account";
 
@@ -33,7 +31,7 @@ namespace SatelliteSite.IdentityModule
         {
         }
 
-        public override void RegisterServices(IServiceCollection services, IConfiguration configuration)
+        public override void RegisterServices(IServiceCollection services)
         {
             services.AddIdentity<TUser, TRole>(
                 options =>
@@ -55,7 +53,8 @@ namespace SatelliteSite.IdentityModule
                     options.SignIn.RequireConfirmedEmail = false;
                     options.SignIn.RequireConfirmedPhoneNumber = false;
                 })
-                .AddEntityFrameworkStores<TContext>()
+                .AddUserStore<UserStore<TUser, TRole, TContext>>()
+                .AddRoleStore<RoleStore<TRole, TContext>>()
                 .AddUserManager<UserManager<TUser, TRole>>()
                 .AddSignInManager<SignInManager2<TUser>>()
                 .AddDefaultTokenProviders();
@@ -97,9 +96,7 @@ namespace SatelliteSite.IdentityModule
             services.AddScoped<ISignInManager>(s => s.GetRequiredService<SignInManager2<TUser>>());
 
             services.AddSingleton<IEmailSender, SmtpSender>();
-            
-            services.AddOptions<AuthMessageSenderOptions>()
-                .Bind(configuration.GetSection("Mailing"));
+            services.AddOptions<AuthMessageSenderOptions>();
 
             services.AddDbModelSupplier<TContext, IdentityEntityConfiguration<TUser, TRole, TContext>>();
         }

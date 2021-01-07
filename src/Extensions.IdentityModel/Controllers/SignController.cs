@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SatelliteSite.IdentityModule.Models;
-using SatelliteSite.IdentityModule.Services;
 using SatelliteSite.Services;
 using System;
 using System.Threading.Tasks;

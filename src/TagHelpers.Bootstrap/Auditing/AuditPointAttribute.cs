@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Filters;
-using SatelliteSite.Entities;
+using SatelliteSite;
 using System;
 
 namespace Microsoft.AspNetCore.Mvc

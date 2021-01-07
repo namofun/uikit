@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using SatelliteSite.Entities;
+using SatelliteSite;
 using SatelliteSite.Services;
 using System;
 using System.Threading.Tasks;

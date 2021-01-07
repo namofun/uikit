@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -8,13 +8,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SatelliteSite.IdentityModule.Services
+namespace Microsoft.AspNetCore.Identity
 {
     /// <inheritdoc cref="UserManagerBase{TUser,TRole}" />
     public class UserManager<TUser, TRole> :
         UserManagerBase<TUser, TRole>
-        where TUser : Entities.User, new()
-        where TRole : Entities.Role, new()
+        where TUser : SatelliteSite.IdentityModule.Entities.User, new()
+        where TRole : SatelliteSite.IdentityModule.Entities.Role, new()
     {
         /// <summary>
         /// Construct a new instance of <see cref="UserManager{TUser,TRole}"/>.
@@ -42,17 +42,13 @@ namespace SatelliteSite.IdentityModule.Services
                   services,
                   logger)
         {
-            var contextProperty = store.GetType().GetProperty(nameof(Context));
-            if (contextProperty == null)
-                throw new InvalidOperationException("This user manager should be rewritten.");
-            Context = (IdentityDbContext<TUser, TRole, int>)contextProperty.GetValue(store);
             SlideExpirationStore = slideExpirationService;
         }
 
         /// <summary>
         /// Gets the database context for this store.
         /// </summary>
-        private IdentityDbContext<TUser, TRole, int> Context { get; }
+        private IdentityDbContext<TUser, TRole, int> Context => ((IContextedStore<TUser, TRole>)Store).Context;
 
         /// <summary>
         /// Gets the expiration for this store.
@@ -129,6 +125,16 @@ namespace SatelliteSite.IdentityModule.Services
             return Context.Users
                 .Where(u => query.Contains(u.Id))
                 .BatchUpdateAsync(u => new TUser { LockoutEnd = DateTimeOffset.MaxValue });
+        }
+
+        /// <inheritdoc />
+        public override Task<Dictionary<int, string>> FindUserNamesAsync(IEnumerable<int> userIds)
+        {
+            ThrowIfDisposed();
+            return Context.Users
+                .Where(u => userIds.Contains(u.Id))
+                .Select(u => new { u.Id, u.UserName })
+                .ToDictionaryAsync(a => a.Id, a => a.UserName);
         }
     }
 }

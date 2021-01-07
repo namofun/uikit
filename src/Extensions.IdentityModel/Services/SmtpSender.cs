@@ -5,7 +5,7 @@ using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SatelliteSite.IdentityModule.Services
+namespace SatelliteSite.Services
 {
     public class SmtpSender : IEmailSender
     {

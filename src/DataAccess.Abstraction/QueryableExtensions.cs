@@ -131,6 +131,21 @@ namespace System.Linq
         }
 
         /// <summary>
+        /// Get a transformed enumerable from an asynchronous fetching.
+        /// </summary>
+        /// <typeparam name="T">The source entity type.</typeparam>
+        /// <typeparam name="T2">The target entity type.</typeparam>
+        /// <param name="listTask">The task to fetch an enumerable.</param>
+        /// <param name="transformer">The transform delegate.</param>
+        /// <returns>The task for fetching enumerable.</returns>
+        public static async Task<IEnumerable<T2>> TransformAfterAcquire<T, T2>(
+            this Task<List<T>> listTask,
+            Func<T, T2> transformer)
+        {
+            return (await listTask).Select(transformer);
+        }
+
+        /// <summary>
         /// Correlates the elements of two sequences based on key equality and groups the results. The default equality comparer is used to compare keys.
         /// </summary>
         /// <typeparam name="TOuter">The type of the elements of the first sequence.</typeparam>

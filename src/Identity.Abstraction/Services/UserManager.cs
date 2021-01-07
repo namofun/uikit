@@ -1,11 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace SatelliteSite.IdentityModule.Services
+namespace Microsoft.AspNetCore.Identity
 {
     /// <summary>
     /// Provides the APIs for managing user in a persistence store.
@@ -68,6 +67,13 @@ namespace SatelliteSite.IdentityModule.Services
         /// <param name="pageCount">The count per page.</param>
         /// <returns>The task for fetching user list.</returns>
         Task<IPagedList<IUser>> ListUsersAsync(int page, int pageCount);
+
+        /// <summary>
+        /// Finds the user names in the <paramref name="userIds"/>.
+        /// </summary>
+        /// <param name="userIds">The user IDs.</param>
+        /// <returns>The dictionary of user name.</returns>
+        Task<Dictionary<int, string>> FindUserNamesAsync(IEnumerable<int> userIds);
 
         /// <summary>
         /// Updates the specified user in the backing store.

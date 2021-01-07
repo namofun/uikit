@@ -1,7 +1,10 @@
 ﻿using System;
 
-namespace SatelliteSite.IdentityModule.Services
+namespace Microsoft.AspNetCore.Identity
 {
+    /// <summary>
+    /// Represents a user in the identity system.
+    /// </summary>
     public interface IUser
     {
         /// <summary>

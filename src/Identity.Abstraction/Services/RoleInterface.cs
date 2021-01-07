@@ -1,5 +1,8 @@
-﻿namespace SatelliteSite.IdentityModule.Services
+﻿namespace Microsoft.AspNetCore.Identity
 {
+    /// <summary>
+    /// Represents a role in the identity system.
+    /// </summary>
     public interface IRole
     {
         /// <summary>

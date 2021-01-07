@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using SatelliteSite.Entities;
 using SatelliteSite.IdentityModule.Models;
-using SatelliteSite.IdentityModule.Services;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

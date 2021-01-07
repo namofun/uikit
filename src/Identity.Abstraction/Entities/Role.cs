@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using SatelliteSite.IdentityModule.Services;
 
 namespace SatelliteSite.IdentityModule.Entities
 {

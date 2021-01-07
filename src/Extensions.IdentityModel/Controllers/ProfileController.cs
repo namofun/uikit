@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SatelliteSite.IdentityModule.Models;
-using SatelliteSite.IdentityModule.Services;
+using SatelliteSite.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
