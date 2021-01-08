@@ -15,17 +15,21 @@ namespace SatelliteSite.SampleModule.Controllers
             Service = service;
         }
 
+        [HttpGet]
         public IActionResult Home()
         {
             return View(Service.Forecast());
         }
 
+        [HttpGet]
         public IActionResult Markdown()
         {
             return View();
         }
 
         [Authorize]
+        [HttpGet]
+        [HttpPost]
         public IActionResult Claims(string roleName)
         {
             return Json(User.IsInRole(roleName));

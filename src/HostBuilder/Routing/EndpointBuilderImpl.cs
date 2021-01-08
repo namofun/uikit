@@ -246,7 +246,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
             }
 
             var actionLazy = new ControllerActionDescriptorLazy("Dashboard", "ApiDoc", "Display");
-            return Builder.Map("/api/doc/" + name, context =>
+            return Builder.MapGet("/api/doc/" + name, context =>
             {
                 var routeData = new RouteData();
                 routeData.PushState(router: null, context.Request.RouteValues, new RouteValueDictionary());
