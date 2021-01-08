@@ -7,6 +7,7 @@ namespace SatelliteSite.Substrate.Dashboards
     public class ApiDocController : ViewControllerBase
     {
         [SuppressLink]
+        [Route("/api/doc/{name}")]
         public IActionResult Display(
             string name,
             [FromServices] IApiDocumentProvider api)

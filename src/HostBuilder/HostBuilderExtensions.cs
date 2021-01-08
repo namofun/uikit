@@ -234,7 +234,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="builder">The endpoint convention builder.</param>
         /// <param name="roles">The roles to be confirmed.</param>
         /// <returns>The endpoint convention builder to chain the configurations.</returns>
-        public static IEndpointConventionBuilder RequireRoles(this IEndpointConventionBuilder builder, string roles)
+        public static TEndpointConventionBuilder RequireRoles<TEndpointConventionBuilder>(this TEndpointConventionBuilder builder, string roles) where TEndpointConventionBuilder : IEndpointConventionBuilder
         {
             return builder.RequireAuthorization(new AuthorizeAttribute { Roles = roles });
         }
@@ -245,7 +245,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="builder">The endpoint convention builder.</param>
         /// <param name="configure">The name of that endpoint.</param>
         /// <returns>The endpoint convention builder to chain the configurations.</returns>
-        public static IEndpointConventionBuilder WithDisplayName(this IEndpointConventionBuilder builder, Func<string, string> configure)
+        public static TEndpointConventionBuilder WithDisplayName<TEndpointConventionBuilder>(this TEndpointConventionBuilder builder, Func<string, string> configure) where TEndpointConventionBuilder : IEndpointConventionBuilder
         {
             builder.Add(b => b.DisplayName = configure.Invoke(b.DisplayName));
             return builder;

@@ -169,11 +169,6 @@ namespace Microsoft.AspNetCore.Mvc
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapModules(Modules);
-
-                endpoints.MapNotFound("/api/{**slug}");
-                endpoints.MapNotFound("/lib/{**slug}");
-                endpoints.MapNotFound("/images/{**slug}");
-
                 endpoints.MapReExecute();
             });
         }

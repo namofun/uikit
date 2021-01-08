@@ -78,6 +78,9 @@ namespace SatelliteSite.Substrate
         public override void RegisterEndpoints(IEndpointBuilder endpoints)
         {
             endpoints.MapControllers();
+            endpoints.MapFallNotFound("/api/{**slug}");
+            endpoints.MapFallNotFound("/lib/{**slug}");
+            endpoints.MapFallNotFound("/images/{**slug}");
         }
     }
 }

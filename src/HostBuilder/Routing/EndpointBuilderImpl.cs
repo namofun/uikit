@@ -246,7 +246,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
             }
 
             var actionLazy = new ControllerActionDescriptorLazy("Dashboard", "ApiDoc", "Display");
-            return Builder.MapGet("/api/doc/" + name, context =>
+            return MapRequestDelegate("/api/doc/" + name, context =>
             {
                 var routeData = new RouteData();
                 routeData.PushState(router: null, context.Request.RouteValues, new RouteValueDictionary());
@@ -260,7 +260,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
                 return invoker.InvokeAsync();
             })
             .WithDisplayName(_ => $"Swagger Document ({name})")
-            .WithDefaults(DefaultConvention);
+            .WithMetadata(new HttpMethodMetadata(new[] { "GET" }));
         }
 
         public ControllerActionEndpointConventionBuilder MapControllers()

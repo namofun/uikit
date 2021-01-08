@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.SignalR;
 using System;
-using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -42,6 +41,7 @@ namespace Microsoft.AspNetCore.Builder
         /// Adds a specialized <see cref="RouteEndpoint"/> to the <see cref="IEndpointRouteBuilder"/>
         /// that will match the provided pattern with the lowest possible priority.
         /// </summary>
+        /// <remarks>In this pattern, routes will explicitly end with no response body but a status code 404.</remarks>
         /// <param name="pattern">The route pattern.</param>
         /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
         IEndpointConventionBuilder MapFallNotFound(string pattern);
@@ -81,22 +81,6 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="configureOptions">A callback to configure dispatcher options.</param>
         /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
         HubEndpointConventionBuilder MapHub<THub>(string pattern, Action<HttpConnectionDispatcherOptions>? configureOptions = null) where THub : Hub;
-
-        /// <summary>
-        /// Adds a specialized <see cref="RouteEndpoint"/> to the <see cref="IEndpointRouteBuilder"/>
-        /// that will match the provided pattern with the lowest possible priority.
-        /// </summary>
-        /// <remarks>In this pattern, routes will explicitly end with no response body but a status code 404.</remarks>
-        /// <param name="pattern">The route pattern.</param>
-        /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
-        public IEndpointConventionBuilder MapFallbackNotFound(string pattern)
-        {
-            return MapFallback(pattern, context =>
-            {
-                context.Response.StatusCode = 404;
-                return Task.CompletedTask;
-            });
-        }
     }
 
     /// <summary>
