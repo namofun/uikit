@@ -10,56 +10,11 @@ using System.Text;
 
 namespace Microsoft.AspNetCore.Mvc
 {
+    /// <summary>
+    /// Claims related extensions for <see cref="ClaimsPrincipal"/>.
+    /// </summary>
     public static class ClaimsPrincipalExtensions
     {
-        private const string ClaimTypes_Name = "name";
-        private const string ClaimTypes_NameIdentifier = "sub";
-        private const string ClaimTypes_NickName = "nickname";
-
-        /// <summary>
-        /// Whether this <see cref="ClaimsPrincipal"/> joined the following roles.
-        /// </summary>
-        /// <param name="user">The principal to check</param>
-        /// <param name="roles">The roles to check, seperated by single <c>,</c>s.</param>
-        /// <returns><c>true</c> if this user belongs to any of these roles</returns>
-        public static bool IsInRoles(this ClaimsPrincipal user, string roles)
-        {
-            return roles.Split(',').Any(role => user.IsInRole(role));
-        }
-
-        /// <summary>
-        /// Get the claimed username from this <see cref="ClaimsPrincipal"/>.
-        /// </summary>
-        /// <param name="principal">The principal to check</param>
-        /// <returns><c>null</c> if this principal is not logged in</returns>
-        public static string? GetUserName(this ClaimsPrincipal principal)
-        {
-            return principal.FindFirstValue(ClaimTypes.Name)
-                ?? principal.FindFirstValue(ClaimTypes_Name);
-        }
-
-        /// <summary>
-        /// Get the claimed user id from this <see cref="ClaimsPrincipal"/>.
-        /// </summary>
-        /// <param name="principal">The principal to check</param>
-        /// <returns><c>null</c> if this principal is not logged in</returns>
-        public static string? GetUserId(this ClaimsPrincipal principal)
-        {
-            return principal.FindFirstValue(ClaimTypes.NameIdentifier)
-                ?? principal.FindFirstValue(ClaimTypes_NameIdentifier);
-        }
-
-        /// <summary>
-        /// Get the claimed nickname from this <see cref="ClaimsPrincipal"/>.
-        /// </summary>
-        /// <param name="principal">The principal to check</param>
-        /// <returns><c>null</c> if this principal is not logged in</returns>
-        public static string? GetNickName(this ClaimsPrincipal principal)
-        {
-            return principal.FindFirstValue(ClaimTypes_NickName)
-                ?? GetUserName(principal);
-        }
-
         /// <summary>
         /// Check whether this <see cref="ClaimsPrincipal"/> is signed in.
         /// </summary>
@@ -81,7 +36,7 @@ namespace Microsoft.AspNetCore.Mvc
             var optionsAccessor = app.ApplicationServices
                 .GetRequiredService<IOptions<IdentityOptions>>();
             if (optionsAccessor.Value.ClaimsIdentity.UserIdClaimType != ClaimTypes.NameIdentifier &&
-                optionsAccessor.Value.ClaimsIdentity.UserIdClaimType != ClaimTypes_NameIdentifier)
+                optionsAccessor.Value.ClaimsIdentity.UserIdClaimType != UserClaimsPrincipalExtensions.ClaimTypes_NameIdentifier)
                 throw new InvalidOperationException(
                     "The UserIdClaimType is not set to either \"sub\" " +
                     "or ClaimTypes.NameIdentifier. " +
