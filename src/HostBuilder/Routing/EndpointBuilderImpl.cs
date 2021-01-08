@@ -164,34 +164,6 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         }
     }
 
-    public class ControllerActionDescriptorLazy
-    {
-        private ControllerActionDescriptor? _value;
-        private readonly string _area, _controller, _action;
-
-        public ControllerActionDescriptorLazy(string area, string controller, string action)
-        {
-            _area = area;
-            _controller = controller;
-            _action = action;
-        }
-
-        public ControllerActionDescriptor GetValue(IServiceProvider services)
-        {
-            if (_value != null) return _value;
-
-            var adcp = services.GetRequiredService<IActionDescriptorCollectionProvider>();
-            var actions = adcp.ActionDescriptors.Items;
-            var action = actions.OfType<ControllerActionDescriptor>()
-                .Where(s => s.ControllerName.Equals(_controller, StringComparison.OrdinalIgnoreCase))
-                .Where(s => s.ActionName.Equals(_action, StringComparison.OrdinalIgnoreCase))
-                .Where(s => s.RouteValues.TryGetValue("area", out var AreaName) && AreaName.Equals(_area, StringComparison.OrdinalIgnoreCase))
-                .Single();
-
-            return _value = action;
-        }
-    }
-
     internal class DefaultEndpointConventionBuilder : IEndpointConventionBuilder
     {
         internal EndpointBuilder EndpointBuilder { get; }
@@ -282,7 +254,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
                     .LogWarning($"Documentation '{file}' is not found. Specification comments will not be registered into swagger.");
             }
 
-            var actionLazy = new ControllerActionDescriptorLazy("Dashboard", "ApiDoc", "Display");
+            var actionLazy = new ControllerActionDescriptorWrapper("Dashboard", "ApiDoc", "Display");
 
             return MapRequestDelegate(
                 "/api/doc/" + name, context =>
@@ -316,9 +288,9 @@ namespace Microsoft.AspNetCore.Mvc.Routing
                     .WithDefaults(DefaultConvention)
                     .WithDisplayName(TransformDisplayName);
 
-                static string TransformDisplayName(string original)
+                static string TransformDisplayName(EndpointBuilder builder)
                 {
-                    // SatelliteSite.Substrate.Dashboards.ApiDocController.Display (SatelliteSite.Substrate)
+                    var original = builder.DisplayName;
                     var segments = original.Split(' ');
                     if (segments.Length != 2) return original;
                     if (!segments[1].StartsWith('(') || !segments[1].EndsWith(')')) return original;
@@ -331,7 +303,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
         public IErrorHandlerBuilder WithErrorHandler(string area, string controller, string action)
         {
-            var ad = new ControllerActionDescriptorLazy(area, controller, action);
+            var ad = new ControllerActionDescriptorWrapper(area, controller, action);
             return new DefaultErrorHandlerBuilder(ad, this);
         }
 
@@ -382,11 +354,11 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
     internal class DefaultErrorHandlerBuilder : IErrorHandlerBuilder
     {
-        public ControllerActionDescriptorLazy ActionDescriptor { get; }
+        public ControllerActionDescriptorWrapper ActionDescriptor { get; }
 
         public IEndpointBuilder Builder { get; }
 
-        public DefaultErrorHandlerBuilder(ControllerActionDescriptorLazy actionDescriptor, IEndpointBuilder builder)
+        public DefaultErrorHandlerBuilder(ControllerActionDescriptorWrapper actionDescriptor, IEndpointBuilder builder)
         {
             ActionDescriptor = actionDescriptor;
             Builder = builder;
@@ -394,7 +366,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
         public IErrorHandlerBuilder MapFallbackNotFound(string pattern)
         {
-            var action = ActionDescriptor;
+            var actionLazy = ActionDescriptor;
 
             Builder.MapFallback(pattern, context =>
             {
@@ -402,7 +374,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
                 var routeData = new RouteData();
                 routeData.PushState(router: null, context.Request.RouteValues, new RouteValueDictionary());
-                var actionContext = new ActionContext(context, routeData, action.GetValue(context.RequestServices));
+                var actionContext = new ActionContext(context, routeData, actionLazy.GetValue(context.RequestServices));
 
                 var invoker = context.RequestServices
                     .GetRequiredService<IActionInvokerFactory>()
@@ -418,7 +390,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         public IErrorHandlerBuilder MapStatusCode(string pattern)
         {
             Builder.ServiceProvider
-                .GetRequiredService<ReExecuteEndpointMatcher>()
+                .GetRequiredService<ReExecuteEndpointDataSource>()
                 .Add(pattern, ActionDescriptor);
             return this;
         }

@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using SatelliteSite.Services;
@@ -99,6 +101,9 @@ namespace Microsoft.AspNetCore.Mvc
                 HtmlEncoder.Create(
                     UnicodeRanges.BasicLatin,
                     UnicodeRanges.CjkUnifiedIdeographs));
+
+            services.AddSingleton<ReExecuteEndpointDataSource>();
+            services.TryAdd(ServiceDescriptor.Singleton(sp => (CompositeEndpointDataSource)sp.GetRequiredService<EndpointDataSource>()));
 
             services.AddControllersWithViews()
                 .AddTimeSpanJsonConverter()

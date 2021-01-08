@@ -224,8 +224,8 @@ namespace Microsoft.AspNetCore.Mvc
         internal static void MapReExecute(this IEndpointRouteBuilder builder)
         {
             builder.ServiceProvider
-                .GetRequiredService<ReExecuteEndpointMatcher>()
-                .BuildPassOne();
+                .GetRequiredService<ReExecuteEndpointDataSource>()
+                .Discover();
         }
 
         /// <summary>
@@ -237,18 +237,6 @@ namespace Microsoft.AspNetCore.Mvc
         public static TEndpointConventionBuilder RequireRoles<TEndpointConventionBuilder>(this TEndpointConventionBuilder builder, string roles) where TEndpointConventionBuilder : IEndpointConventionBuilder
         {
             return builder.RequireAuthorization(new AuthorizeAttribute { Roles = roles });
-        }
-
-        /// <summary>
-        /// Conventions for endpoints that changes the name.
-        /// </summary>
-        /// <param name="builder">The endpoint convention builder.</param>
-        /// <param name="configure">The name of that endpoint.</param>
-        /// <returns>The endpoint convention builder to chain the configurations.</returns>
-        public static TEndpointConventionBuilder WithDisplayName<TEndpointConventionBuilder>(this TEndpointConventionBuilder builder, Func<string, string> configure) where TEndpointConventionBuilder : IEndpointConventionBuilder
-        {
-            builder.Add(b => b.DisplayName = configure.Invoke(b.DisplayName));
-            return builder;
         }
 
         /// <summary>

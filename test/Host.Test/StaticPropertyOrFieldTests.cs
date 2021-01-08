@@ -46,6 +46,7 @@ namespace SatelliteSite.Tests
                 ["[SatelliteSite.DataAccess]::[Microsoft.EntityFrameworkCore.EntityTypeConfigurationSupplier`1]::[GenericType]"] = "Fast Reflect",
                 ["[SatelliteSite.DataAccess]::[Microsoft.EntityFrameworkCore.EntityTypeConfigurationSupplier`1]::[ApplyConfiguration]"] = "Fast Reflect",
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Mvc.Routing.ModuleEndpointDataSourceBase]::[_locker]"] = "Fast Reflect",
+                ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Routing.ReExecuteEndpointDataSource]::[_locker]"] = "Fast Reflect",
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Mvc.Routing.ModuleEndpointDataSourceBase]::[_cbFactory]"] = "Fast Reflect",
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Mvc.Routing.ModuleEndpointDataSourceBase]::[_actionEndpointFactoryType]"] = "Fast Reflect",
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Mvc.Routing.ModuleEndpointDataSourceBase]::[AddEndpoints]"] = "Fast Reflect",

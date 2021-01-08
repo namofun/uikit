@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Options;
-using SatelliteSite.Entities;
 using SatelliteSite.Services;
 using System;
 using System.Collections.Generic;
@@ -26,10 +24,11 @@ namespace SatelliteSite.Substrate.Dashboards
 
         [HttpGet]
         public IActionResult Endpoints(
-            [FromServices] IOptions<RouteOptions> options)
+            [FromServices] CompositeEndpointDataSource endpointDataSource,
+            [FromServices] ReExecuteEndpointDataSource endpointDataSource2)
         {
-            var edss = options.Value.Private<ICollection<EndpointDataSource>>("_endpointDataSources");
-            return View(edss);
+            var edss = endpointDataSource.DataSources;
+            return View(edss.Append(endpointDataSource2));
         }
 
 
@@ -47,7 +46,7 @@ namespace SatelliteSite.Substrate.Dashboards
         public IActionResult Versions()
         {
             var lst = new List<LoadedModulesModel>();
-                
+
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 var gitVersion = assembly.GetCustomAttributes(false)
