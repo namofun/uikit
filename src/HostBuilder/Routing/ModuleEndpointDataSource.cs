@@ -14,6 +14,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Microsoft.AspNetCore.Mvc.Routing
 {
@@ -45,6 +46,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
             _actionEndpointFactoryType = Assembly.GetAssembly(typeof(ApplicationModel))!
                 .GetType("Microsoft.AspNetCore.Mvc.Routing.ActionEndpointFactory")
                 ?? throw new InvalidOperationException();
+
             var method = _actionEndpointFactoryType.GetMethod("AddEndpoints")!;
             var para1 = Expression.Parameter(typeof(object), "factory");
             var para1r = Expression.Convert(para1, _actionEndpointFactoryType);
@@ -68,27 +70,31 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
         public ModuleEndpointDataSource(IServiceProvider serviceProvider, Type parentType)
         {
-            Conventions = new List<Action<EndpointBuilder>>();
-            ConventionBuilder = _cbFactory(_locker, Conventions);
+            ControllerRouteConventions = new List<Action<EndpointBuilder>>();
+            ControllerRouteConventionBuilder = _cbFactory(_locker, ControllerRouteConventions);
             _actionEndpointFactory = serviceProvider.GetRequiredService(_actionEndpointFactoryType)!;
             _actions = serviceProvider.GetRequiredService<IActionDescriptorCollectionProvider>();
             _moduleAssembly = parentType.Assembly;
             _modelEndpoints = new List<DefaultEndpointConventionBuilder>();
         }
 
-        public List<Action<EndpointBuilder>> Conventions { get; }
+        public List<Action<EndpointBuilder>> ControllerRouteConventions { get; }
 
-        public ControllerActionEndpointConventionBuilder ConventionBuilder { get; }
+        public ControllerActionEndpointConventionBuilder ControllerRouteConventionBuilder { get; }
 
         public bool EnableController { get; set; }
 
-        public IEndpointConventionBuilder AddEndpointBuilder(EndpointBuilder endpointBuilder)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [DebuggerStepThrough]
+        public IEndpointConventionBuilder AddRequestDelegate(EndpointBuilder endpointBuilder)
         {
             var builder = new DefaultEndpointConventionBuilder(endpointBuilder);
             _modelEndpoints.Add(builder);
             return builder;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [DebuggerStepThrough]
         public static IEndpointBuilder Create(AbstractModule module, IEndpointRouteBuilder builder)
         {
             return (IEndpointBuilder)
@@ -96,6 +102,8 @@ namespace Microsoft.AspNetCore.Mvc.Routing
                 .Invoke(null, new object[] { module, builder })!;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [DebuggerStepThrough]
         private static DefaultEndpointBuilder<TModule> CreateCore<TModule>(TModule module, IEndpointRouteBuilder builder) where TModule : AbstractModule
         {
             return new DefaultEndpointBuilder<TModule>(builder, module.Area, module.Conventions);
@@ -111,7 +119,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
                 {
                     var routeNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
                     var actions = _actions.ActionDescriptors.Items;
-                    var conventions = Conventions;
+                    var conventions = ControllerRouteConventions;
 
                     for (var i = 0; i < actions.Count; i++)
                     {

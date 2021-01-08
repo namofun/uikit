@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Mvc.Routing
@@ -12,7 +13,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
     /// </summary>
     public class ReExecuteEndpointMatcher
     {
-        private Func<HttpContext, Task>? PassTwo;
+        private Func<HttpContext, Task>? _matchDelegate;
         private readonly IServiceProvider _serviceProvider;
         private readonly ReExecuteEndpointDataSource _endpointDataSource;
 
@@ -29,7 +30,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         /// <summary>
         /// Build the dynamic delegate for matching paths.
         /// </summary>
-        public Func<HttpContext, Task> BuildPassTwo()
+        private Func<HttpContext, Task> BuildMatcher()
         {
             var dfaMatcherBuilderType = typeof(RouteEndpoint).Assembly
                 .GetType("Microsoft.AspNetCore.Routing.Matching.DfaMatcherBuilder")!;
@@ -54,15 +55,17 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         /// <summary>
         /// Instantiate the dynamic delegate for matching paths with locks.
         /// </summary>
-        private void EnsurePassTwo()
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [DebuggerStepThrough]
+        private void EnsureMatcher()
         {
-            if (PassTwo == null)
+            if (_matchDelegate == null)
             {
                 lock (this)
                 {
-                    if (PassTwo == null)
+                    if (_matchDelegate == null)
                     {
-                        PassTwo = BuildPassTwo();
+                        _matchDelegate = BuildMatcher();
                     }
                 }
             }
@@ -73,11 +76,13 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         /// </summary>
         /// <param name="context">The http context.</param>
         /// <returns>The match task.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [DebuggerStepThrough]
         public Task MatchAsync(HttpContext context)
         {
-            EnsurePassTwo();
-            Debug.Assert(PassTwo != null);
-            return PassTwo(context);
+            EnsureMatcher();
+            Debug.Assert(_matchDelegate != null);
+            return _matchDelegate(context);
         }
     }
 }

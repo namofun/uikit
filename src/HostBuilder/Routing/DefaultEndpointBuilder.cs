@@ -102,12 +102,12 @@ namespace Microsoft.AspNetCore.Routing
             var endpointDataSorce = GetOrCreateDataSource();
             if (endpointDataSorce.EnableController)
             {
-                return endpointDataSorce.ConventionBuilder;
+                return endpointDataSorce.ControllerRouteConventionBuilder;
             }
             else
             {
                 endpointDataSorce.EnableController = true;
-                return endpointDataSorce.ConventionBuilder
+                return endpointDataSorce.ControllerRouteConventionBuilder
                     .WithDefaults(DefaultConvention)
                     .WithDisplayName(TransformDisplayName);
 
@@ -166,7 +166,7 @@ namespace Microsoft.AspNetCore.Routing
             }
 
             var dataSource = GetOrCreateDataSource();
-            return dataSource.AddEndpointBuilder(builder).WithDefaults(DefaultConvention);
+            return dataSource.AddRequestDelegate(builder).WithDefaults(DefaultConvention);
         }
 
         public IApplicationBuilder CreateApplicationBuilder()
