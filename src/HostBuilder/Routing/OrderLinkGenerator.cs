@@ -3,11 +3,8 @@
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing.Template;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Microsoft.AspNetCore.Routing
@@ -19,48 +16,25 @@ namespace Microsoft.AspNetCore.Routing
         private readonly TemplateBinderFactory _binderFactory;
         private readonly Func<RouteEndpoint, TemplateBinder> _createTemplateBinder;
         private readonly FieldInfo _requiredKeys;
-        const string typeName = "Microsoft.AspNetCore.Routing.DefaultLinkGenerator";
-        internal static readonly Type? typeInner = typeof(Route).Assembly.GetType("Microsoft.AspNetCore.Routing.DefaultLinkGenerator");
+        private const string typeName = "Microsoft.AspNetCore.Routing.DefaultLinkGenerator";
+        internal static readonly Type? typeInner = typeof(Route).Assembly.GetType(typeName);
 
         /// <summary>
         /// Create instance of <see cref="LinkGenerator"/> that wrapped the real generator inner.
         /// </summary>
-        /// <param name="parameterPolicyFactory">The parameter policy factory</param>
-        /// <param name="binderFactory">The template binder factory</param>
-        /// <param name="dataSource">The endpoint data source</param>
-        /// <param name="routeOptions">The route options</param>
         /// <param name="serviceProvider">The service provider</param>
-        public OrderLinkGenerator(
-            ParameterPolicyFactory parameterPolicyFactory,
-            TemplateBinderFactory binderFactory,
-            EndpointDataSource dataSource,
-            IOptions<RouteOptions> routeOptions,
-            IServiceProvider serviceProvider)
+        public OrderLinkGenerator(IServiceProvider serviceProvider)
         {
             if (typeInner!.FullName != typeName)
                 throw new NotImplementedException();
-            var logger = serviceProvider.GetService(typeof(ILogger<>).MakeGenericType(typeInner));
+            inner = (LinkGenerator)ActivatorUtilities.CreateInstance(serviceProvider, typeInner);
+
             var autoFlag = BindingFlags.NonPublic | BindingFlags.Instance;
-
-            var args = new object[]
-            {
-                parameterPolicyFactory,
-                binderFactory,
-                dataSource,
-                routeOptions,
-                logger,
-                serviceProvider
-            };
-
-            var ctorInfo = typeInner.GetConstructors()[0];
-            var newExp = Expression.New(ctorInfo, args.Select(o => Expression.Constant(o)));
-            var ctor = Expression.Lambda<Func<LinkGenerator>>(newExp).Compile();
-            inner = ctor();
-
-            _binderFactory = binderFactory;
+            _binderFactory = serviceProvider.GetRequiredService<TemplateBinderFactory>();
             _createTemplateBinder = CreateTemplateBinder;
-            var fieldInfo = typeInner.GetField(nameof(_createTemplateBinder), autoFlag);
-            fieldInfo!.SetValue(inner, _createTemplateBinder);
+
+            typeInner.GetField(nameof(_createTemplateBinder), autoFlag)!
+                .SetValue(inner, _createTemplateBinder);
 
             _requiredKeys = typeof(TemplateBinder).GetField(nameof(_requiredKeys), autoFlag)!;
         }
