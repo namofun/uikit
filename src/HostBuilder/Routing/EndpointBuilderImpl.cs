@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -34,6 +35,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         private readonly object _actionEndpointFactory;
         private readonly IActionDescriptorCollectionProvider _actions;
         private readonly Assembly _moduleAssembly;
+        private readonly List<DefaultEndpointConventionBuilder> _modelEndpoints;
 
         static ModuleEndpointDataSourceBase()
         {
@@ -73,11 +75,21 @@ namespace Microsoft.AspNetCore.Mvc.Routing
             _actionEndpointFactory = serviceProvider.GetRequiredService(_actionEndpointFactoryType)!;
             _actions = serviceProvider.GetRequiredService<IActionDescriptorCollectionProvider>();
             _moduleAssembly = parentType.Assembly;
+            _modelEndpoints = new List<DefaultEndpointConventionBuilder>();
         }
 
         public List<Action<EndpointBuilder>> Conventions { get; }
 
         public ControllerActionEndpointConventionBuilder ConventionBuilder { get; }
+
+        public bool EnableController { get; set; }
+
+        public IEndpointConventionBuilder AddEndpointBuilder(EndpointBuilder endpointBuilder)
+        {
+            var builder = new DefaultEndpointConventionBuilder(endpointBuilder);
+            _modelEndpoints.Add(builder);
+            return builder;
+        }
 
         public static IEndpointBuilder Factory(AbstractModule module, IEndpointRouteBuilder builder)
         {
@@ -94,24 +106,38 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
         private void Initialize()
         {
+            List<Endpoint> CreateEndpoints()
+            {
+                var endpoints = new List<Endpoint>();
+
+                if (EnableController)
+                {
+                    var routeNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                    var actions = _actions.ActionDescriptors.Items;
+                    var conventions = Conventions;
+
+                    for (var i = 0; i < actions.Count; i++)
+                    {
+                        if (actions[i] is ControllerActionDescriptor action && action.ControllerTypeInfo.Assembly == _moduleAssembly)
+                        {
+                            AddEndpoints(_actionEndpointFactory, endpoints, routeNames, action, conventions, false);
+                        }
+                    }
+                }
+
+                foreach (var item in _modelEndpoints)
+                {
+                    endpoints.Add(item.Build());
+                }
+
+                return endpoints;
+            }
+
             if (_endpoints == null)
             lock (_locker)
             if (_endpoints == null)
             {
-                var endpoints = new List<Endpoint>();
-                var routeNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                var actions = _actions.ActionDescriptors.Items;
-                var conventions = Conventions;
-
-                for (var i = 0; i < actions.Count; i++)
-                {
-                    if (actions[i] is ControllerActionDescriptor action && action.ControllerTypeInfo.Assembly == _moduleAssembly)
-                    {
-                        AddEndpoints(_actionEndpointFactory, endpoints, routeNames, action, conventions, false);
-                    }
-                }
-
-                _endpoints = endpoints;
+                _endpoints = CreateEndpoints();
             }
         }
 
@@ -135,26 +161,6 @@ namespace Microsoft.AspNetCore.Mvc.Routing
     {
         public ModuleEndpointDataSource(IServiceProvider serviceProvider) : base(serviceProvider, typeof(TModule))
         {
-        }
-    }
-
-    internal static class EndpointRouteBuilderExtensions
-    {
-        /// <summary>
-        /// Adds a specialized <see cref="RouteEndpoint"/> to the <see cref="IEndpointRouteBuilder"/>
-        /// that will match the provided pattern with the lowest possible priority.
-        /// </summary>
-        /// <param name="endpoints">The endpoint route builder.</param>
-        /// <param name="pattern">The route pattern.</param>
-        /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
-        public static IEndpointConventionBuilder MapNotFound(this IEndpointRouteBuilder endpoints, string pattern)
-        {
-            return endpoints.MapFallback(pattern, context =>
-            {
-                context.Features.Set<IClaimedNoStatusCodePageFeature>(new ClaimedNoStatusCodePageFeature());
-                context.Response.StatusCode = 404;
-                return Task.CompletedTask;
-            });
         }
     }
 
@@ -186,9 +192,41 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         }
     }
 
+    internal class DefaultEndpointConventionBuilder : IEndpointConventionBuilder
+    {
+        internal EndpointBuilder EndpointBuilder { get; }
+
+        private readonly List<Action<EndpointBuilder>> _conventions;
+
+        public DefaultEndpointConventionBuilder(EndpointBuilder endpointBuilder)
+        {
+            EndpointBuilder = endpointBuilder;
+            _conventions = new List<Action<EndpointBuilder>>();
+        }
+
+        public void Add(Action<EndpointBuilder> convention)
+        {
+            _conventions.Add(convention);
+        }
+
+        public Endpoint Build()
+        {
+            foreach (var convention in _conventions)
+            {
+                convention(EndpointBuilder);
+            }
+
+            return EndpointBuilder.Build();
+        }
+    }
+
     internal class DefaultEndpointBuilder<TModule> : IEndpointBuilder where TModule : AbstractModule
     {
-        public IEndpointRouteBuilder Builder { get; }
+        public ICollection<EndpointDataSource> DataSources { get; }
+
+        public IServiceProvider ServiceProvider { get; }
+
+        public IEndpointRouteBuilder OriginalBuilder { get; }
 
         public Action<IEndpointConventionBuilder> DefaultConvention { get; }
 
@@ -197,22 +235,19 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         public DefaultEndpointBuilder(IEndpointRouteBuilder builder, string areaName, Action<IEndpointConventionBuilder> convention)
         {
             AreaName = areaName;
-            Builder = builder;
+            DataSources = builder.DataSources;
+            ServiceProvider = builder.ServiceProvider;
+            OriginalBuilder = builder;
             DefaultConvention = convention;
-        }
-
-        private T GetRequiredService<T>()
-        {
-            return Builder.ServiceProvider.GetRequiredService<T>();
         }
 
         private ModuleEndpointDataSource<TModule> GetOrCreateDataSource()
         {
-            var dataSource = Builder.DataSources.OfType<ModuleEndpointDataSource<TModule>>().FirstOrDefault();
+            var dataSource = DataSources.OfType<ModuleEndpointDataSource<TModule>>().FirstOrDefault();
             if (dataSource == null)
             {
-                dataSource = GetRequiredService<ModuleEndpointDataSource<TModule>>();
-                Builder.DataSources.Add(dataSource);
+                dataSource = ServiceProvider.GetRequiredService<ModuleEndpointDataSource<TModule>>();
+                DataSources.Add(dataSource);
             }
 
             return dataSource;
@@ -221,10 +256,11 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         public IEndpointConventionBuilder MapApiDocument(string name, string title, string description, string version)
         {
             var assembly = typeof(TModule).Assembly;
-            GetRequiredService<SubstrateControllerConvention>()
+            ServiceProvider
+                .GetRequiredService<SubstrateControllerConvention>()
                 .Declare(assembly.FullName!, name);
 
-            var sgo = GetRequiredService<IOptions<SwaggerGenOptions>>().Value;
+            var sgo = ServiceProvider.GetRequiredService<IOptions<SwaggerGenOptions>>().Value;
 
             sgo.SwaggerDoc(name, new OpenApiInfo
             {
@@ -240,58 +276,107 @@ namespace Microsoft.AspNetCore.Mvc.Routing
             }
             else
             {
-                GetRequiredService<ILoggerFactory>()
+                ServiceProvider
+                    .GetRequiredService<ILoggerFactory>()
                     .CreateLogger("Microsoft.Hosting.Lifetime")
                     .LogWarning($"Documentation '{file}' is not found. Specification comments will not be registered into swagger.");
             }
 
             var actionLazy = new ControllerActionDescriptorLazy("Dashboard", "ApiDoc", "Display");
-            return MapRequestDelegate("/api/doc/" + name, context =>
-            {
-                var routeData = new RouteData();
-                routeData.PushState(router: null, context.Request.RouteValues, new RouteValueDictionary());
-                routeData.Values["name"] = name;
-                var actionContext = new ActionContext(context, routeData, actionLazy.GetValue(context.RequestServices));
 
-                var invoker = context.RequestServices
-                    .GetRequiredService<IActionInvokerFactory>()
-                    .CreateInvoker(actionContext);
+            return MapRequestDelegate(
+                "/api/doc/" + name, context =>
+                {
+                    var routeData = new RouteData();
+                    routeData.PushState(router: null, context.Request.RouteValues, new RouteValueDictionary());
+                    routeData.Values["name"] = name;
+                    var actionContext = new ActionContext(context, routeData, actionLazy.GetValue(context.RequestServices));
 
-                return invoker.InvokeAsync();
-            })
-            .WithDisplayName(_ => $"Swagger Document ({name})")
-            .WithMetadata(new HttpMethodMetadata(new[] { "GET" }));
+                    var invoker = context.RequestServices
+                        .GetRequiredService<IActionInvokerFactory>()
+                        .CreateInvoker(actionContext);
+
+                    return invoker.InvokeAsync();
+                })
+                .WithDisplayName($"Swagger Document ({name})")
+                .WithMetadata(new HttpMethodMetadata(new[] { "GET" }));
         }
 
         public ControllerActionEndpointConventionBuilder MapControllers()
         {
-            return GetOrCreateDataSource().ConventionBuilder.WithDefaults(DefaultConvention);
+            var endpointDataSorce = GetOrCreateDataSource();
+            if (endpointDataSorce.EnableController)
+            {
+                return endpointDataSorce.ConventionBuilder;
+            }
+            else
+            {
+                endpointDataSorce.EnableController = true;
+                return endpointDataSorce.ConventionBuilder
+                    .WithDefaults(DefaultConvention)
+                    .WithDisplayName(TransformDisplayName);
+
+                static string TransformDisplayName(string original)
+                {
+                    // SatelliteSite.Substrate.Dashboards.ApiDocController.Display (SatelliteSite.Substrate)
+                    var segments = original.Split(' ');
+                    if (segments.Length != 2) return original;
+                    if (!segments[1].StartsWith('(') || !segments[1].EndsWith(')')) return original;
+                    var prefix = segments[1][1..^1] + ".";
+                    if (original.StartsWith(prefix)) return original[prefix.Length..];
+                    return original;
+                }
+            }
         }
 
         public IErrorHandlerBuilder WithErrorHandler(string area, string controller, string action)
         {
             var ad = new ControllerActionDescriptorLazy(area, controller, action);
-            return new DefaultErrorHandlerBuilder(ad, Builder, DefaultConvention);
-        }
-
-        public IEndpointConventionBuilder MapFallNotFound(string pattern)
-        {
-            return Builder.MapNotFound(pattern).WithDefaults(DefaultConvention);
+            return new DefaultErrorHandlerBuilder(ad, this);
         }
 
         public IEndpointConventionBuilder MapFallback(string pattern, RequestDelegate requestDelegate)
         {
-            return Builder.MapFallback(pattern, requestDelegate).WithDefaults(DefaultConvention);
+            return MapRequestDelegate(pattern, requestDelegate)
+                .WithDisplayName("Fallback " + pattern)
+                .WithDefaults(a => a.Add(b => ((RouteEndpointBuilder)b).Order = int.MaxValue));
         }
 
         public HubEndpointConventionBuilder MapHub<THub>(string pattern, Action<HttpConnectionDispatcherOptions>? configureOptions = null) where THub : Hub
         {
-            return Builder.MapHub<THub>(pattern, configureOptions ?? (options => { })).WithDefaults(DefaultConvention);
+            return OriginalBuilder.MapHub<THub>(pattern, configureOptions ?? (options => { })).WithDefaults(DefaultConvention);
         }
 
         public IEndpointConventionBuilder MapRequestDelegate(string pattern, RequestDelegate requestDelegate)
         {
-            return Builder.Map(pattern, requestDelegate).WithDefaults(DefaultConvention);
+            if (pattern == null)
+                throw new ArgumentNullException(nameof(pattern));
+            if (requestDelegate == null)
+                throw new ArgumentNullException(nameof(requestDelegate));
+            var routePattern = RoutePatternFactory.Parse(pattern);
+
+            const int defaultOrder = 0;
+
+            var builder = new RouteEndpointBuilder(
+                requestDelegate, routePattern, defaultOrder)
+            {
+                DisplayName = routePattern.RawText ?? "null",
+            };
+
+            // Add delegate attributes as metadata
+            var attributes = requestDelegate.Method.GetCustomAttributes();
+
+            // This can be null if the delegate is a dynamic method or compiled from an expression tree
+            if (attributes != null)
+            {
+                foreach (var attribute in attributes)
+                {
+                    builder.Metadata.Add(attribute);
+                }
+            }
+
+            var dataSource = GetOrCreateDataSource();
+            return dataSource.AddEndpointBuilder(builder).WithDefaults(DefaultConvention);
         }
     }
 
@@ -299,15 +384,12 @@ namespace Microsoft.AspNetCore.Mvc.Routing
     {
         public ControllerActionDescriptorLazy ActionDescriptor { get; }
 
-        public Action<IEndpointConventionBuilder> DefaultConvention { get; }
+        public IEndpointBuilder Builder { get; }
 
-        public IEndpointRouteBuilder Builder { get; }
-
-        public DefaultErrorHandlerBuilder(ControllerActionDescriptorLazy actionDescriptor, IEndpointRouteBuilder builder, Action<IEndpointConventionBuilder> convention)
+        public DefaultErrorHandlerBuilder(ControllerActionDescriptorLazy actionDescriptor, IEndpointBuilder builder)
         {
             ActionDescriptor = actionDescriptor;
             Builder = builder;
-            DefaultConvention = convention;
         }
 
         public IErrorHandlerBuilder MapFallbackNotFound(string pattern)
@@ -328,7 +410,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
 
                 return invoker.InvokeAsync();
             })
-            .WithDefaults(DefaultConvention);
+            .WithDisplayName($"Status Code Page {pattern} (Fallback NotFound)");
 
             return this;
         }
