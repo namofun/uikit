@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.AspNetCore.SignalR;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -24,6 +22,17 @@ namespace Microsoft.AspNetCore.Builder
         /// Gets the <see cref="IServiceProvider"/> used to resolve services for routes.
         /// </summary>
         IServiceProvider ServiceProvider { get; }
+        
+        /// <summary>
+        /// Gets the default conventions to apply to all the routes.
+        /// </summary>
+        Action<IEndpointConventionBuilder> DefaultConvention { get; }
+
+        /// <summary>
+        /// Creates a new <see cref="IApplicationBuilder"/>.
+        /// </summary>
+        /// <returns>The new <see cref="IApplicationBuilder"/>.</returns>
+        IApplicationBuilder CreateApplicationBuilder();
 
         /// <summary>
         /// Adds endpoints for controller actions to the <see cref="IEndpointRouteBuilder"/>
@@ -98,15 +107,6 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="version">The version of API.</param>
         /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
         IEndpointConventionBuilder MapApiDocument(string name, string title, string description, string version);
-
-        /// <summary>
-        /// Maps incoming requests with the specified path to the specified <see cref="Hub"/> type.
-        /// </summary>
-        /// <typeparam name="THub">The <see cref="Hub"/> type to map requests to.</typeparam>
-        /// <param name="pattern">The route pattern.</param>
-        /// <param name="configureOptions">A callback to configure dispatcher options.</param>
-        /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
-        HubEndpointConventionBuilder MapHub<THub>(string pattern, Action<HttpConnectionDispatcherOptions>? configureOptions = null) where THub : Hub;
     }
 
     /// <summary>

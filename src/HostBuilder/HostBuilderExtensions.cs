@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Menus;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -28,7 +27,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// </summary>
         /// <param name="app">The <see cref="IApplicationBuilder"/> to add the middleware to.</param>
         /// <returns>A reference to this instance after the operation has completed.</returns>
-        public static IApplicationBuilder UseFakeAuthorization(this IApplicationBuilder app)
+        internal static IApplicationBuilder UseFakeAuthorization(this IApplicationBuilder app)
         {
             app.ApplicationServices
                 .GetRequiredService<ILogger<Startup>>()
@@ -200,55 +199,6 @@ namespace Microsoft.AspNetCore.Mvc
 
                 further.Invoke(builder);
             });
-        }
-
-        /// <summary>
-        /// Apply the endpoint modules into the route builder.
-        /// </summary>
-        /// <param name="builder">The route builder</param>
-        /// <param name="modules">The endpoint configuration list</param>
-        /// <returns>The route builder</returns>
-        internal static void MapModules(this IEndpointRouteBuilder builder, IReadOnlyCollection<AbstractModule> modules)
-        {
-            foreach (var module in modules)
-            {
-                module.RegisterEndpoints(ModuleEndpointDataSourceBase.Factory(module, builder));
-            }
-        }
-
-        /// <summary>
-        /// Apply the re-execute endpoint into the route builder.
-        /// </summary>
-        /// <param name="builder">The route builder</param>
-        /// <returns>The route builder</returns>
-        internal static void MapReExecute(this IEndpointRouteBuilder builder)
-        {
-            builder.ServiceProvider
-                .GetRequiredService<ReExecuteEndpointDataSource>()
-                .Discover();
-        }
-
-        /// <summary>
-        /// Conventions for endpoints that requires the authorization.
-        /// </summary>
-        /// <param name="builder">The endpoint convention builder.</param>
-        /// <param name="roles">The roles to be confirmed.</param>
-        /// <returns>The endpoint convention builder to chain the configurations.</returns>
-        public static TEndpointConventionBuilder RequireRoles<TEndpointConventionBuilder>(this TEndpointConventionBuilder builder, string roles) where TEndpointConventionBuilder : IEndpointConventionBuilder
-        {
-            return builder.RequireAuthorization(new AuthorizeAttribute { Roles = roles });
-        }
-
-        /// <summary>
-        /// Conventions in default.
-        /// </summary>
-        /// <param name="builder">The endpoint convention builder.</param>
-        /// <param name="configure">The configure delegate.</param>
-        /// <returns>The endpoint convention builder to chain the configurations.</returns>
-        internal static TEndpointConventionBuilder WithDefaults<TEndpointConventionBuilder>(this TEndpointConventionBuilder builder, Action<IEndpointConventionBuilder> configure) where TEndpointConventionBuilder : IEndpointConventionBuilder
-        {
-            configure.Invoke(builder);
-            return builder;
         }
     }
 }
