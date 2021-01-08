@@ -1,17 +1,16 @@
 ﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
-namespace Microsoft.AspNetCore.Mvc.Routing
+namespace Microsoft.AspNetCore.Routing
 {
     /// <summary>
     /// The matcher for status code pages re-execution.
     /// </summary>
-    public class ReExecuteEndpointMatcher
+    internal class ReExecuteEndpointMatcher
     {
         private Func<HttpContext, Task>? _matchDelegate;
         private readonly IServiceProvider _serviceProvider;

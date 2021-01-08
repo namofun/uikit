@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 
-namespace Microsoft.AspNetCore.Mvc.Routing
+namespace Microsoft.AspNetCore.Routing
 {
     internal class DefaultEndpointConventionBuilder : IEndpointConventionBuilder
     {

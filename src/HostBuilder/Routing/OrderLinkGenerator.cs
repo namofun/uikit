@@ -10,7 +10,7 @@ using System.Reflection;
 namespace Microsoft.AspNetCore.Routing
 {
     /// <inheritdoc />
-    public sealed class OrderLinkGenerator : LinkGenerator, IDisposable
+    internal sealed class OrderLinkGenerator : LinkGenerator, IDisposable
     {
         private readonly LinkGenerator inner;
         private readonly TemplateBinderFactory _binderFactory;
