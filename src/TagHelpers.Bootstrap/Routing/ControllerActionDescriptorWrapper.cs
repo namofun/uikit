@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 
 namespace Microsoft.AspNetCore.Mvc.Routing
 {
-    public class ControllerActionDescriptorWrapper
+    public sealed class ControllerActionDescriptorWrapper
     {
         private ControllerActionDescriptor? _value;
         private readonly string _area, _controller, _action;
@@ -31,6 +33,18 @@ namespace Microsoft.AspNetCore.Mvc.Routing
                 .Single();
 
             return _value = action;
+        }
+
+        public RoutePattern GetPattern(string pattern)
+        {
+            if (pattern == null)
+                throw new ArgumentNullException(nameof(pattern));
+
+            var routeValues = new RouteValueDictionary();
+            routeValues.TryAdd("action", _action);
+            routeValues.TryAdd("controller", _controller);
+            routeValues.TryAdd("area", _area);
+            return RoutePatternFactory.Parse(pattern, routeValues, null);
         }
     }
 }

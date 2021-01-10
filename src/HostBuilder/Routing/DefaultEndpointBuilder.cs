@@ -132,6 +132,13 @@ namespace Microsoft.AspNetCore.Routing
 
         public IEndpointConventionBuilder MapFallback(string pattern, RequestDelegate requestDelegate)
         {
+            if (pattern == null)
+                throw new ArgumentNullException(nameof(pattern));
+            return MapFallback(RoutePatternFactory.Parse(pattern), requestDelegate);
+        }
+
+        public IEndpointConventionBuilder MapFallback(RoutePattern pattern, RequestDelegate requestDelegate)
+        {
             return MapRequestDelegate(pattern, requestDelegate)
                 .WithDisplayName("Fallback " + pattern)
                 .WithDefaults(a => a.Add(b => ((RouteEndpointBuilder)b).Order = int.MaxValue));
@@ -141,9 +148,15 @@ namespace Microsoft.AspNetCore.Routing
         {
             if (pattern == null)
                 throw new ArgumentNullException(nameof(pattern));
+            return MapRequestDelegate(RoutePatternFactory.Parse(pattern), requestDelegate);
+        }
+
+        public IEndpointConventionBuilder MapRequestDelegate(RoutePattern routePattern, RequestDelegate requestDelegate)
+        {
+            if (routePattern == null)
+                throw new ArgumentNullException(nameof(routePattern));
             if (requestDelegate == null)
                 throw new ArgumentNullException(nameof(requestDelegate));
-            var routePattern = RoutePatternFactory.Parse(pattern);
 
             const int defaultOrder = 0;
 

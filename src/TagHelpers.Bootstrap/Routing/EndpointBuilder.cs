@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Routing.Patterns;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -51,6 +52,15 @@ namespace Microsoft.AspNetCore.Builder
         IEndpointConventionBuilder MapRequestDelegate(string pattern, RequestDelegate requestDelegate);
 
         /// <summary>
+        /// Adds a <see cref="RouteEndpoint"/> to the <see cref="IEndpointRouteBuilder"/>
+        /// that matches HTTP requests for the specified pattern.
+        /// </summary>
+        /// <param name="pattern">The route pattern.</param>
+        /// <param name="requestDelegate">The delegate executed when the endpoint is matched.</param>
+        /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
+        IEndpointConventionBuilder MapRequestDelegate(RoutePattern pattern, RequestDelegate requestDelegate);
+
+        /// <summary>
         /// Adds a specialized <see cref="RouteEndpoint"/> to the <see cref="IEndpointRouteBuilder"/>
         /// that will match the provided pattern with the lowest possible priority.
         /// </summary>
@@ -62,6 +72,19 @@ namespace Microsoft.AspNetCore.Builder
         /// <param name="requestDelegate">The delegate executed when the endpoint is matched.</param>
         /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
         IEndpointConventionBuilder MapFallback(string pattern, RequestDelegate requestDelegate);
+
+        /// <summary>
+        /// Adds a specialized <see cref="RouteEndpoint"/> to the <see cref="IEndpointRouteBuilder"/>
+        /// that will match the provided pattern with the lowest possible priority.
+        /// </summary>
+        /// <remarks>
+        /// <see cref="MapFallback(RoutePattern, RequestDelegate)"/> is intended to handle cases where no
+        /// other endpoint has matched. This is convenient for routing requests to a SPA framework.
+        /// </remarks>
+        /// <param name="pattern">The route pattern.</param>
+        /// <param name="requestDelegate">The delegate executed when the endpoint is matched.</param>
+        /// <returns>A <see cref="IEndpointConventionBuilder"/> that can be used to further customize the endpoint.</returns>
+        IEndpointConventionBuilder MapFallback(RoutePattern pattern, RequestDelegate requestDelegate);
 
         /// <summary>
         /// Adds a specialized <see cref="RouteEndpoint"/> to the <see cref="IEndpointRouteBuilder"/>

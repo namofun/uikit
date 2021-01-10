@@ -43,9 +43,14 @@ namespace Microsoft.AspNetCore.Routing
         /// <param name="pattern">The pattern string.</param>
         public void Add(string pattern, ControllerActionDescriptorWrapper actionDescriptor)
         {
+            if (pattern == null)
+                throw new ArgumentNullException(nameof(pattern));
+            if (actionDescriptor == null)
+                throw new ArgumentNullException(nameof(actionDescriptor));
             if (_discoveredFallbacks != null)
                 throw new InvalidOperationException("Patterns can't be added after finalizing endpoint building.");
-            _fallbacks.Add((pattern, RoutePatternFactory.Parse(pattern), actionDescriptor));
+
+            _fallbacks.Add((pattern, actionDescriptor.GetPattern(pattern), actionDescriptor));
         }
 
         /// <summary>

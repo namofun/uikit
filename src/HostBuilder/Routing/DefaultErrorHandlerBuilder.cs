@@ -22,7 +22,7 @@ namespace Microsoft.AspNetCore.Routing
         {
             var actionLazy = ActionDescriptor;
 
-            Builder.MapFallback(pattern, context =>
+            Builder.MapFallback(actionLazy.GetPattern(pattern), context =>
             {
                 context.Response.StatusCode = 404;
 
