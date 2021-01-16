@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Mvc.TagHelpers
 {
@@ -11,15 +14,19 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
     /// </summary>
     [HtmlTargetElement(Attributes = ViewDataKey)]
     [HtmlTargetElement(Attributes = InRolesKey)]
+    [HtmlTargetElement(Attributes = MeetPolicyKey)]
     [HtmlTargetElement(Attributes = ElseViewDataKey)]
     [HtmlTargetElement(Attributes = ElseInRolesKey)]
+    [HtmlTargetElement(Attributes = ElseMeetPolicyKey)]
     [HtmlTargetElement(Attributes = ConditionKey)]
     public class DisplayWhenTagHelper : TagHelper
     {
         private const string ViewDataKey = "asp-viewdata-key";
         private const string InRolesKey = "asp-in-roles";
+        private const string MeetPolicyKey = "asp-meet-policy";
         private const string ElseViewDataKey = "asp-no-viewdata-key";
         private const string ElseInRolesKey = "asp-not-in-roles";
+        private const string ElseMeetPolicyKey = "asp-not-meet-policy";
         private const string ConditionKey = "asp-show-if";
 
         public override int Order => -10000;
@@ -43,6 +50,12 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
         public string? ElseRoles { get; set; }
 
         /// <summary>
+        /// The required user policy
+        /// </summary>
+        [HtmlAttributeName(ElseMeetPolicyKey)]
+        public string? ElsePolicy { get; set; }
+
+        /// <summary>
         /// The required ViewData keys
         /// </summary>
         [HtmlAttributeName(ViewDataKey)]
@@ -53,6 +66,12 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
         /// </summary>
         [HtmlAttributeName(InRolesKey)]
         public string? Roles { get; set; }
+
+        /// <summary>
+        /// The required user policy
+        /// </summary>
+        [HtmlAttributeName(MeetPolicyKey)]
+        public string? Policy { get; set; }
 
         /// <summary>
         /// The display requirement
@@ -78,17 +97,45 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
             return lst.Aggregate(false, (fst, tgh) => fst || tgh.Suppressed);
         }
 
-        public override void Process(TagHelperContext context, TagHelperOutput output)
+        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
             bool suppress = !ShowIf;
-            if (Key != null && !ViewContext.ViewData.ContainsKey(Key))
-                suppress = true;
-            if (Roles != null && !ViewContext.HttpContext.User.IsInRoles(Roles))
-                suppress = true;
-            if (ElseKey != null && ViewContext.ViewData.ContainsKey(ElseKey))
-                suppress = true;
-            if (ElseRoles != null && ViewContext.HttpContext.User.IsInRoles(ElseRoles))
-                suppress = true;
+            var user = ViewContext.HttpContext.User;
+            var viewData = ViewContext.ViewData;
+
+            if (Key != null && !suppress)
+            {
+                suppress = !viewData.ContainsKey(Key);
+            }
+
+            if (Roles != null && !suppress)
+            {
+                suppress = !user.IsInRoles(Roles);
+            }
+
+            if (ElseKey != null && !suppress)
+            {
+                suppress = viewData.ContainsKey(ElseKey);
+            }
+
+            if (ElseRoles != null && !suppress)
+            {
+                suppress = user.IsInRoles(ElseRoles);
+            }
+
+            if (Policy != null && !suppress)
+            {
+                var handler = ViewContext.HttpContext.RequestServices.GetRequiredService<IAuthorizationService>();
+                var result = await handler.AuthorizeAsync(user, Policy);
+                suppress = !result.Succeeded;
+            }
+
+            if (ElsePolicy != null && !suppress)
+            {
+                var handler = ViewContext.HttpContext.RequestServices.GetRequiredService<IAuthorizationService>();
+                var result = await handler.AuthorizeAsync(user, ElsePolicy);
+                suppress = result.Succeeded;
+            }
 
             if (suppress)
             {

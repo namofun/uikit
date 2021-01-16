@@ -1,6 +1,9 @@
 ﻿@inject IMenuProvider Menu
+@{
+    var menuName = ((string)ViewData["NavbarName"]) ?? MenuNameDefaults.MainNavbar;
+}
 <ul class="navbar-nav mr-auto">
-    @foreach (var menu in Menu.Find(((string)ViewData["NavbarName"]) ?? MenuNameDefaults.MainNavbar))
+    @foreach (var menu in Menu.Find(menuName))
     {
         if (!menu.Satisfy(ViewContext)) { continue; }
         if (menu is ISubmenu submenu)
@@ -71,10 +74,10 @@
             <a class="dropdown-item" asp-area="Account" asp-controller="Profile" asp-action="Show" asp-route-username="@User.GetUserName()">
                 <i class="fas fa-address-card fa-fw"></i> Profile
             </a>
-            <a asp-show-if="@User.HasClaim("dashboard", "true")" class="dropdown-item" asp-area="Dashboard" asp-controller="Root" asp-action="Index">
+            <a asp-show-if="menuName != MenuNameDefaults.DashboardNavbar" asp-meet-policy="HasDashboard" class="dropdown-item" asp-area="Dashboard" asp-controller="Root" asp-action="Index">
                 <i class="fas fa-compass fa-fw"></i> Dashboard
             </a>
-            <a class="dropdown-item" href="/">
+            <a asp-show-if="menuName != MenuNameDefaults.MainNavbar" class="dropdown-item" href="/">
                 <i class="fas fa-home fa-fw"></i> Back to main site
             </a>
             <form asp-area="Account" asp-controller="Sign" asp-action="Logout" method="post" id="logoutForm">
