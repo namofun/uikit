@@ -41,6 +41,22 @@ namespace Microsoft.AspNetCore.Mvc
         }
 
         /// <summary>
+        /// Adds all extensions to the specified <see cref="IApplicationBuilder"/>.
+        /// </summary>
+        /// <param name="app">The <see cref="IApplicationBuilder"/> to add the middleware to.</param>
+        /// <param name="actions">The configure action list.</param>
+        /// <returns>A reference to this instance after the operation has completed.</returns>
+        internal static IApplicationBuilder UseExtensions(this IApplicationBuilder app, List<Action<IApplicationBuilder>> actions)
+        {
+            for (int i = 0; i < actions.Count; i++)
+            {
+                actions[i].Invoke(app);
+            }
+
+            return app;
+        }
+
+        /// <summary>
         /// Checks if a given Url matches rules and conditions, and modifies the HttpContext on match.
         /// </summary>
         /// <param name="app">The application builder</param>

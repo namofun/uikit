@@ -188,6 +188,20 @@ namespace Microsoft.AspNetCore.Builder
         }
 
         /// <summary>
+        /// Apply the extensions into the route builder.
+        /// </summary>
+        /// <param name="builder">The route builder</param>
+        /// <param name="actions">The extensions points</param>
+        /// <returns>The route builder</returns>
+        internal static void MapExtensions(this IEndpointRouteBuilder builder, List<Action<IEndpointRouteBuilder>> actions)
+        {
+            for (int i = 0; i < actions.Count; i++)
+            {
+                actions[i].Invoke(builder);
+            }
+        }
+
+        /// <summary>
         /// Conventions for endpoints that requires the authorization.
         /// </summary>
         /// <param name="builder">The endpoint convention builder.</param>

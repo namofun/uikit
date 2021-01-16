@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using SatelliteSite.Services;
 using System;
 using System.Collections.Generic;
@@ -93,17 +94,18 @@ namespace Microsoft.AspNetCore.Mvc
 
             services.AddApplicationInsightsTelemetry();
 
-            var assemblies = Modules.Select(a => a.GetType().Assembly).ToArray();
-            if (assemblies.Length > 0)
-                services.AddMediatR(assemblies);
+            services.AddMediatR(Modules.Select(a => a.GetType().Assembly).ToArray());
 
-            services.AddSingleton(
-                HtmlEncoder.Create(
-                    UnicodeRanges.BasicLatin,
-                    UnicodeRanges.CjkUnifiedIdeographs));
+            services.AddWebEncoders(options =>
+            {
+                options.TextEncoderSettings ??= new TextEncoderSettings();
+                options.TextEncoderSettings.AllowRange(UnicodeRanges.BasicLatin);
+                options.TextEncoderSettings.AllowRange(UnicodeRanges.CjkUnifiedIdeographs);
+            });
 
             services.AddSingleton<ReExecuteEndpointDataSource>();
             services.TryAdd(ServiceDescriptor.Singleton(sp => (CompositeEndpointDataSource)sp.GetRequiredService<EndpointDataSource>()));
+            services.AddSingleton<ReExecuteEndpointMatcher>();
 
             services.AddControllersWithViews()
                 .AddTimeSpanJsonConverter()
@@ -116,8 +118,6 @@ namespace Microsoft.AspNetCore.Mvc
 
             if (!string.IsNullOrWhiteSpace(Environment.WebRootPath))
                 services.AddSingleton<IWwwrootFileProvider, WwwrootFileProvider>();
-
-            services.AddSingleton<ReExecuteEndpointMatcher>();
 
             services.AddSession(options => options.Cookie.IsEssential = true);
 
@@ -133,7 +133,8 @@ namespace Microsoft.AspNetCore.Mvc
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         /// </summary>
         /// <param name="app">The application builder</param>
-        public void Configure(IApplicationBuilder app)
+        /// <param name="options">The substrate options</param>
+        public void Configure(IApplicationBuilder app, IOptions<SubstrateOptions> options)
         {
             app.EnsureClaimTypes();
 
@@ -153,8 +154,13 @@ namespace Microsoft.AspNetCore.Mvc
                 app.UseHsts();
             }
 
+            app.UseExtensions(options.Value.Point1);
+
             app.UseUrlRewriting();
             app.UseStaticFiles();
+
+            app.UseExtensions(options.Value.Point2);
+
             app.UseCookiePolicy();
             app.UseSession();
 
@@ -171,10 +177,13 @@ namespace Microsoft.AspNetCore.Mvc
                 app.UseFakeAuthorization();
             }
 
+            app.UseExtensions(options.Value.Point3);
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapModules(Modules);
                 endpoints.MapReExecute();
+                endpoints.MapExtensions(options.Value.Endpoints);
             });
         }
     }

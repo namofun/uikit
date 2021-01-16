@@ -32,7 +32,9 @@ namespace SatelliteSite.SampleModule
 
             endpoints.WithErrorHandler("Sample", "Main")
                 .MapFallbackNotFound("/sample/{**slug}")
-                .MapStatusCode("/sample/{**slug}");
+                .MapStatusCode("/sample/{**slug}")
+                .MapFallbackNotFound("/route-test/{id:int}")
+                .MapFallbackNotFound("/route-test/{id:alpha}");
 
             endpoints.MapRequestDelegate("/weather/checker", async context =>
             {
