@@ -11,7 +11,6 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace Microsoft.AspNetCore.Routing
 {
@@ -158,28 +157,9 @@ namespace Microsoft.AspNetCore.Routing
             if (requestDelegate == null)
                 throw new ArgumentNullException(nameof(requestDelegate));
 
-            const int defaultOrder = 0;
-
-            var builder = new RouteEndpointBuilder(
-                requestDelegate, routePattern, defaultOrder)
-            {
-                DisplayName = routePattern.RawText ?? "null",
-            };
-
-            // Add delegate attributes as metadata
-            var attributes = requestDelegate.Method.GetCustomAttributes();
-
-            // This can be null if the delegate is a dynamic method or compiled from an expression tree
-            if (attributes != null)
-            {
-                foreach (var attribute in attributes)
-                {
-                    builder.Metadata.Add(attribute);
-                }
-            }
-
-            var dataSource = GetOrCreateDataSource();
-            return dataSource.AddRequestDelegate(builder).WithDefaults(DefaultConvention);
+            return GetOrCreateDataSource()
+                .AddRequestDelegate(routePattern, requestDelegate)
+                .WithDefaults(DefaultConvention);
         }
 
         public IApplicationBuilder CreateApplicationBuilder()

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
@@ -86,9 +87,9 @@ namespace Microsoft.AspNetCore.Routing
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [DebuggerStepThrough]
-        public IEndpointConventionBuilder AddRequestDelegate(EndpointBuilder endpointBuilder)
+        public IEndpointConventionBuilder AddRequestDelegate(RoutePattern routePattern, RequestDelegate requestDelegate)
         {
-            var builder = new DefaultEndpointConventionBuilder(endpointBuilder);
+            var builder = new DefaultEndpointConventionBuilder(routePattern, requestDelegate);
             _modelEndpoints.Add(builder);
             return builder;
         }
@@ -139,10 +140,14 @@ namespace Microsoft.AspNetCore.Routing
             }
 
             if (_endpoints == null)
-            lock (_locker)
-            if (_endpoints == null)
             {
-                _endpoints = CreateEndpoints();
+                lock (_locker)
+                {
+                    if (_endpoints == null)
+                    {
+                        _endpoints = CreateEndpoints();
+                    }
+                }
             }
         }
 
