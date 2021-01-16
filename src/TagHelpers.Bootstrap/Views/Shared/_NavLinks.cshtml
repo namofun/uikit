@@ -1,6 +1,8 @@
 ﻿@inject IMenuProvider Menu
 @{
-    var menuName = ((string)ViewData["NavbarName"]) ?? MenuNameDefaults.MainNavbar;
+    var menuName = (ViewData["NavbarName"] as string) ?? MenuNameDefaults.MainNavbar;
+    var suppressUserMenu = ViewData.TryGetValue("SuppressUserMenu", out object _suppressUserMenu) && _suppressUserMenu is bool __suppressUserMenu && __suppressUserMenu;
+    var extraMenu = ViewData["ExtraMenu"] as string;
 }
 <ul class="navbar-nav mr-auto">
     @foreach (var menu in Menu.Find(menuName))
@@ -46,13 +48,18 @@
     }
 </ul>
 
+@if (!string.IsNullOrWhiteSpace(extraMenu))
+{
+    <partial name="@extraMenu" />
+}
+
 <ul class="navbar-nav">
     <li class="ajax-loader-container">
         <div class="spinner-border spinner-border-sm ajax-loader" style="display: none;" role="status">
             <span class="sr-only">Loading...</span>
         </div>
     </li>
-    <li class="nav-item dropdown" asp-show-if="User.IsSignedIn()">
+    <li class="nav-item dropdown" asp-show-if="!suppressUserMenu && User.IsSignedIn()">
         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i class="fas fa-user"></i> @User.GetUserName()
         </a>
@@ -87,7 +94,7 @@
             </form>
         </div>
     </li>
-    <li class="nav-item" asp-show-if="!User.IsSignedIn()">
+    <li class="nav-item" asp-show-if="!suppressUserMenu && !User.IsSignedIn()">
         <a class="nav-link" role="button" data-toggle="ajaxWindow" data-target="login" asp-area="Account" asp-controller="Sign" asp-action="Login" asp-route-returnUrl="@ViewData["RefreshUrl"]">
             <i class="fas fa-sign-in-alt fa-fw"></i> Login
         </a>
