@@ -1,9 +1,7 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
-using SatelliteSite.Entities;
 using SatelliteSite.Substrate.Dashboards;
 using System;
 using System.IO;
@@ -24,7 +22,7 @@ namespace SatelliteSite.Substrate.Apis
             [FromQuery] string type,
             [FromForm(Name = "editormd-image-file")] IFormFile formFile,
             [FromServices] IWwwrootFileProvider io,
-            [FromServices] IMediator mediator)
+            [FromServices] MediatR.IMediator mediator)
         {
             if (formFile == null || type == null)
                 return new ObjectResult(new { success = 0, message = "未包含文件。" });
