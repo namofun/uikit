@@ -154,13 +154,11 @@ namespace Microsoft.AspNetCore.Mvc
                 app.UseHsts();
             }
 
-            app.UseExtensions(options.Value.Point1);
-
+            app.UseExtensions(options.Value.PointBeforeUrlRewriting);
             app.UseUrlRewriting();
             app.UseStaticFiles();
 
-            app.UseExtensions(options.Value.Point2);
-
+            app.UseExtensions(options.Value.PointBeforeRouting);
             app.UseCookiePolicy();
             app.UseSession();
 
@@ -170,6 +168,7 @@ namespace Microsoft.AspNetCore.Mvc
             if (Modules.Any(m => m.ProvideIdentity))
             {
                 app.UseAuthentication();
+                app.UseExtensions(options.Value.PointBetweenAuth);
                 app.UseAuthorization();
             }
             else if (Environment.IsDevelopment())
@@ -177,8 +176,7 @@ namespace Microsoft.AspNetCore.Mvc
                 app.UseFakeAuthorization();
             }
 
-            app.UseExtensions(options.Value.Point3);
-
+            app.UseExtensions(options.Value.PointBeforeEndpoint);
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapModules(Modules);

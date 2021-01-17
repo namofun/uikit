@@ -16,18 +16,23 @@ namespace Microsoft.AspNetCore.Mvc
         public List<Action<IEndpointRouteBuilder>> Endpoints { get; } = new List<Action<IEndpointRouteBuilder>>();
 
         /// <summary>
-        /// Gets or sets the application builder extension point 1 configure actions.
+        /// Gets or sets the application builder extension point before URL rewriting.
         /// </summary>
-        public List<Action<IApplicationBuilder>> Point1 { get; } = new List<Action<IApplicationBuilder>>();
+        public List<Action<IApplicationBuilder>> PointBeforeUrlRewriting { get; } = new List<Action<IApplicationBuilder>>();
 
         /// <summary>
-        /// Gets or sets the application builder extension point 2 configure actions.
+        /// Gets or sets the application builder extension point before routing.
         /// </summary>
-        public List<Action<IApplicationBuilder>> Point2 { get; } = new List<Action<IApplicationBuilder>>();
+        public List<Action<IApplicationBuilder>> PointBeforeRouting { get; } = new List<Action<IApplicationBuilder>>();
 
         /// <summary>
-        /// Gets or sets the application builder extension point 3 configure actions.
+        /// Gets or sets the application builder extension point before endpoint execution.
         /// </summary>
-        public List<Action<IApplicationBuilder>> Point3 { get; } = new List<Action<IApplicationBuilder>>();
+        public List<Action<IApplicationBuilder>> PointBeforeEndpoint { get; } = new List<Action<IApplicationBuilder>>();
+
+        /// <summary>
+        /// Gets or sets the application builder extension point between authentication and authorization.
+        /// </summary>
+        public List<Action<IApplicationBuilder>> PointBetweenAuth { get; } = new List<Action<IApplicationBuilder>>();
     }
 }
