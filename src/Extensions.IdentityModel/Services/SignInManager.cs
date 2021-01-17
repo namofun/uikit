@@ -30,20 +30,30 @@ namespace Microsoft.AspNetCore.Identity
         {
         }
 
+        /// <inheritdoc cref="ISignInManager.FindUserAsync(string)" />
+        protected virtual Task<TUser> FindUserAsync(string userName)
+        {
+            if (string.IsNullOrEmpty(userName)) return Task.FromResult<TUser>(null);
+
+            // TODO: Contains('\\') -> Domain Login?
+            return userName.Contains('@')
+                ? UserManager.FindByEmailAsync(userName)
+                : UserManager.FindByNameAsync(userName);
+        }
+
+        /// <inheritdoc />
+        async Task<IUser> ISignInManager.FindUserAsync(string userName) => await FindUserAsync(userName);
+
         /// <inheritdoc />
         public override async Task<SignInResult> PasswordSignInAsync(string userName, string password, bool isPersistent, bool lockoutOnFailure)
         {
-            TUser user;
-            if (string.IsNullOrEmpty(userName)) return SignInResult.Failed;
-
-            // TODO: Contains('\\') -> Domain Login?
-            user = userName.Contains('@')
-                ? await UserManager.FindByEmailAsync(userName)
-                : await UserManager.FindByNameAsync(userName);
-
+            var user = await FindUserAsync(userName);
             if (user == null) return SignInResult.Failed;
             return await PasswordSignInAsync(user, password, isPersistent, lockoutOnFailure);
         }
+
+        /// <inheritdoc />
+        Task<SignInResult> ISignInManager.PasswordSignInAsync(IUser user, string password, bool isPersistent, bool lockoutOnFailure) => PasswordSignInAsync((TUser)user, password, isPersistent, lockoutOnFailure);
 
         /// <inheritdoc />
         Task ISignInManager.RefreshSignInAsync(IUser user) => RefreshSignInAsync((TUser)user);

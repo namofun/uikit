@@ -12,6 +12,7 @@ namespace SatelliteSite.IdentityModule.Controllers
     [Authorize]
     [Area("Account")]
     [Route("[area]/[action]")]
+    [AuditPoint(AuditlogType.User)]
     public class SignController : ViewControllerBase
     {
         private IUserManager UserManager { get; }
@@ -47,9 +48,20 @@ namespace SatelliteSite.IdentityModule.Controllers
 
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-            var result = await signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
+            var user = await signInManager.FindUserAsync(model.Username);
+            var result = await signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: false);
 
-            if (result.Succeeded) return RedirectToLocal(returnUrl);
+            if (result.Succeeded)
+            {
+                // only succeed when user is not null
+                await HttpContext.AuditAsync(
+                    "logged in",
+                    user.Id.ToString(),
+                    $"at {HttpContext.Connection.RemoteIpAddress}");
+
+                return RedirectToLocal(returnUrl);
+            }
+
             if (result.IsLockedOut) return RedirectToAction(nameof(Lockout));
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
@@ -133,14 +145,22 @@ namespace SatelliteSite.IdentityModule.Controllers
                 await UserManager.AddToRoleAsync(user, "Administrator");
 
             var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+
             var callbackUrl = Url.Action(
                 action: "ConfirmEmail",
                 controller: "Sign",
                 values: new { userId = $"{user.Id}", code, area = "Account" },
                 protocol: Request.Scheme);
+
             await emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
 
             await signInManager.SignInAsync(user, isPersistent: false);
+
+            await HttpContext.AuditAsync(
+                "registered",
+                user.Id.ToString(),
+                $"at {HttpContext.Connection.RemoteIpAddress}");
+
             return RedirectToLocal(returnUrl);
         }
 
@@ -152,7 +172,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             return View();
         }
 
-        
+
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -161,7 +181,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             [FromServices] IEmailSender emailSender)
         {
             if (!ModelState.IsValid) return View(model);
-            
+
             var user = await UserManager.FindByEmailAsync(model.Email);
             if (user == null || !(await UserManager.IsEmailConfirmedAsync(user)))
             {
@@ -177,12 +197,21 @@ namespace SatelliteSite.IdentityModule.Controllers
                 controller: "Sign",
                 values: new { userId = $"{user.Id}", code, area = "Account" },
                 protocol: Request.Scheme);
-            await emailSender.SendEmailAsync(model.Email, "Reset Password",
-                $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+
+            await emailSender.SendEmailAsync(
+                email: model.Email,
+                subject: "Reset Password",
+                message: $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+
+            await HttpContext.AuditAsync(
+                "sent forgot password email",
+                user.Id.ToString(),
+                $"at {HttpContext.Connection.RemoteIpAddress}");
+
             return RedirectToAction(nameof(ForgotPasswordConfirmation));
         }
 
-        
+
         [HttpGet]
         [AllowAnonymous]
         public IActionResult ForgotPasswordConfirmation()
@@ -190,7 +219,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             return View();
         }
 
-        
+
         [HttpGet]
         [AllowAnonymous]
         public IActionResult ResetPassword(string code = null)
@@ -214,6 +243,12 @@ namespace SatelliteSite.IdentityModule.Controllers
             var result = await UserManager.ResetPasswordAsync(user, model.Code, model.Password);
 
             if (!result.Succeeded) return ErrorView(result, model);
+
+            await HttpContext.AuditAsync(
+                "reset password",
+                user.Id.ToString(),
+                $"at {HttpContext.Connection.RemoteIpAddress}");
+
             return RedirectToAction(nameof(ResetPasswordConfirmation));
         }
 
@@ -224,6 +259,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         {
             return View();
         }
+
 
         [HttpGet]
         [AllowAnonymous]
@@ -237,6 +273,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             var result = await UserManager.ConfirmEmailAsync(user, code);
             return View(result.Succeeded ? "ConfirmEmail" : "ConfirmEmailError");
         }
+
 
         private ViewResult ErrorView(IdentityResult result, object model)
         {
@@ -256,7 +293,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             }
             else
             {
-                return RedirectToAction("Index", "Home", new { area = "Misc" });
+                return Redirect("/");
             }
         }
     }

@@ -13,6 +13,7 @@ namespace SatelliteSite.IdentityModule.Controllers
     [Area("Account")]
     [Authorize]
     [Route("[controller]")]
+    [AuditPoint(AuditlogType.User)]
     public class ProfileController : ViewControllerBase
     {
         IUserManager UserManager { get; }
@@ -115,6 +116,7 @@ namespace SatelliteSite.IdentityModule.Controllers
                 return ViewWithError(changePasswordResult, model);
             
             await signInManager.SignInAsync(user, isPersistent: false);
+            await HttpContext.AuditAsync("changed password", user.Id.ToString());
             StatusMessage = "Your password has been changed.";
 
             return RedirectToAction(nameof(ChangePassword));
@@ -153,7 +155,9 @@ namespace SatelliteSite.IdentityModule.Controllers
                 return ViewWithError(addPasswordResult, model);
 
             await signInManager.SignInAsync(user, isPersistent: false);
+            await HttpContext.AuditAsync("set password", user.Id.ToString());
             StatusMessage = "Your password has been set.";
+
             return RedirectToAction(nameof(SetPassword));
         }
 
@@ -189,6 +193,7 @@ namespace SatelliteSite.IdentityModule.Controllers
                 logger.LogError(ex, "Mail sending failed.");
             }
 
+            await HttpContext.AuditAsync("send verification email", user.Id.ToString());
             return RedirectToAction(nameof(Edit));
         }
 
@@ -230,6 +235,7 @@ namespace SatelliteSite.IdentityModule.Controllers
 
                 await UserManager.UpdateAsync(user);
                 await signInManager.RefreshSignInAsync(user);
+                await HttpContext.AuditAsync("update profile", user.Id.ToString());
                 StatusMessage = "Your profile has been updated";
             }
             catch (ApplicationException ex)
