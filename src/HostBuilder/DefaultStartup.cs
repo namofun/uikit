@@ -6,16 +6,14 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using SatelliteSite.Services;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text.Encodings.Web;
+using System.Text.Json.Serialization;
 using System.Text.Unicode;
 
 namespace Microsoft.AspNetCore.Mvc
@@ -23,7 +21,7 @@ namespace Microsoft.AspNetCore.Mvc
     /// <summary>
     /// Default startup class to configure the services and request pipeline.
     /// </summary>
-    public class Startup
+    public partial class Startup
     {
         /// <summary>
         /// Create an instance of <see cref="Startup"/>
@@ -53,32 +51,6 @@ namespace Microsoft.AspNetCore.Mvc
         public IReadOnlyCollection<AbstractModule> Modules { get; }
 
         /// <summary>
-        /// AssemblyLoadFileDelegate for <see cref="ApplicationParts.RelatedAssemblyAttribute"/>.
-        /// </summary>
-        /// <param name="fileName">The file name.</param>
-        /// <returns>The loaded assembly.</returns>
-        private static Assembly AssemblyLoadFileDelegate(string fileName)
-        {
-            bool AreSameAssembly(Assembly a) => !a.IsDynamic && string.Equals(a.Location, fileName, StringComparison.OrdinalIgnoreCase);
-
-            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(AreSameAssembly);
-            if (assembly != null) return assembly;
-            return Assembly.LoadFile(fileName);
-        }
-
-        /// <summary>
-        /// Setup the <see cref="AssemblyLoadFileDelegate"/>.
-        /// </summary>
-        static Startup()
-        {
-            // For ASP.NET Core 3.1
-            typeof(ApplicationParts.RelatedAssemblyAttribute)
-                .GetFields(BindingFlags.Static | BindingFlags.NonPublic)
-                .Single(f => f.Name == nameof(AssemblyLoadFileDelegate))
-                .SetValue(null, new Func<string, Assembly>(AssemblyLoadFileDelegate));
-        }
-
-        /// <summary>
         /// This method gets called by the runtime. Use this method to add services to the container.
         /// </summary>
         /// <param name="services">The dependency injection builder</param>
@@ -104,17 +76,19 @@ namespace Microsoft.AspNetCore.Mvc
             });
 
             services.AddSingleton<ReExecuteEndpointDataSource>();
-            services.TryAdd(ServiceDescriptor.Singleton(sp => (CompositeEndpointDataSource)sp.GetRequiredService<EndpointDataSource>()));
+            services.AddSingletonDowncast<CompositeEndpointDataSource, EndpointDataSource>();
             services.AddSingleton<ReExecuteEndpointMatcher>();
+            services.ReplaceSingleton<LinkGenerator, OrderLinkGenerator>();
+            services.ReplaceSingleton<IUrlHelperFactory, SubstrateUrlHelperFactory>();
 
             services.AddControllersWithViews()
-                .AddTimeSpanJsonConverter()
-                .UseSlugifyParameterTransformer()
-                .UseSubstrateConventions()
-                .ReplaceDefaultLinkGenerator()
+                .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new TimeSpanJsonConverter()))
                 .AddSessionStateTempDataProvider()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
-                .AddOnboardingModules(Modules, Environment.IsDevelopment());
+                .ContinueWith(ConfigureParts);
+
+            services.AddSingleton<SubstrateApiVisibilityConvention>();
+            services.ConfigureOptions<SubstrateMvcOptionsConfigurator>();
 
             if (!string.IsNullOrWhiteSpace(Environment.WebRootPath))
                 services.AddSingleton<IWwwrootFileProvider, WwwrootFileProvider>();
@@ -123,10 +97,7 @@ namespace Microsoft.AspNetCore.Mvc
 
             services.AddApiExplorer(o => o.DocInclusionPredicate((a, b) => b.GroupName == a))
                 .AddSecurityScheme("basic", Microsoft.OpenApi.Models.SecuritySchemeType.Http);
-
             services.AddSingleton<IApiDocumentProvider, ApiDocumentProvider>();
-
-            services.ReplaceSingleton<IUrlHelperFactory, SubstrateUrlHelperFactory>();
         }
 
         /// <summary>

@@ -6,6 +6,7 @@ namespace SatelliteSite.SampleModule.Controllers
 {
     [Area("Sample")]
     [Route("[area]/[controller]/[action]")]
+    [SupportStatusCodePage]
     public class MainController : ViewControllerBase
     {
         private ForecastService Service { get; }

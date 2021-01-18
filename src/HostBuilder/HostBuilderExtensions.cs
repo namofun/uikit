@@ -57,6 +57,18 @@ namespace Microsoft.AspNetCore.Mvc
         }
 
         /// <summary>
+        /// Continue the mvc builder configure with the following action.
+        /// </summary>
+        /// <param name="builder">The <see cref="IMvcBuilder"/>.</param>
+        /// <param name="setupAction">The setup action.</param>
+        /// <returns>The mvc builder itself.</returns>
+        internal static IMvcBuilder ContinueWith(this IMvcBuilder builder, Action<IMvcBuilder> setupAction)
+        {
+            setupAction(builder);
+            return builder;
+        }
+
+        /// <summary>
         /// Checks if a given Url matches rules and conditions, and modifies the HttpContext on match.
         /// </summary>
         /// <param name="app">The application builder</param>

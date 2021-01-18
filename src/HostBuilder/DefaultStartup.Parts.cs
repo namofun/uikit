@@ -1,81 +1,48 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.Json.Serialization;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Microsoft.AspNetCore.Mvc
 {
-    /// <summary>
-    /// Contains several static extension methods to help build <see cref="IMvcBuilder"/>.
-    /// </summary>
-    public static class SubstrateMvcBuilderExtensions
+    public partial class Startup
     {
         /// <summary>
-        /// Add the <see cref="TimeSpanJsonConverter"/> into json serializer options.
+        /// AssemblyLoadFileDelegate for <see cref="ApplicationParts.RelatedAssemblyAttribute"/>.
         /// </summary>
-        /// <param name="builder">The <see cref="IMvcBuilder"/></param>
-        /// <returns>The <see cref="IMvcBuilder"/></returns>
-        public static IMvcBuilder AddTimeSpanJsonConverter(this IMvcBuilder builder)
+        /// <param name="fileName">The file name.</param>
+        /// <returns>The loaded assembly.</returns>
+        private static Assembly AssemblyLoadFileDelegate(string fileName)
         {
-            return builder.AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new TimeSpanJsonConverter()));
+            bool AreSameAssembly(Assembly a) => !a.IsDynamic && string.Equals(a.Location, fileName, StringComparison.OrdinalIgnoreCase);
+
+            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(AreSameAssembly);
+            if (assembly != null) return assembly;
+            return Assembly.LoadFile(fileName);
         }
 
         /// <summary>
-        /// Add the <see cref="SlugifyParameterTransformer"/> into route token transformer conventions.
+        /// Setup the <see cref="AssemblyLoadFileDelegate"/>.
         /// </summary>
-        /// <param name="builder">The <see cref="IMvcBuilder"/></param>
-        /// <returns>The <see cref="IMvcBuilder"/></returns>
-        public static IMvcBuilder UseSlugifyParameterTransformer(this IMvcBuilder builder)
+        static Startup()
         {
-            builder.Services.Configure<MvcOptions>(options =>
-                options.Conventions.Add(
-                    new RouteTokenTransformerConvention(new SlugifyParameterTransformer())));
-            return builder;
-        }
-
-        /// <summary>
-        /// Add the <see cref="SubstrateControllerConvention"/> into conventions and container.
-        /// </summary>
-        /// <param name="builder">The <see cref="IMvcBuilder"/></param>
-        /// <returns>The <see cref="IMvcBuilder"/></returns>
-        public static IMvcBuilder UseSubstrateConventions(this IMvcBuilder builder)
-        {
-            var convention = new SubstrateControllerConvention();
-            builder.Services.AddSingleton(convention);
-            builder.Services.Configure<MvcOptions>(options => options.Conventions.Add(convention));
-            return builder;
-        }
-
-        /// <summary>
-        /// Replace the default <see cref="LinkGenerator"/> implemention with more routing token prob.
-        /// </summary>
-        /// <param name="builder">The <see cref="IMvcBuilder"/></param>
-        /// <returns>The <see cref="IMvcBuilder"/></returns>
-        public static IMvcBuilder ReplaceDefaultLinkGenerator(this IMvcBuilder builder)
-        {
-            var old = builder.Services.FirstOrDefault(s => s.ServiceType == typeof(LinkGenerator));
-            if (OrderLinkGenerator.typeInner == null)
-                throw new TypeLoadException("No Microsoft.AspNetCore.Routing.DefaultLinkGenerator found.");
-            builder.Services.Replace(ServiceDescriptor.Singleton<LinkGenerator, OrderLinkGenerator>());
-            return builder;
+            // For ASP.NET Core 3.1
+            typeof(ApplicationParts.RelatedAssemblyAttribute)
+                .GetFields(BindingFlags.Static | BindingFlags.NonPublic)
+                .Single(f => f.Name == nameof(AssemblyLoadFileDelegate))
+                .SetValue(null, new Func<string, Assembly>(AssemblyLoadFileDelegate));
         }
 
         /// <summary>
         /// Batch add the application parts and razor files into the <see cref="ApplicationPartManager"/>.
         /// </summary>
         /// <param name="builder">The <see cref="IMvcBuilder"/> to configure more.</param>
-        /// <param name="modules">The list of <see cref="AbstractModule"/>.</param>
-        /// <param name="isDevelopment">Whether the current environment is development.</param>
-        /// <returns>The <see cref="IMvcBuilder"/> to chain the conventions.</returns>
-        public static IMvcBuilder AddOnboardingModules(this IMvcBuilder builder, IReadOnlyCollection<AbstractModule> modules, bool isDevelopment)
+        public void ConfigureParts(IMvcBuilder builder)
         {
             var lst = new List<ApplicationPart>();
             PeerFileProvider? tree = null;
@@ -145,10 +112,10 @@ namespace Microsoft.Extensions.DependencyInjection
             if (selfCheck != null && Directory.Exists(selfCheck.Path))
                 (tree ??= new PeerFileProvider()).Append(new PhysicalFileProvider(selfCheck.Path));
 
-            foreach (var module in modules)
+            foreach (var module in Modules)
                 Add(module.GetType().Assembly, module.Area);
 
-            if (isDevelopment && tree != null)
+            if (Environment.IsDevelopment() && tree != null)
                 builder.AddRazorRuntimeCompilation(options => options.FileProviders.Add(tree));
 
             builder.ConfigureApplicationPartManager(apm =>
@@ -190,8 +157,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     }
                 }
             });
-
-            return builder;
         }
     }
 }

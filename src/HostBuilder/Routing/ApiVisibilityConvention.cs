@@ -8,7 +8,7 @@ namespace Microsoft.AspNetCore.Mvc
     /// <summary>
     /// Explicitly set the visibility of APIs.
     /// </summary>
-    internal sealed class SubstrateControllerConvention : IControllerModelConvention
+    internal sealed class SubstrateApiVisibilityConvention : IControllerModelConvention
     {
         private readonly Dictionary<string, string> _decl = new Dictionary<string, string>();
 

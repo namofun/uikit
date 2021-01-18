@@ -50,7 +50,7 @@ namespace Microsoft.AspNetCore.Routing
         {
             var assembly = typeof(TModule).Assembly;
             ServiceProvider
-                .GetRequiredService<SubstrateControllerConvention>()
+                .GetRequiredService<SubstrateApiVisibilityConvention>()
                 .Declare(assembly.FullName!, name);
 
             var sgo = ServiceProvider.GetRequiredService<IOptions<SwaggerGenOptions>>().Value;

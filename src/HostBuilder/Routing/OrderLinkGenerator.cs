@@ -12,12 +12,15 @@ namespace Microsoft.AspNetCore.Routing
     /// <inheritdoc />
     internal sealed class OrderLinkGenerator : LinkGenerator, IDisposable
     {
+        private const string typeName = "Microsoft.AspNetCore.Routing.DefaultLinkGenerator";
+        internal static readonly Type typeInner
+            = typeof(Route).Assembly.GetType(typeName)
+            ?? throw new TypeLoadException("No Microsoft.AspNetCore.Routing.DefaultLinkGenerator found.");
+
         private readonly LinkGenerator inner;
         private readonly TemplateBinderFactory _binderFactory;
         private readonly Func<RouteEndpoint, TemplateBinder> _createTemplateBinder;
         private readonly FieldInfo _requiredKeys;
-        private const string typeName = "Microsoft.AspNetCore.Routing.DefaultLinkGenerator";
-        internal static readonly Type? typeInner = typeof(Route).Assembly.GetType(typeName);
 
         /// <summary>
         /// Create instance of <see cref="LinkGenerator"/> that wrapped the real generator inner.
@@ -25,8 +28,6 @@ namespace Microsoft.AspNetCore.Routing
         /// <param name="serviceProvider">The service provider</param>
         public OrderLinkGenerator(IServiceProvider serviceProvider)
         {
-            if (typeInner!.FullName != typeName)
-                throw new NotImplementedException();
             inner = (LinkGenerator)ActivatorUtilities.CreateInstance(serviceProvider, typeInner);
 
             var autoFlag = BindingFlags.NonPublic | BindingFlags.Instance;
