@@ -7,17 +7,19 @@ namespace Microsoft.AspNetCore.Mvc.Routing
     {
         public void Apply(ControllerModel controller)
         {
-            if (controller.Attributes.OfType<SupportStatusCodePageAttribute>().Any())
+            if (!controller.ControllerType.IsSubclassOf(typeof(ViewControllerBase))
+                || controller.Attributes.OfType<SupportStatusCodePageAttribute>().Any())
             {
                 return;
             }
 
             for (int i = 0; i < controller.Actions.Count; i++)
             {
-                if (controller.Actions[i].ActionMethod.Name == "StatusCodePage")
+                var method = controller.Actions[i].ActionMethod;
+                if (method.Name == nameof(ViewControllerBase.StatusCodePage)
+                    && method.DeclaringType == typeof(ViewControllerBase))
                 {
-                    controller.Actions.RemoveAt(i);
-                    i--;
+                    controller.Actions.RemoveAt(i--);
                 }
             }
         }

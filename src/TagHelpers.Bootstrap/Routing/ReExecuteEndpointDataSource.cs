@@ -80,8 +80,10 @@ namespace Microsoft.AspNetCore.Routing
                 .ToHashSet();
 
             var endpoints = _compositeEndpointDataSource.Endpoints
-                .Where(a => actionDescriptiors.Contains(a.Metadata.GetMetadata<ActionDescriptor>()))
-                .ToDictionary(a => a.Metadata.GetMetadata<ActionDescriptor>());
+                .Select(a => (ep: a, ad: a.Metadata.GetMetadata<ActionDescriptor>()))
+                .Where(a => actionDescriptiors.Contains(a.ad))
+                .GroupBy(a => a.ad, a => a.ep)
+                .ToDictionary(a => a.Key, a => a.First());
 
             var newEndpoints = new List<RouteEndpoint>();
             foreach (var (name, pattern, descriptor) in _discoveredFallbacks)
@@ -91,7 +93,7 @@ namespace Microsoft.AspNetCore.Routing
                     oldEndpoint.RequestDelegate,
                     pattern,
                     order: -pattern.PathSegments.Count,
-                    oldEndpoint.Metadata,
+                    new EndpointMetadataCollection(oldEndpoint.Metadata.Where(a => !(a is ISuppressMatchingMetadata))),
                     displayName: $"Error Handler {name}"));
             }
 
