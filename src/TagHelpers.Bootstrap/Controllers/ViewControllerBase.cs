@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Routing;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -53,8 +54,10 @@ namespace Microsoft.AspNetCore.Mvc
             }
             else
             {
-                ViewData["RefreshUrl"] = HttpContext.Request.Path.Value +
-                    HttpContext.Request.QueryString.Add("_inajax", "1").Value.Replace("&amp;", "&");
+                var feature = HttpContext.Features.Get<IUrlRewritingFeature>();
+                var path = feature?.Path ?? Request.Path;
+                var query = feature?.Query ?? Request.QueryString;
+                ViewData["RefreshUrl"] = path.Value + query.Add("_inajax", "1").Value.Replace("&amp;", "&");
             }
 
             if (IsWindowAjax)

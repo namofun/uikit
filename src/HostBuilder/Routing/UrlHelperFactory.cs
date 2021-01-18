@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -47,7 +48,16 @@ namespace Microsoft.AspNetCore.Mvc.Routing
         public SubstrateUrlHelperFactory(LinkGenerator linkGenerator, IEnumerable<IRewriteRule> rewriteRules)
         {
             _linkGenerator = linkGenerator;
-            _rewriteRules = rewriteRules.ToList();
+
+            if (rewriteRules.Any())
+            {
+                var list = rewriteRules.Prepend(new PreparationRule()).ToList();
+                _rewriteRules = new ReadOnlyCollection<IRewriteRule>(list);
+            }
+            else
+            {
+                _rewriteRules = Array.Empty<IRewriteRule>();
+            }
         }
 
         /// <summary>
@@ -161,7 +171,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
             {
                 for (int i = 0; path != null && i < _rewriteRules.Count; i++)
                 {
-                    if (_rewriteRules[i].ApplyUrl(ActionContext, ref path) == Rewrite.RuleResult.SkipRemainingRules)
+                    if (_rewriteRules[i].ApplyUrl(ActionContext, ref path) != Rewrite.RuleResult.ContinueRules)
                     {
                         break;
                     }

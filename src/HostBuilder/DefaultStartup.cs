@@ -155,8 +155,8 @@ namespace Microsoft.AspNetCore.Mvc
             }
 
             app.UseExtensions(options.Value.PointBeforeUrlRewriting);
-            app.UseUrlRewriting();
             app.UseStaticFiles();
+            app.UseUrlRewriting();
 
             app.UseExtensions(options.Value.PointBeforeRouting);
             app.UseCookiePolicy();
