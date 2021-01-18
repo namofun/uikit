@@ -44,119 +44,115 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="builder">The <see cref="IMvcBuilder"/> to configure more.</param>
         public void ConfigureParts(IMvcBuilder builder)
         {
-            var lst = new List<ApplicationPart>();
-            PeerFileProvider? tree = null;
+            var partList = new List<ApplicationPart>();
+            PeerFileProvider? razorTree = null;
 
-            static bool TryLoad(string assemblyName, out Assembly? assembly)
+            static Assembly TryLoad(string assemblyName)
             {
-                if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + assemblyName))
+                var assembly = AppDomain.CurrentDomain.GetAssemblies().SingleOrDefault(a => a.GetName().Name == assemblyName);
+                if (assembly != null) return assembly;
+
+                var fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory!, assemblyName + ".dll");
+                if (!File.Exists(fullPath)) throw new TypeLoadException($"The assembly {assemblyName} is not found.");
+                return Assembly.LoadFrom(fullPath);
+            }
+
+            void DiscoverPath(string localDebugPath, string areaName)
+            {
+                razorTree ??= new PeerFileProvider();
+                string subpath;
+
+                if (Directory.Exists(subpath = Path.Combine(localDebugPath, "Views")))
                 {
-                    assembly = Assembly.LoadFrom(AppDomain.CurrentDomain.BaseDirectory + assemblyName);
-                    return true;
+                    var subtree = string.IsNullOrEmpty(areaName) ? razorTree : razorTree["Areas"][areaName];
+                    subtree["Views"].Append(new PhysicalFileProvider(subpath));
                 }
-                else
+
+                if (string.IsNullOrEmpty(areaName) && Directory.Exists(subpath = Path.Combine(localDebugPath, "Areas")))
                 {
-                    assembly = null;
-                    return false;
+                    razorTree["Areas"].Append(new PhysicalFileProvider(subpath));
+                }
+
+                if (Directory.Exists(subpath = Path.Combine(localDebugPath, "Panels")))
+                {
+                    razorTree["Areas"]["Dashboard"]["Views"].Append(new PhysicalFileProvider(subpath));
+                }
+
+                if (Directory.Exists(subpath = Path.Combine(localDebugPath, "Components")))
+                {
+                    razorTree["Views"]["Shared"]["Components"].Append(new PhysicalFileProvider(subpath));
                 }
             }
 
-            void Add(Assembly assembly, string areaName)
+            void DiscoverPart(Assembly assembly, string areaName)
             {
-                var assemblyName = assembly.GetName().Name;
+                var assemblyName = assembly.GetName().Name!;
                 if (string.IsNullOrEmpty(assemblyName))
-                    throw new TypeLoadException("The assembly is invalid.");
-
-                if (!assemblyName!.EndsWith(".Views"))
                 {
-                    lst.Add(new AssemblyPart(assembly));
-                    var rdpa = assembly.GetCustomAttribute<LocalDebugPathAttribute>();
-                    if (rdpa != null)
-                    {
-                        tree ??= new PeerFileProvider();
-                        var dir1 = Path.Combine(rdpa.Path, "Views");
-                        if (Directory.Exists(dir1) && !string.IsNullOrEmpty(areaName))
-                            tree["Areas"][areaName]["Views"].Append(new PhysicalFileProvider(dir1));
-                        else if (Directory.Exists(dir1) && string.IsNullOrEmpty(areaName))
-                            tree["Views"].Append(new PhysicalFileProvider(dir1));
-                        var dir2 = Path.Combine(rdpa.Path, "Panels");
-                        if (Directory.Exists(dir2))
-                            tree["Areas"]["Dashboard"]["Views"].Append(new PhysicalFileProvider(dir2));
-                        var dir3 = Path.Combine(rdpa.Path, "Components");
-                        if (Directory.Exists(dir3))
-                            tree["Views"]["Shared"]["Components"].Append(new PhysicalFileProvider(dir3));
-                    }
+                    throw new TypeLoadException("The assembly is invalid.");
+                }
+
+                if (!assemblyName.EndsWith(".Views"))
+                {
+                    partList.Add(new AssemblyPart(assembly));
+                    var debugPath = assembly.GetCustomAttribute<LocalDebugPathAttribute>();
+                    if (debugPath != null) DiscoverPath(debugPath.Path, areaName);
                 }
                 else if (assemblyName == "SatelliteSite.Substrate.Views")
                 {
-                    lst.Add(new CompiledRazorAssemblyPart(assembly));
+                    partList.Add(new CompiledRazorAssemblyPart(assembly));
                 }
                 else
                 {
-                    lst.Add(new ViewsAssemblyPart(assembly, areaName));
+                    partList.Add(new ViewsAssemblyPart(assembly, areaName));
                 }
 
-                foreach (var rel in assembly.GetCustomAttributes<RelatedAssemblyAttribute>())
+                foreach (var related in assembly.GetCustomAttributes<RelatedAssemblyAttribute>())
                 {
-                    Assembly? ass;
-                    ass = AppDomain.CurrentDomain.GetAssemblies()
-                        .SingleOrDefault(a => a.GetName().Name == rel.AssemblyFileName);
-                    if (ass == null && !TryLoad(rel.AssemblyFileName + ".dll", out ass))
-                        throw new TypeLoadException("The assembly is invalid.");
-                    Add(ass!, areaName);
+                    DiscoverPart(TryLoad(related.AssemblyFileName), areaName);
                 }
             }
 
-            var selfCheck = typeof(AbstractModule).Assembly
-                .GetCustomAttribute<LocalDebugPathAttribute>();
-            if (selfCheck != null && Directory.Exists(selfCheck.Path))
-                (tree ??= new PeerFileProvider()).Append(new PhysicalFileProvider(selfCheck.Path));
-
             foreach (var module in Modules)
-                Add(module.GetType().Assembly, module.Area);
-
-            if (Environment.IsDevelopment() && tree != null)
-                builder.AddRazorRuntimeCompilation(options => options.FileProviders.Add(tree));
-
-            builder.ConfigureApplicationPartManager(apm =>
             {
-                foreach (var part in lst)
+                DiscoverPart(module.GetType().Assembly, module.Area);
+            }
+
+            if (Environment.IsDevelopment() && razorTree != null)
+            {
+                builder.AddRazorRuntimeCompilation(options => options.FileProviders.Add(razorTree));
+            }
+
+            foreach (var part in partList)
+            {
+                switch (part)
                 {
-                    CompiledRazorAssemblyPart rcap;
-                    AssemblyPart rap;
+                    case ViewsAssemblyPart vap:
+                        var rcap = builder.PartManager.ApplicationParts
+                            .OfType<CompiledRazorAssemblyPart>()
+                            .SingleOrDefault(a => a.Assembly == vap.Assembly);
+                        builder.PartManager.ApplicationParts.Remove(rcap);
+                        builder.PartManager.ApplicationParts.Add(vap);
+                        break;
 
-                    switch (part)
-                    {
-                        case ViewsAssemblyPart vap:
-                            rcap = apm.ApplicationParts
-                                .OfType<CompiledRazorAssemblyPart>()
-                                .SingleOrDefault(a => a.Assembly == vap.Assembly);
-                            if (rcap != null)
-                                apm.ApplicationParts.Remove(rcap);
-                            apm.ApplicationParts.Add(vap);
-                            break;
+                    case AssemblyPart ap:
+                        if (!builder.PartManager.ApplicationParts
+                            .OfType<AssemblyPart>()
+                            .Any(a => a.Assembly == ap.Assembly))
+                            builder.PartManager.ApplicationParts.Add(ap);
+                        break;
 
-                        case AssemblyPart ap:
-                            rap = apm.ApplicationParts
-                                .OfType<AssemblyPart>()
-                                .FirstOrDefault(a => a.Assembly == ap.Assembly);
-                            if (rap == null)
-                                apm.ApplicationParts.Add(ap);
-                            break;
+                    case CompiledRazorAssemblyPart crap:
+                        if (!builder.PartManager.ApplicationParts
+                            .OfType<CompiledRazorAssemblyPart>()
+                            .Any(a => a.Assembly == crap.Assembly))
+                            builder.PartManager.ApplicationParts.Add(crap);
+                        break;
 
-                        case CompiledRazorAssemblyPart crap:
-                            rcap = apm.ApplicationParts
-                                .OfType<CompiledRazorAssemblyPart>()
-                                .SingleOrDefault(a => a.Assembly == crap.Assembly);
-                            if (rcap == null)
-                                apm.ApplicationParts.Add(crap);
-                            break;
-
-                        default:
-                            throw new NotImplementedException("Seems that HostBuilder-discovered shouldn't contain this one.");
-                    }
+                    default:
+                        throw new NotImplementedException("Seems that HostBuilder-discovered shouldn't contain this one.");
                 }
-            });
+            }
         }
     }
 }
