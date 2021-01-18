@@ -7,8 +7,8 @@ namespace Microsoft.AspNetCore.Routing
 {
     public class PreparationRule : IRewriteRule
     {
-        private static readonly PathString _lib = new PathString("/lib/");
-        private static readonly PathString _images = new PathString("/images/");
+        private readonly PathString _lib = new PathString("/lib/");
+        private readonly PathString _images = new PathString("/images/");
 
         public void ApplyRule(RewriteContext context)
         {
