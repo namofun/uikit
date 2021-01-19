@@ -1,0 +1,75 @@
+@model TwoFactorAuthenticationModel
+@{
+    ViewData["Title"] = "Two-factor authentication";
+}
+
+<h3>@ViewData["Title"]</h3>
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+
+<razor asp-show-if="Model.Is2faEnabled">
+    <div asp-show-if="Model.RecoveryCodes.Count == 0" class="alert alert-danger">
+        <strong>You have no recovery codes left.</strong>
+        <p>You must generate a new set of recovery codes before you can log in with a recovery code.</p>
+    </div>
+    <div asp-show-if="Model.RecoveryCodes.Count == 1" class="alert alert-danger">
+        <strong>You have 1 recovery code left.</strong>
+        <p>You can generate a new set of recovery codes.</p>
+    </div>
+    <div asp-show-if="Model.RecoveryCodes.Count > 1 && Model.RecoveryCodes.Count <= 3" class="alert alert-warning">
+        <strong>You have @Model.RecoveryCodes.Count recovery codes left.</strong>
+        <p>You should generate a new set of recovery codes.</p>
+    </div>
+    <div class="alert alert-info">
+        You have enabled two-factor authentication.
+    </div>
+</razor>
+<div asp-show-if="!Model.Is2faEnabled" class="alert alert-info">
+    You have not enabled two-factor authentication.
+</div>
+
+<p class="mb-3 mt-3">
+    <a asp-show-if="!Model.HasAuthenticator" asp-action="EnableAuthenticator" class="btn btn-primary mb-1">Add authenticator app</a>
+    <a asp-show-if="Model.HasAuthenticator" asp-action="EnableAuthenticator" class="btn btn-primary mb-1">Configure authenticator app</a>
+    <a asp-show-if="Model.HasAuthenticator" asp-action="ResetAuthenticatorWarning" class="btn btn-secondary mb-1">Reset authenticator key</a>
+    <a asp-show-if="Model.Is2faEnabled" asp-action="Disable2faWarning" class="btn btn-danger mb-1">Disable 2FA</a>
+</p>
+
+<h4>Recovery codes</h4>
+
+<div class="alert alert-warning">
+    <strong>Put these codes in a safe place.</strong>
+    If you lose your device and don't have the recovery codes you will lose access to your account.
+</div>
+
+<p>
+    Recovery codes can be used to access your account in the event you lose access
+    to your device and cannot receive two-factor authentication codes.
+</p>
+
+<ul class="row list-inline">
+    @foreach (var code in Model.RecoveryCodes)
+    {
+        <li class="col-6 col-md-4" style="font-size:1.2em;text-align:center"><span>@code</span></li>
+    }
+</ul>
+
+<p>
+    Treat your recovery codes with the same level of attention as you would your password!
+    We recommend saving them with a password manager.
+</p>
+
+<div id="generate-recovery-codes">
+    <div class="card card-body">
+        <h5>Reset recovery codes</h5>
+        <p class="mb-2">This action generates new recovery codes.</p>
+        <p class="mb-2">If you lose your device and don't have the recovery codes you will lose access to your account.</p>
+        <p class="mb-3">Generating new recovery codes does not change the keys used in authenticator apps. If you wish to change the key used in an authenticator app you should <a asp-action="ResetAuthenticatorWarning">reset your authenticator keys.</a></p>
+        <form asp-action="GenerateRecoveryCodes" method="post" class="form-group mb-0">
+            <button class="btn btn-secondary btn-sm" type="submit">Generate Recovery Codes</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

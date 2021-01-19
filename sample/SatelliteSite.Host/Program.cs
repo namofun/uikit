@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SatelliteSite.IdentityModule.Entities;
 
@@ -22,6 +24,16 @@ namespace SatelliteSite
                 .AddModule<IdentityModule.IdentityModule<User, Role, DefaultContext>>()
                 .AddModule<SampleModule.SampleModule>()
                 .AddDatabaseMssql<DefaultContext>("UserDbConnection")
-                .ConfigureSubstrateDefaults<DefaultContext>();
+                .ConfigureSubstrateDefaults<DefaultContext>(builder =>
+                {
+                    builder.ConfigureServices(services =>
+                    {
+                        services.Configure<IdentityAdvancedOptions>(options =>
+                        {
+                            options.ExternalLogin = true;
+                            options.TwoFactorAuthentication = true;
+                        });
+                    });
+                });
     }
 }

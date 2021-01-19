@@ -1,5 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Identity
 {
@@ -43,6 +47,53 @@ namespace Microsoft.AspNetCore.Identity
         public UserStore(TContext context, IdentityErrorDescriber describer = null)
             : base(context, describer)
         {
+        }
+
+        /// <inheritdoc />
+        public override Task<TUser> FindByEmailAsync(string normalizedEmail, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            // fixed in ASP.NET Core 5.0
+            return Users.Where(u => u.NormalizedEmail == normalizedEmail).SingleOrDefaultAsync();
+        }
+
+        /// <inheritdoc />
+        public override async Task SetTokenAsync(TUser user, string loginProvider, string name, string value, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            if (user == null)
+            {
+                throw new ArgumentNullException(nameof(user));
+            }
+
+            var token = await FindTokenAsync(user, loginProvider, name, cancellationToken);
+            if (token == null)
+            {
+                await AddUserTokenAsync(CreateUserToken(user, loginProvider, name, value));
+            }
+            else
+            {
+                token.Value = value;
+
+                // Not processed yet
+                // https://github.com/dotnet/aspnetcore/issues/29426
+                await UpdateUserTokenAsync(token);
+            }
+        }
+
+        /// <summary>
+        /// Remove a new user token.
+        /// </summary>
+        /// <param name="token">The token to be removed.</param>
+        /// <returns></returns>
+        protected virtual Task UpdateUserTokenAsync(IdentityUserToken<int> token)
+        {
+            Context.UserTokens.Update(token);
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc />

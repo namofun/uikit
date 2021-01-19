@@ -231,11 +231,11 @@ namespace Microsoft.AspNetCore.Identity
         Task<string> GetAuthenticatorKeyAsync(IUser user);
 
         /// <summary>
-        /// Returns how many recovery code are still valid for a user.
+        /// Returns recovery code which are still valid for a user.
         /// </summary>
         /// <param name="user">The user.</param>
-        /// <returns>How many recovery code are still valid for a user.</returns>
-        Task<int> CountRecoveryCodesAsync(IUser user);
+        /// <returns>Recovery code which are still valid for a user.</returns>
+        Task<string[]> GetRecoveryCodesAsync(IUser user);
 
         /// <summary>
         /// Sets a flag indicating whether the specified <paramref name="user"/> has two factor authentication enabled or not,

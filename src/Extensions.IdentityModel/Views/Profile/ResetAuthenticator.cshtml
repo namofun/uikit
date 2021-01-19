@@ -1,0 +1,17 @@
+﻿@{
+    ViewData["Title"] = "Reset authenticator key";
+    ViewData["ActiveAction"] = "TwoFactorAuthentication";
+}
+
+<h4>@ViewData["Title"]</h4>
+<div class="alert alert-warning" role="alert">
+    <strong>If you reset your authenticator key, your authenticator app will not work until you reconfigure it.</strong>
+</div>
+
+<p>
+    This process disables 2FA until you verify your authenticator app and will also reset your 2FA recovery codes. If you do not complete your authenticator app configuration you may lose access to your account.
+</p>
+
+<form asp-action="ResetAuthenticator" method="post" class="form-group mb-0">
+    <button class="btn btn-danger mb-0" type="submit">Reset authenticator key</button>
+</form>

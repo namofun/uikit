@@ -242,7 +242,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         }
 
 
-        [HttpGet("{username}/[action]")]
+        [HttpGet("{username}/2fa")]
         [IdentityAdvancedFeature(nameof(IdentityAdvancedOptions.TwoFactorAuthentication))]
         public async Task<IActionResult> TwoFactorAuthentication(string username)
         {
@@ -253,7 +253,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             {
                 HasAuthenticator = await UserManager.GetAuthenticatorKeyAsync(user) != null,
                 Is2faEnabled = user.TwoFactorEnabled,
-                RecoveryCodesLeft = await UserManager.CountRecoveryCodesAsync(user),
+                RecoveryCodes = await UserManager.GetRecoveryCodesAsync(user),
             });
         }
 
@@ -293,7 +293,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         }
 
 
-        [HttpGet("{username}/[action]")]
+        [HttpGet("{username}/enable-2fa")]
         [IdentityAdvancedFeature(nameof(IdentityAdvancedOptions.TwoFactorAuthentication))]
         public async Task<IActionResult> EnableAuthenticator(string username)
         {
@@ -307,7 +307,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         }
 
 
-        [HttpPost("{username}/[action]")]
+        [HttpPost("{username}/enable-2fa")]
         [ValidateAntiForgeryToken]
         [IdentityAdvancedFeature(nameof(IdentityAdvancedOptions.TwoFactorAuthentication))]
         public async Task<IActionResult> EnableAuthenticator(string username, EnableAuthenticatorModel model)
@@ -337,32 +337,12 @@ namespace SatelliteSite.IdentityModule.Controllers
             await UserManager.SetTwoFactorEnabledAsync(user, true);
             await HttpContext.AuditAsync("enabled 2fa", $"{user.Id}");
 
-            var recoveryCodes = await UserManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
-            TempData[RecoveryCodesKey] = recoveryCodes.ToArray();
-
-            return RedirectToAction(nameof(ShowRecoveryCodes));
+            await UserManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
+            return RedirectToAction(nameof(TwoFactorAuthentication));
         }
 
 
-        [HttpGet("{username}/[action]")]
-        [IdentityAdvancedFeature(nameof(IdentityAdvancedOptions.TwoFactorAuthentication))]
-        public async Task<IActionResult> ShowRecoveryCodes(string username)
-        {
-            var user = await GetUserAsync();
-            if (!user.HasUserName(username)) return NotFound();
-
-            var recoveryCodes = (string[])TempData[RecoveryCodesKey];
-            if (recoveryCodes == null)
-            {
-                return RedirectToAction(nameof(TwoFactorAuthentication));
-            }
-
-            var model = new ShowRecoveryCodesModel { RecoveryCodes = recoveryCodes };
-            return View(model);
-        }
-
-
-        [HttpGet("{username}/[action]")]
+        [HttpGet("{username}/reset-2fa")]
         [IdentityAdvancedFeature(nameof(IdentityAdvancedOptions.TwoFactorAuthentication))]
         public async Task<IActionResult> ResetAuthenticatorWarning(string username)
         {
@@ -373,7 +353,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         }
 
 
-        [HttpPost("{username}/[action]")]
+        [HttpPost("{username}/reset-2fa")]
         [ValidateAntiForgeryToken]
         [IdentityAdvancedFeature(nameof(IdentityAdvancedOptions.TwoFactorAuthentication))]
         public async Task<IActionResult> ResetAuthenticator(string username)
@@ -389,18 +369,6 @@ namespace SatelliteSite.IdentityModule.Controllers
         }
 
 
-        [HttpGet("{username}/[action]")]
-        [IdentityAdvancedFeature(nameof(IdentityAdvancedOptions.TwoFactorAuthentication))]
-        public async Task<IActionResult> GenerateRecoveryCodesWarning(string username)
-        {
-            var user = await GetUserAsync();
-            if (!user.HasUserName(username)) return NotFound();
-
-            if (!user.TwoFactorEnabled) return No2faEnabled("generate recovery codes");
-            return View(nameof(GenerateRecoveryCodes));
-        }
-
-
         [HttpPost("{username}/[action]")]
         [ValidateAntiForgeryToken]
         [IdentityAdvancedFeature(nameof(IdentityAdvancedOptions.TwoFactorAuthentication))]
@@ -410,9 +378,8 @@ namespace SatelliteSite.IdentityModule.Controllers
             if (!user.HasUserName(username)) return NotFound();
 
             if (!user.TwoFactorEnabled) return No2faEnabled("generate recovery codes");
-            var recoveryCodes = await UserManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
-            var model = new ShowRecoveryCodesModel { RecoveryCodes = recoveryCodes.ToArray() };
-            return View(nameof(ShowRecoveryCodes), model);
+            await UserManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
+            return RedirectToAction(nameof(TwoFactorAuthentication));
         }
 
 

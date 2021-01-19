@@ -30,7 +30,8 @@ namespace Microsoft.AspNetCore.Identity
             IdentityErrorDescriber errors,
             IServiceProvider services,
             ILogger<UserManager<TUser, TRole>> logger,
-            SlideExpirationService slideExpirationService)
+            SlideExpirationService slideExpirationService,
+            IOptions<IdentityAdvancedOptions> advOptions)
             : base(store,
                   roleStore,
                   optionsAccessor,
@@ -43,6 +44,8 @@ namespace Microsoft.AspNetCore.Identity
                   logger)
         {
             SlideExpirationStore = slideExpirationService;
+            SupportsUserTwoFactor = SupportsUserTwoFactorRecoveryCodes = advOptions.Value.TwoFactorAuthentication;
+            SupportsUserLogin = advOptions.Value.ExternalLogin;
         }
 
         /// <summary>
@@ -56,10 +59,13 @@ namespace Microsoft.AspNetCore.Identity
         private SlideExpirationService SlideExpirationStore { get; }
 
         /// <inheritdoc />
-        public override bool SupportsUserTwoFactor => false;
+        public override bool SupportsUserTwoFactor { get; }
 
         /// <inheritdoc />
-        public override bool SupportsUserTwoFactorRecoveryCodes => false;
+        public override bool SupportsUserTwoFactorRecoveryCodes { get; }
+
+        /// <inheritdoc />
+        public override bool SupportsUserLogin { get; }
 
         /// <inheritdoc />
         public override Task<IdentityResult> SlideExpirationAsync(TUser user)
