@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Identity
@@ -88,6 +89,12 @@ namespace Microsoft.AspNetCore.Identity
         /// <param name="expectedXsrf">Flag indication whether a Cross Site Request Forgery token was expected in the current request.</param>
         /// <returns>The task object representing the asynchronous operation containing the <see cref="ExternalLoginInfo"/> for the sign-in attempt.</returns>
         Task<ExternalLoginInfo> GetExternalLoginInfoAsync(string expectedXsrf = null);
+
+        /// <summary>
+        /// Gets a collection of <see cref="AuthenticationScheme"/>s for the known external login providers.		
+        /// </summary>		
+        /// <returns>A collection of <see cref="AuthenticationScheme"/>s for the known external login providers.</returns>		
+        Task<IEnumerable<AuthenticationScheme>> GetExternalAuthenticationSchemesAsync();
     }
 
     /// <summary>
@@ -117,6 +124,16 @@ namespace Microsoft.AspNetCore.Identity
         public static Task<ExternalLoginInfo> GetExternalLoginInfoAsync(this ISignInManager signInManager, string expectedXsrf = null)
         {
             return ((ICompatibleSignInManager)signInManager).GetExternalLoginInfoAsync(expectedXsrf);
+        }
+
+        /// <summary>
+        /// Gets a collection of <see cref="AuthenticationScheme"/>s for the known external login providers.
+        /// </summary>
+        /// <param name="signInManager">The sign in manager.</param>
+        /// <returns>A collection of <see cref="AuthenticationScheme"/>s for the known external login providers.</returns>
+        public static Task<IEnumerable<AuthenticationScheme>> GetExternalAuthenticationSchemesAsync(this ISignInManager signInManager)
+        {
+            return ((ICompatibleSignInManager)signInManager).GetExternalAuthenticationSchemesAsync();
         }
     }
 }

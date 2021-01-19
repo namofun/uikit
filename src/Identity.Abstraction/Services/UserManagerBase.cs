@@ -193,6 +193,14 @@ namespace Microsoft.AspNetCore.Identity
         Task<string> IUserManager.GenerateUserTokenAsync(IUser user, string tokenProvider, string purpose) => GenerateUserTokenAsync((TUser)user, tokenProvider, purpose);
         Task<bool> IUserManager.VerifyUserTokenAsync(IUser user, string tokenProvider, string purpose, string token) => VerifyUserTokenAsync((TUser)user, tokenProvider, purpose, token);
         Task<IdentityResult> IUserManager.AddLoginAsync(IUser user, UserLoginInfo login) => AddLoginAsync((TUser)user, login);
+        Task<IList<UserLoginInfo>> IUserManager.GetLoginsAsync(IUser user) => GetLoginsAsync((TUser)user);
+        Task<IdentityResult> IUserManager.RemoveLoginAsync(IUser user, string loginProvider, string providerKey) => RemoveLoginAsync((TUser)user, loginProvider, providerKey);
+        Task<string> IUserManager.GetAuthenticatorKeyAsync(IUser user) => GetAuthenticatorKeyAsync((TUser)user);
+        Task<int> IUserManager.CountRecoveryCodesAsync(IUser user) => CountRecoveryCodesAsync((TUser)user);
+        Task<IdentityResult> IUserManager.SetTwoFactorEnabledAsync(IUser user, bool enabled) => SetTwoFactorEnabledAsync((TUser)user, enabled);
+        Task<IdentityResult> IUserManager.ResetAuthenticatorKeyAsync(IUser user) => ResetAuthenticatorKeyAsync((TUser)user);
+        Task<IEnumerable<string>> IUserManager.GenerateNewTwoFactorRecoveryCodesAsync(IUser user, int number) => GenerateNewTwoFactorRecoveryCodesAsync((TUser)user, number);
+        Task<bool> IUserManager.VerifyTwoFactorTokenAsync(IUser user, string tokenProvider, string token) => VerifyTwoFactorTokenAsync((TUser)user, tokenProvider, token);
 
         int? IUserManager.GetUserId(ClaimsPrincipal principal)
         {

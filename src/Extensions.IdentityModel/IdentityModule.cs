@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using SatelliteSite;
 using SatelliteSite.Services;
 using System;
@@ -90,10 +89,11 @@ namespace SatelliteSite.IdentityModule
                 });
 
             services.AddAuthorization();
-            services.AddSingleton<IConfigureOptions<AuthorizationOptions>, ConfigureAuthoraztionPolicy>();
+            services.ConfigureOptions<ConfigureAuthoraztionPolicy>();
+            services.ConfigureOptions<IdentityAdvancedConfigurator>();
 
-            services.AddScoped<IUserManager>(s => s.GetRequiredService<UserManager<TUser, TRole>>());
-            services.AddScoped<ISignInManager>(s => s.GetRequiredService<SignInManager2<TUser>>());
+            services.AddScopedUpcast<IUserManager, UserManager<TUser, TRole>>();
+            services.AddScopedUpcast<ISignInManager, SignInManager2<TUser>>();
 
             services.AddSingleton<IEmailSender, SmtpSender>();
             services.AddOptions<AuthMessageSenderOptions>();

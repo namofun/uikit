@@ -106,8 +106,9 @@ namespace SatelliteSite.IdentityModule.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet("/account/login-with-2fa")]
         [AllowAnonymous]
+        [IdentityAdvancedFeature(nameof(IdentityAdvancedOptions.TwoFactorAuthentication))]
         public async Task<IActionResult> LoginWith2fa(bool rememberMe, string returnUrl = null)
         {
             // Ensure the user has gone through the username & password screen first
@@ -119,9 +120,10 @@ namespace SatelliteSite.IdentityModule.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost("/account/login-with-2fa")]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
+        [IdentityAdvancedFeature(nameof(IdentityAdvancedOptions.TwoFactorAuthentication))]
         public async Task<IActionResult> LoginWith2fa(LoginWith2faModel model, bool rememberMe, string returnUrl = null)
         {
             if (!ModelState.IsValid) return View(model);
@@ -150,6 +152,7 @@ namespace SatelliteSite.IdentityModule.Controllers
 
         [HttpGet]
         [AllowAnonymous]
+        [IdentityAdvancedFeature(nameof(IdentityAdvancedOptions.TwoFactorAuthentication))]
         public async Task<IActionResult> LoginWithRecoveryCode(string returnUrl = null)
         {
             // Ensure the user has gone through the username & password screen first
@@ -164,6 +167,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
+        [IdentityAdvancedFeature(nameof(IdentityAdvancedOptions.TwoFactorAuthentication))]
         public async Task<IActionResult> LoginWithRecoveryCode(LoginWithRecoveryCodeModel model, string returnUrl = null)
         {
             if (!ModelState.IsValid) return View(model);
@@ -193,6 +197,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
+        [IdentityAdvancedFeature(nameof(IdentityAdvancedOptions.ExternalLogin))]
         public IActionResult ExternalLogin(string provider, string returnUrl = null)
         {
             // Request a redirect to the external login provider.
@@ -204,6 +209,7 @@ namespace SatelliteSite.IdentityModule.Controllers
 
         [HttpGet]
         [AllowAnonymous]
+        [IdentityAdvancedFeature(nameof(IdentityAdvancedOptions.ExternalLogin))]
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
         {
             if (remoteError != null)
@@ -250,6 +256,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
+        [IdentityAdvancedFeature(nameof(IdentityAdvancedOptions.ExternalLogin))]
         public async Task<IActionResult> ExternalLoginConfirmation(ExternalLoginModel model, string returnUrl = null)
         {
             if (await Configurations.GetBooleanAsync("enable_register") == false)
@@ -273,6 +280,7 @@ namespace SatelliteSite.IdentityModule.Controllers
 
             var user = UserManager.CreateEmpty(model.Username);
             user.Email = model.Email;
+            user.RegisterTime = DateTimeOffset.Now;
             var result = await UserManager.CreateAsync(user);
             if (result.Succeeded) result = await UserManager.AddLoginAsync(user, info);
 

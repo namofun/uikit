@@ -196,6 +196,8 @@ namespace Microsoft.AspNetCore.Identity
         /// </returns>
         Task<bool> VerifyUserTokenAsync(IUser user, string tokenProvider, string purpose, string token);
 
+        #region External Login
+
         /// <summary>
         /// Adds an external <see cref="UserLoginInfo"/> to the specified <paramref name="user"/>.
         /// </summary>
@@ -203,6 +205,72 @@ namespace Microsoft.AspNetCore.Identity
         /// <param name="login">The external <see cref="UserLoginInfo"/> to add to the specified <paramref name="user"/>.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
         Task<IdentityResult> AddLoginAsync(IUser user, UserLoginInfo login);
+
+        /// <summary>
+        /// Retrieves the associated logins for the specified <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user whose associated logins to retrieve.</param>
+        /// <returns>The <see cref="Task"/> for the asynchronous operation, containing a list of <see cref="UserLoginInfo"/> for the specified <paramref name="user"/>, if any.</returns>
+        Task<IList<UserLoginInfo>> GetLoginsAsync(IUser user);
+
+        /// <summary>
+        /// Attempts to remove the provided external login information from the specified <paramref name="user"/>.
+        /// and returns a flag indicating whether the removal succeed or not.
+        /// </summary>
+        /// <param name="user">The user to remove the login information from.</param>
+        /// <param name="loginProvider">The login provide whose information should be removed.</param>
+        /// <param name="providerKey">The key given by the external login provider for the specified user.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
+        Task<IdentityResult> RemoveLoginAsync(IUser user, string loginProvider, string providerKey);
+
+        /// <summary>
+        /// Returns the authenticator key for the user.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns>The authenticator key</returns>
+        Task<string> GetAuthenticatorKeyAsync(IUser user);
+
+        /// <summary>
+        /// Returns how many recovery code are still valid for a user.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns>How many recovery code are still valid for a user.</returns>
+        Task<int> CountRecoveryCodesAsync(IUser user);
+
+        /// <summary>
+        /// Sets a flag indicating whether the specified <paramref name="user"/> has two factor authentication enabled or not,
+        /// as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user whose two factor authentication enabled status should be set.</param>
+        /// <param name="enabled">A flag indicating whether the specified <paramref name="user"/> has two factor authentication enabled.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, the <see cref="IdentityResult"/> of the operation.</returns>
+        Task<IdentityResult> SetTwoFactorEnabledAsync(IUser user, bool enabled);
+
+        /// <summary>
+        /// Resets the authenticator key for the user.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns>Whether the user was successfully updated.</returns>
+        Task<IdentityResult> ResetAuthenticatorKeyAsync(IUser user);
+
+        /// <summary>
+        /// Generates recovery codes for the user, this invalidates any previous recovery codes for the user.
+        /// </summary>
+        /// <param name="user">The user to generate recovery codes for.</param>
+        /// <param name="number">The number of codes to generate.</param>
+        /// <returns>The new recovery codes for the user.  Note: there may be less than number returned, as duplicates will be removed.</returns>
+        Task<IEnumerable<string>> GenerateNewTwoFactorRecoveryCodesAsync(IUser user, int number);
+
+        /// <summary>
+        /// Verifies the specified two factor authentication <paramref name="token" /> against the <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user the token is supposed to be for.</param>
+        /// <param name="tokenProvider">The provider which will verify the token.</param>
+        /// <param name="token">The token to verify.</param>
+        /// <returns>The <see cref="Task"/> that represents result of the asynchronous operation, true if the token is valid, otherwise false.</returns>
+        Task<bool> VerifyTwoFactorTokenAsync(IUser user, string tokenProvider, string token);
+
+        #endregion
 
         #region Email
 
