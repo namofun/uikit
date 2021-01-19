@@ -192,6 +192,7 @@ namespace Microsoft.AspNetCore.Identity
         Task<IdentityResult> IUserManager.SetLockoutEndDateAsync(IUser user, DateTimeOffset? lockoutEnd) => SetLockoutEndDateAsync((TUser)user, lockoutEnd);
         Task<string> IUserManager.GenerateUserTokenAsync(IUser user, string tokenProvider, string purpose) => GenerateUserTokenAsync((TUser)user, tokenProvider, purpose);
         Task<bool> IUserManager.VerifyUserTokenAsync(IUser user, string tokenProvider, string purpose, string token) => VerifyUserTokenAsync((TUser)user, tokenProvider, purpose, token);
+        Task<IdentityResult> IUserManager.AddLoginAsync(IUser user, UserLoginInfo login) => AddLoginAsync((TUser)user, login);
 
         int? IUserManager.GetUserId(ClaimsPrincipal principal)
         {

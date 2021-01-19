@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using SatelliteSite.IdentityModule.Models;
 using SatelliteSite.Services;
 using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace SatelliteSite.IdentityModule.Controllers
@@ -16,10 +17,16 @@ namespace SatelliteSite.IdentityModule.Controllers
     public class SignController : ViewControllerBase
     {
         private IUserManager UserManager { get; }
+        private ISignInManager SignInManager { get; }
+        private IConfigurationRegistry Configurations { get; }
+        private IEmailSender EmailSender { get; }
 
-        public SignController(IUserManager userMgr)
+        public SignController(ISignInManager signInManager, IConfigurationRegistry registry, IEmailSender emailSender)
         {
-            UserManager = userMgr;
+            SignInManager = signInManager;
+            UserManager = signInManager.UserManager;
+            Configurations = registry;
+            EmailSender = emailSender;
         }
 
 
@@ -38,18 +45,15 @@ namespace SatelliteSite.IdentityModule.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(
-            LoginModel model,
-            [FromServices] ISignInManager signInManager,
-            [FromQuery] string returnUrl = null)
+        public async Task<IActionResult> Login(LoginModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
             if (!ModelState.IsValid) return View(model);
 
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-            var user = await signInManager.FindUserAsync(model.Username);
-            var result = await signInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: false);
+            var user = await SignInManager.FindUserAsync(model.Username);
+            var result = await SignInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: false);
 
             if (result.Succeeded)
             {
@@ -61,11 +65,19 @@ namespace SatelliteSite.IdentityModule.Controllers
 
                 return RedirectToLocal(returnUrl);
             }
-
-            if (result.IsLockedOut) return RedirectToAction(nameof(Lockout));
-
-            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-            return View(model);
+            else if (result.RequiresTwoFactor)
+            {
+                return RedirectToAction(nameof(LoginWith2fa), new { returnUrl, model.RememberMe });
+            }
+            else if (result.IsLockedOut)
+            {
+                return RedirectToAction(nameof(Lockout));
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return View(model);
+            }
         }
 
 
@@ -79,10 +91,9 @@ namespace SatelliteSite.IdentityModule.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Logout(
-            [FromServices] ISignInManager signInManager)
+        public async Task<IActionResult> Logout()
         {
-            await signInManager.SignOutAsync();
+            await SignInManager.SignOutAsync();
             return Redirect("/");
         }
 
@@ -97,16 +108,53 @@ namespace SatelliteSite.IdentityModule.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> Register(
-            [FromServices] IConfigurationRegistry config,
-            [FromQuery] string returnUrl = null)
+        public async Task<IActionResult> LoginWith2fa(bool rememberMe, string returnUrl = null)
         {
-            if (await config.GetBooleanAsync("enable_register") == false)
-                return Message(
-                    title: "Registration closed",
-                    message: "The registration of current site is closed now.\n" +
-                        "If you believe this was a mistake, please contact the site administrator.",
-                    type: BootstrapColor.secondary);
+            // Ensure the user has gone through the username & password screen first
+            var user = await SignInManager.GetTwoFactorAuthenticationUserAsync();
+            if (user == null) return TwoFactorFail();
+
+            ViewData["ReturnUrl"] = returnUrl;
+            return View(new LoginWith2faModel { RememberMe = rememberMe });
+        }
+
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> LoginWith2fa(LoginWith2faModel model, bool rememberMe, string returnUrl = null)
+        {
+            if (!ModelState.IsValid) return View(model);
+
+            var user = await SignInManager.GetTwoFactorAuthenticationUserAsync();
+            if (user == null) return TwoFactorFail();
+
+            var authenticatorCode = model.TwoFactorCode.Replace(" ", string.Empty).Replace("-", string.Empty);
+            var result = await SignInManager.TwoFactorAuthenticatorSignInAsync(authenticatorCode, rememberMe, model.RememberMachine);
+
+            if (result.Succeeded)
+            {
+                return RedirectToLocal(returnUrl);
+            }
+            else if (result.IsLockedOut)
+            {
+                return RedirectToAction(nameof(Lockout));
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Invalid authenticator code.");
+                return View();
+            }
+        }
+
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> LoginWithRecoveryCode(string returnUrl = null)
+        {
+            // Ensure the user has gone through the username & password screen first
+            var user = await SignInManager.GetTwoFactorAuthenticationUserAsync();
+            if (user == null) return TwoFactorFail();
 
             ViewData["ReturnUrl"] = returnUrl;
             return View();
@@ -116,19 +164,155 @@ namespace SatelliteSite.IdentityModule.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(
-            RegisterModel model,
-            [FromServices] IEmailSender emailSender,
-            [FromServices] ISignInManager signInManager,
-            [FromServices] IConfigurationRegistry config,
-            [FromQuery] string returnUrl = null)
+        public async Task<IActionResult> LoginWithRecoveryCode(LoginWithRecoveryCodeModel model, string returnUrl = null)
         {
-            if (await config.GetBooleanAsync("enable_register") == false)
+            if (!ModelState.IsValid) return View(model);
+
+            var user = await SignInManager.GetTwoFactorAuthenticationUserAsync();
+            if (user == null) return TwoFactorFail();
+
+            var recoveryCode = model.RecoveryCode.Replace(" ", string.Empty);
+            var result = await SignInManager.TwoFactorRecoveryCodeSignInAsync(recoveryCode);
+
+            if (result.Succeeded)
+            {
+                return RedirectToLocal(returnUrl);
+            }
+            if (result.IsLockedOut)
+            {
+                return RedirectToAction(nameof(Lockout));
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Invalid recovery code entered.");
+                return View();
+            }
+        }
+
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public IActionResult ExternalLogin(string provider, string returnUrl = null)
+        {
+            // Request a redirect to the external login provider.
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Sign", new { returnUrl });
+            var properties = SignInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return Challenge(properties, provider);
+        }
+
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
+        {
+            if (remoteError != null)
+            {
+                StatusMessage = $"Error from external provider: {remoteError}";
+                return RedirectToAction(nameof(Login));
+            }
+
+            var info = await SignInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                return RedirectToAction(nameof(Login));
+            }
+
+            // Sign in the user with this external login provider if the user already has a login.
+            var result = await SignInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+            if (result.Succeeded)
+            {
+                await HttpContext.AuditAsync(
+                    "external login",
+                    info.Principal.GetUserId(),
+                    $"at {HttpContext.Connection.RemoteIpAddress} via {info.LoginProvider}");
+
+                return RedirectToLocal(returnUrl);
+            }
+            else if (result.IsLockedOut)
+            {
+                return RedirectToAction(nameof(Lockout));
+            }
+            else
+            {
+                if (await Configurations.GetBooleanAsync("enable_register") == false)
+                    return ExternalRegisterClosed();
+
+                // If the user does not have an account, then ask the user to create an account.
+                ViewData["ReturnUrl"] = returnUrl;
+                ViewData["LoginProvider"] = info.LoginProvider;
+                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                return View("ExternalLogin", new ExternalLoginModel { Email = email });
+            }
+        }
+
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ExternalLoginConfirmation(ExternalLoginModel model, string returnUrl = null)
+        {
+            if (await Configurations.GetBooleanAsync("enable_register") == false)
+                return ExternalRegisterClosed();
+
+            if (!ModelState.IsValid)
+            {
+                ViewData["ReturnUrl"] = returnUrl;
+                return View(nameof(ExternalLogin), model);
+            }
+
+            // Get the information about the user from the external login provider
+            var info = await SignInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
                 return Message(
-                    title: "Registration closed",
-                    message: "The registration of current site is closed now.\n" +
-                        "If you believe this was a mistake, please contact the site administrator.",
-                    type: BootstrapColor.secondary);
+                    title: "External login",
+                    message: "Error loading external login information during confirmation.",
+                    type: BootstrapColor.danger);
+            }
+
+            var user = UserManager.CreateEmpty(model.Username);
+            user.Email = model.Email;
+            var result = await UserManager.CreateAsync(user);
+            if (result.Succeeded) result = await UserManager.AddLoginAsync(user, info);
+
+            if (result.Succeeded)
+            {
+                await SignInManager.SignInAsync(user, isPersistent: false);
+
+                await HttpContext.AuditAsync(
+                    "registered",
+                    user.Id.ToString(),
+                    $"at {HttpContext.Connection.RemoteIpAddress} via {info.LoginProvider}");
+
+                return RedirectToLocal(returnUrl);
+            }
+            else
+            {
+                return ErrorView(result, model, nameof(ExternalLogin));
+            }
+        }
+
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> Register(string returnUrl = null)
+        {
+            if (await Configurations.GetBooleanAsync("enable_register") == false)
+                return RegisterClosed();
+
+            ViewData["ReturnUrl"] = returnUrl;
+            return View();
+        }
+
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Register(RegisterModel model, string returnUrl = null)
+        {
+            if (await Configurations.GetBooleanAsync("enable_register") == false)
+                return RegisterClosed();
 
             ViewData["ReturnUrl"] = returnUrl;
             if (!ModelState.IsValid) return View(model);
@@ -152,9 +336,9 @@ namespace SatelliteSite.IdentityModule.Controllers
                 values: new { userId = $"{user.Id}", code, area = "Account" },
                 protocol: Request.Scheme);
 
-            await emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
+            await EmailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
 
-            await signInManager.SignInAsync(user, isPersistent: false);
+            await SignInManager.SignInAsync(user, isPersistent: false);
 
             await HttpContext.AuditAsync(
                 "registered",
@@ -176,9 +360,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForgotPassword(
-            ForgotPasswordModel model,
-            [FromServices] IEmailSender emailSender)
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordModel model)
         {
             if (!ModelState.IsValid) return View(model);
 
@@ -189,8 +371,6 @@ namespace SatelliteSite.IdentityModule.Controllers
                 return RedirectToAction(nameof(ForgotPasswordConfirmation));
             }
 
-            // For more information on how to enable account confirmation and password reset please
-            // visit https://go.microsoft.com/fwlink/?LinkID=532713
             var code = await UserManager.GeneratePasswordResetTokenAsync(user);
             var callbackUrl = Url.Action(
                 action: "ResetPassword",
@@ -198,7 +378,7 @@ namespace SatelliteSite.IdentityModule.Controllers
                 values: new { userId = $"{user.Id}", code, area = "Account" },
                 protocol: Request.Scheme);
 
-            await emailSender.SendEmailAsync(
+            await EmailSender.SendEmailAsync(
                 email: model.Email,
                 subject: "Reset Password",
                 message: $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
@@ -275,26 +455,38 @@ namespace SatelliteSite.IdentityModule.Controllers
         }
 
 
-        private ViewResult ErrorView(IdentityResult result, object model)
+        private ViewResult ErrorView(IdentityResult result, object model, string viewName = null)
         {
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
 
-            return View(model);
+            return viewName == null ? View(model) : View(viewName, model);
         }
 
-        private IActionResult RedirectToLocal(string returnUrl)
-        {
-            if (Url.IsLocalUrl(returnUrl))
-            {
-                return Redirect(returnUrl);
-            }
-            else
-            {
-                return Redirect("/");
-            }
-        }
+        private RedirectResult RedirectToLocal(string returnUrl)
+            => Redirect(Url.IsLocalUrl(returnUrl) ? returnUrl : "/");
+
+        private ShowMessageResult TwoFactorFail()
+            => Message(
+                title: "Two-factor authentication",
+                message: "Unable to load two-factor authentication user.",
+                type: BootstrapColor.danger);
+
+        private ShowMessageResult ExternalRegisterClosed()
+            => Message(
+                title: "Registration closed",
+                message: "The external login doesn't associate any accounts.\n" +
+                    "And the registration of current site is closed now.\n" +
+                    "If you believe this was a mistake, please contact the site administrator.",
+                type: BootstrapColor.secondary);
+
+        private ShowMessageResult RegisterClosed()
+            => Message(
+                title: "Registration closed",
+                message: "The registration of current site is closed now.\n" +
+                    "If you believe this was a mistake, please contact the site administrator.",
+                type: BootstrapColor.secondary);
     }
 }

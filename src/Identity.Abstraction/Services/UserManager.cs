@@ -196,6 +196,14 @@ namespace Microsoft.AspNetCore.Identity
         /// </returns>
         Task<bool> VerifyUserTokenAsync(IUser user, string tokenProvider, string purpose, string token);
 
+        /// <summary>
+        /// Adds an external <see cref="UserLoginInfo"/> to the specified <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user to add the login to.</param>
+        /// <param name="login">The external <see cref="UserLoginInfo"/> to add to the specified <paramref name="user"/>.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, containing the <see cref="IdentityResult"/> of the operation.</returns>
+        Task<IdentityResult> AddLoginAsync(IUser user, UserLoginInfo login);
+
         #region Email
 
         /// <summary>
