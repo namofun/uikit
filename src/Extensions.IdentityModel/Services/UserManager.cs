@@ -41,11 +41,10 @@ namespace Microsoft.AspNetCore.Identity
                   keyNormalizer,
                   errors,
                   services,
-                  logger)
+                  logger,
+                  advOptions)
         {
             SlideExpirationStore = slideExpirationService;
-            SupportsUserTwoFactor = SupportsUserTwoFactorRecoveryCodes = advOptions.Value.TwoFactorAuthentication;
-            SupportsUserLogin = advOptions.Value.ExternalLogin;
         }
 
         /// <summary>
@@ -57,15 +56,6 @@ namespace Microsoft.AspNetCore.Identity
         /// Gets the expiration for this store.
         /// </summary>
         private SlideExpirationService SlideExpirationStore { get; }
-
-        /// <inheritdoc />
-        public override bool SupportsUserTwoFactor { get; }
-
-        /// <inheritdoc />
-        public override bool SupportsUserTwoFactorRecoveryCodes { get; }
-
-        /// <inheritdoc />
-        public override bool SupportsUserLogin { get; }
 
         /// <inheritdoc />
         public override Task<IdentityResult> SlideExpirationAsync(TUser user)

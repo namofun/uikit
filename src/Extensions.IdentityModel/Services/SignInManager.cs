@@ -67,6 +67,19 @@ namespace Microsoft.AspNetCore.Identity
 
         /// <inheritdoc />
         async Task<IUser> ISignInManager.GetTwoFactorAuthenticationUserAsync() => await GetTwoFactorAuthenticationUserAsync();
+
+        /// <inheritdoc />
+        public override Task<IEnumerable<AuthenticationScheme>> GetExternalAuthenticationSchemesAsync()
+        {
+            if (UserManager.SupportsUserLogin)
+            {
+                return base.GetExternalAuthenticationSchemesAsync();
+            }
+            else
+            {
+                return Task.FromResult(System.Linq.Enumerable.Empty<AuthenticationScheme>());
+            }
+        }
     }
 
     /// <summary>

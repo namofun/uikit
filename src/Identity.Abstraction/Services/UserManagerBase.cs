@@ -22,6 +22,9 @@ namespace Microsoft.AspNetCore.Identity
         /// </summary>
         protected IRoleStore<TRole> RoleStore { get; }
 
+        /// <inheritdoc />
+        public IdentityAdvancedOptions Features { get; }
+
         /// <summary>
         /// Construct a new instance of <see cref="UserManagerBase{TUser,TRole}"/>.
         /// </summary>
@@ -35,7 +38,8 @@ namespace Microsoft.AspNetCore.Identity
             ILookupNormalizer keyNormalizer,
             IdentityErrorDescriber errors,
             IServiceProvider services,
-            ILogger<UserManagerBase<TUser, TRole>> logger)
+            ILogger<UserManagerBase<TUser, TRole>> logger,
+            IOptions<IdentityAdvancedOptions> options2Accessor)
             : base(store,
                   optionsAccessor,
                   passwordHasher,
@@ -47,7 +51,20 @@ namespace Microsoft.AspNetCore.Identity
                   logger)
         {
             RoleStore = roleStore;
+            Features = options2Accessor.Value;
         }
+
+        /// <inheritdoc />
+        public override bool SupportsUserTwoFactor => Features.TwoFactorAuthentication;
+
+        /// <inheritdoc />
+        public override bool SupportsUserTwoFactorRecoveryCodes => Features.TwoFactorAuthentication;
+
+        /// <inheritdoc />
+        public override bool SupportsUserLogin => Features.ExternalLogin;
+
+        /// <inheritdoc />
+        public override bool SupportsUserAuthenticatorKey => Features.TwoFactorAuthentication;
 
         /// <inheritdoc />
         public override string GetUserId(ClaimsPrincipal principal)
@@ -108,6 +125,46 @@ namespace Microsoft.AspNetCore.Identity
         public override async Task<IdentityResult> ConfirmEmailAsync(TUser user, string token)
         {
             var result = await base.ConfirmEmailAsync(user, token);
+            if (result.Succeeded) await SlideExpirationAsync(user);
+            return result;
+        }
+
+        /// <inheritdoc />
+        public override async Task<IdentityResult> AddClaimAsync(TUser user, Claim claim)
+        {
+            var result = await base.AddClaimAsync(user, claim);
+            if (result.Succeeded) await SlideExpirationAsync(user);
+            return result;
+        }
+
+        /// <inheritdoc />
+        public override async Task<IdentityResult> AddClaimsAsync(TUser user, IEnumerable<Claim> claims)
+        {
+            var result = await base.AddClaimsAsync(user, claims);
+            if (result.Succeeded) await SlideExpirationAsync(user);
+            return result;
+        }
+
+        /// <inheritdoc />
+        public override async Task<IdentityResult> RemoveClaimAsync(TUser user, Claim claim)
+        {
+            var result = await base.RemoveClaimAsync(user, claim);
+            if (result.Succeeded) await SlideExpirationAsync(user);
+            return result;
+        }
+
+        /// <inheritdoc />
+        public override async Task<IdentityResult> RemoveClaimsAsync(TUser user, IEnumerable<Claim> claims)
+        {
+            var result = await base.RemoveClaimsAsync(user, claims);
+            if (result.Succeeded) await SlideExpirationAsync(user);
+            return result;
+        }
+
+        /// <inheritdoc />
+        public override async Task<IdentityResult> ReplaceClaimAsync(TUser user, Claim claim, Claim newClaim)
+        {
+            var result = await base.ReplaceClaimAsync(user, claim, newClaim);
             if (result.Succeeded) await SlideExpirationAsync(user);
             return result;
         }

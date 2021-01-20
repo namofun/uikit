@@ -7,6 +7,13 @@ using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Identity
 {
+    /// <summary>
+    /// Provides methods to create a claims principal for a given user.
+    /// Intended to replace <see cref="UserClaimsPrincipalFactory{TUser, TRole}"/>.
+    /// </summary>
+    /// <typeparam name="TUser">The type used to represent a user.</typeparam>
+    /// <typeparam name="TRole">The type used to represent a role.</typeparam>
+    /// <typeparam name="TContext">The type used to represent a database context.</typeparam>
     public class UserClaimsPrincipalFactory<TUser, TRole, TContext> :
         UserClaimsPrincipalFactory<TUser>
         where TUser : SatelliteSite.IdentityModule.Entities.User, new()
@@ -48,6 +55,9 @@ namespace Microsoft.AspNetCore.Identity
 
             if (!string.IsNullOrWhiteSpace(user.NickName))
                 content.AddClaim(new Claim("nickname", user.NickName));
+
+            if (user.EmailConfirmed)
+                content.AddClaim(new Claim("email_verified", "true"));
 
             return content;
         }

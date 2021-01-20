@@ -4,4 +4,5 @@
 }
 
 <p class="text-danger">You do not have access to this resource.</p>
-<p class="text-danger" asp-show-if="@User.HasClaim("email_verified", "false")">Your email is not verified for restricted pages. <a asp-action="Edit" asp-controller="Profile" asp-route-username="@User.GetUserName()">Click to verify &raquo;</a></p>
+<p class="text-danger" asp-show-if="@User.IsSignedIn()" asp-not-meet-policy="EmailVerified">Your email is not verified for restricted pages. <a asp-action="Edit" asp-controller="Profile" asp-route-username="@User.GetUserName()">Click to verify &raquo;</a></p>
+<p class="text-danger" asp-show-if="@(!User.IsSignedIn())">You are required to login to view this page. <a asp-action="Login" asp-controller="Sign">Click to login &raquo;</a></p>

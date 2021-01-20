@@ -144,6 +144,11 @@ namespace Microsoft.AspNetCore.Identity
         IdentityOptions Options { get; }
 
         /// <summary>
+        /// The <see cref="IdentityAdvancedOptions"/> used to configure features.
+        /// </summary>
+        IdentityAdvancedOptions Features { get; }
+
+        /// <summary>
         /// Returns a <see cref="PasswordVerificationResult"/> indicating the result of a password hash comparison.
         /// </summary>
         /// <param name="user">The user whose password should be verified.</param>
