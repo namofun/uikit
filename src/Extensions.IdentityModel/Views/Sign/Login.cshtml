@@ -1,8 +1,9 @@
 ﻿@model LoginModel
-
+@inject ISignInManager SignInManager
 @{
     ViewData["Title"] = "Sign In";
     Layout = "_WindowLayout";
+    var loginProviders = (await SignInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 }
 
 <div asp-validation-summary="All" class="text-danger"></div>
@@ -19,7 +20,7 @@
 <div class="form-group">
     <div class="custom-control custom-checkbox">
         <input class="custom-control-input" asp-for="RememberMe" />
-        <label class="custom-control-label" asp-for="RememberMe">@Html.DisplayNameFor(m => m.RememberMe)</label>
+        <label class="custom-control-label" asp-for="RememberMe"></label>
     </div>
 </div>
 <div class="form-group">
@@ -31,10 +32,29 @@
     </p>
 </div>
 
+<details asp-show-if="loginProviders.Count > 0">
+    <summary>External logins</summary>
+    <ul class="mt-1 mb-0">
+@foreach (var provider in loginProviders)
+{
+        <li><a href="javascript:externalLogin('@provider.Name')" title="Log in using your @provider.DisplayName account">@provider.DisplayName</a></li>
+}
+    </ul>
+</details>
+
 @section Footer {
     <button asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" type="submit" class="btn btn-primary">Login</button>
 }
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <form asp-show-if="loginProviders.Count > 0" asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal" id="ext-login-form">
+        <input type="hidden" name="provider" value="" />
+        <script>
+            function externalLogin(providerName) {
+                $('#ext-login-form > input[name="provider"]').val(providerName);
+                $('#ext-login-form').submit();
+            }
+        </script>
+    </form>
 }

@@ -95,7 +95,7 @@
         </div>
     </li>
     <li class="nav-item" asp-show-if="!suppressUserMenu && !User.IsSignedIn()">
-        <a class="nav-link" role="button" data-toggle="ajaxWindow" data-target="login" asp-area="Account" asp-controller="Sign" asp-action="Login" asp-route-returnUrl="@ViewData["RefreshUrl"]">
+        <a class="nav-link" role="button" data-toggle="ajaxWindow" data-target="login" asp-area="Account" asp-controller="Sign" asp-action="Login" asp-route-returnUrl="@ViewData["RefreshUrl2"]">
             <i class="fas fa-sign-in-alt fa-fw"></i> Login
         </a>
     </li>

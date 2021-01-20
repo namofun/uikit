@@ -1,0 +1,68 @@
+﻿@using Microsoft.AspNetCore.Authentication 
+@model ExternalLoginsModel
+@{
+    ViewData["Title"] = "External logins";
+}
+
+<h3>@ViewData["Title"]</h3>
+<partial name="_StatusMessage" model="@TempData["StatusMessage"]" />
+@{ TempData["StatusMessage"] = null; }
+
+<table asp-show-if="((Model.CurrentLogins?.Count + Model.OtherLogins?.Count) ?? 0) != 0" class="data-table table table-sm table-striped" style="width:100%">
+    <thead>
+        <tr>
+            <th scope="col" class="searchable sortable">ID</th>
+            <th scope="col" class="searchable sortable">full name</th>
+            <th scope="col" class="sortable">status</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var login in Model.CurrentLogins ?? Enumerable.Empty<UserLoginInfo>())
+    {
+        <tr>
+            <td>@login.LoginProvider</td>
+            <td>@login.ProviderDisplayName</td>
+            <td><span class="sol sol_correct">linked</span></td>
+            <td>
+                <form asp-show-if="Model.ShowRemoveButton" asp-action="RemoveLogin" method="post">
+                    <input asp-for="@login.LoginProvider" name="LoginProvider" type="hidden" />
+                    <input asp-for="@login.ProviderKey" name="ProviderKey" type="hidden" />
+                    <button class="btn-text" type="submit" title="Remove this @login.ProviderDisplayName login from your account">
+                        <i class="fas fa-unlink"></i>
+                    </button>
+                </form>
+            </td>
+        </tr>
+    }
+    @foreach (var provider in Model.OtherLogins ?? Enumerable.Empty<AuthenticationScheme>())
+    {
+        <tr>
+            <td>@provider.Name</td>
+            <td>@provider.DisplayName</td>
+            <td><span class="sol sol_queued">not linked</span></td>
+            <td>
+                <form asp-action="LinkLogin" method="post" class="form-horizontal">
+                    <button class="btn-text" type="submit" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">
+                        <i class="fas fa-external-link-alt"></i>
+                    </button>
+                </form>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<div asp-show-if="((Model.CurrentLogins?.Count + Model.OtherLogins?.Count) ?? 0) == 0" class="alert alert-primary">
+    Currently no external login providers are configured.
+</div>
+
+<style>
+    .btn-text {
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
+        display: inline;
+    }
+</style>

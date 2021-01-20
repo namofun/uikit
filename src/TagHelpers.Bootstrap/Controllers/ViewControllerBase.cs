@@ -57,7 +57,8 @@ namespace Microsoft.AspNetCore.Mvc
                 var feature = HttpContext.Features.Get<IUrlRewritingFeature>();
                 var path = feature?.Path ?? Request.Path;
                 var query = feature?.Query ?? Request.QueryString;
-                ViewData["RefreshUrl"] = path.Value + query.Add("_inajax", "1").Value.Replace("&amp;", "&");
+                ViewData["RefreshUrl"] = path.Value + query.Add("_", "1").Value.Replace("&amp;", "&");
+                ViewData["RefreshUrl2"] = path.Value + query.Value.Replace("&amp;", "&");
             }
 
             if (IsWindowAjax)

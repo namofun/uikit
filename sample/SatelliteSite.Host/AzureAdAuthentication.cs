@@ -72,7 +72,7 @@ namespace SatelliteSite
                 options.ClientId = _azureOptions.ClientId;
                 options.Authority = $"{_azureOptions.Instance}{_azureOptions.TenantId}";
                 options.UseTokenLifetime = true;
-                options.CallbackPath = _azureOptions.CallbackPath;
+                options.CallbackPath = _azureOptions.CallbackPath + name[7..];
                 options.RequireHttpsMetadata = false;
                 options.ClientSecret = _azureOptions.ClientSecret;
                 options.Scope.Add("email");
