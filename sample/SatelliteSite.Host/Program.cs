@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -29,10 +28,11 @@ namespace SatelliteSite
                 {
                     builder.ConfigureServices((ctx, services) =>
                     {
-                        services.Configure<IdentityAdvancedOptions>(options =>
+                        services.ConfigureIdentityAdvanced(options =>
                         {
                             options.ExternalLogin = true;
                             options.TwoFactorAuthentication = true;
+                            options.ShortenedClaimName = true;
                         });
 
                         new AuthenticationBuilder(services)

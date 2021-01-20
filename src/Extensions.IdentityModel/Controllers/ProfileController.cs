@@ -16,9 +16,6 @@ namespace SatelliteSite.IdentityModule.Controllers
     [AuditPoint(AuditlogType.User)]
     public class ProfileController : ViewControllerBase
     {
-        private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
-        private const string RecoveryCodesKey = nameof(RecoveryCodesKey);
-
         private IUserManager UserManager { get; }
         private ISignInManager SignInManager { get; }
 
@@ -338,6 +335,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             await HttpContext.AuditAsync("enabled 2fa", $"{user.Id}");
 
             await UserManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
+            StatusMessage = "Authenticator app enrolled! New recovery codes are generated and showed bellow. Please keep them.";
             return RedirectToAction(nameof(TwoFactorAuthentication));
         }
 
@@ -379,6 +377,7 @@ namespace SatelliteSite.IdentityModule.Controllers
 
             if (!user.TwoFactorEnabled) return No2faEnabled("generate recovery codes");
             await UserManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
+            StatusMessage = "New recovery codes are generated and showed bellow. Please keep them.";
             return RedirectToAction(nameof(TwoFactorAuthentication));
         }
 
@@ -456,34 +455,6 @@ namespace SatelliteSite.IdentityModule.Controllers
         }
 
 
-        private string FormatKey(string unformattedKey)
-        {
-            var result = new System.Text.StringBuilder();
-
-            int currentPosition = 0;
-            while (currentPosition + 4 < unformattedKey.Length)
-            {
-                result.Append(unformattedKey.Substring(currentPosition, 4)).Append(" ");
-                currentPosition += 4;
-            }
-
-            if (currentPosition < unformattedKey.Length)
-            {
-                result.Append(unformattedKey[currentPosition..]);
-            }
-
-            return result.ToString().ToLowerInvariant();
-        }
-
-        private string GenerateQrCodeUri(string email, string unformattedKey)
-        {
-            return string.Format(
-                AuthenticatorUriFormat,
-                System.Text.Encodings.Web.UrlEncoder.Default.Encode("JudgeWeb"),
-                System.Text.Encodings.Web.UrlEncoder.Default.Encode(email),
-                unformattedKey);
-        }
-
         private async Task LoadSharedKeyAndQrCodeUriAsync(IUser user, EnableAuthenticatorModel model)
         {
             var unformattedKey = await UserManager.GetAuthenticatorKeyAsync(user);
@@ -494,7 +465,26 @@ namespace SatelliteSite.IdentityModule.Controllers
             }
 
             model.SharedKey = FormatKey(unformattedKey);
-            model.AuthenticatorUri = GenerateQrCodeUri(user.Email, unformattedKey);
+            model.AuthenticatorUri = UserManager.FormatAuthenticatorUri(user.UserName, user.Email, unformattedKey);
+
+            static string FormatKey(string unformattedKey)
+            {
+                var result = new System.Text.StringBuilder();
+
+                int currentPosition = 0;
+                while (currentPosition + 4 < unformattedKey.Length)
+                {
+                    result.Append(unformattedKey.Substring(currentPosition, 4)).Append(" ");
+                    currentPosition += 4;
+                }
+
+                if (currentPosition < unformattedKey.Length)
+                {
+                    result.Append(unformattedKey[currentPosition..]);
+                }
+
+                return result.ToString().ToLowerInvariant();
+            }
         }
 
         private ShowMessageResult No2faEnabled(string action)

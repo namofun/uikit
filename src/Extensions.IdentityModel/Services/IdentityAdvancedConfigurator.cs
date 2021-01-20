@@ -3,11 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System;
 using System.Linq;
 
 namespace SatelliteSite.IdentityModule
 {
-    internal class IdentityAdvancedConfigurator : IConfigureOptions<MvcOptions>, IControllerModelConvention
+    internal class IdentityAdvancedConfigurator :
+        IConfigureOptions<MvcOptions>,
+        IConfigureOptions<IdentityOptions>,
+        IControllerModelConvention
     {
         private readonly IdentityAdvancedOptions _options;
 
@@ -36,6 +40,16 @@ namespace SatelliteSite.IdentityModule
         public void Configure(MvcOptions options)
         {
             options.Conventions.Add(this);
+        }
+
+        public void Configure(IdentityOptions options)
+        {
+            if (_options.ShortenedClaimName)
+            {
+                options.ClaimsIdentity.RoleClaimType = UserClaimsPrincipalExtensions.ClaimTypes_Role;
+                options.ClaimsIdentity.UserIdClaimType = UserClaimsPrincipalExtensions.ClaimTypes_NameIdentifier;
+                options.ClaimsIdentity.UserNameClaimType = UserClaimsPrincipalExtensions.ClaimTypes_Name;
+            }
         }
     }
 }

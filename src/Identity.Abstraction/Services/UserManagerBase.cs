@@ -300,8 +300,16 @@ namespace Microsoft.AspNetCore.Identity
             const string InternalLoginProvider = "[AspNetUserStore]";
             const string RecoveryCodeTokenName = "RecoveryCodes";
             var tokens = await GetAuthenticationTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName);
-            if (tokens.Length == 0) return Array.Empty<string>();
+            if (tokens == null || tokens.Length == 0) return Array.Empty<string>();
             return tokens.Split(';');
+        }
+
+        /// <inheritdoc />
+        public virtual string FormatAuthenticatorUri(string userName, string email, string unformattedKey)
+        {
+            var formatter = Features.AuthenticatorUriFormat;
+            formatter ??= Features.DefaultFormatter;
+            return formatter.Invoke(userName, email, unformattedKey);
         }
     }
 }

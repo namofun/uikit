@@ -9,6 +9,7 @@ namespace System
     public static class UserClaimsPrincipalExtensions
     {
         public const string ClaimTypes_Name = "name";
+        public const string ClaimTypes_Role = "role";
         public const string ClaimTypes_NameIdentifier = "sub";
         public const string ClaimTypes_NickName = "nickname";
 

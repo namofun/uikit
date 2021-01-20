@@ -201,6 +201,15 @@ namespace Microsoft.AspNetCore.Identity
         /// </returns>
         Task<bool> VerifyUserTokenAsync(IUser user, string tokenProvider, string purpose, string token);
 
+        /// <summary>
+        /// Format the authenticator uri.
+        /// </summary>
+        /// <param name="userName">The user name.</param>
+        /// <param name="email">The user email.</param>
+        /// <param name="unformattedKey">The unformatted key.</param>
+        /// <returns>The authenticator uri.</returns>
+        string FormatAuthenticatorUri(string userName, string email, string unformattedKey);
+
         #region External Login
 
         /// <summary>
