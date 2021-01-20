@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -26,13 +27,23 @@ namespace SatelliteSite
                 .AddDatabaseMssql<DefaultContext>("UserDbConnection")
                 .ConfigureSubstrateDefaults<DefaultContext>(builder =>
                 {
-                    builder.ConfigureServices(services =>
+                    builder.ConfigureServices((ctx, services) =>
                     {
                         services.Configure<IdentityAdvancedOptions>(options =>
                         {
                             options.ExternalLogin = true;
                             options.TwoFactorAuthentication = true;
                         });
+
+                        new AuthenticationBuilder(services)
+                            .AddAzureAd(options =>
+                            {
+                                options.Instance = ctx.Configuration["AzureAD:Instance"];
+                                options.Domain = ctx.Configuration["AzureAD:Domain"];
+                                options.ClientId = ctx.Configuration["AzureAD:ClientId"];
+                                options.ClientSecret = ctx.Configuration["AzureAD:ClientSecret"];
+                                options.TenantId = ctx.Configuration["AzureAD:TenantId"];
+                            });
                     });
                 });
     }

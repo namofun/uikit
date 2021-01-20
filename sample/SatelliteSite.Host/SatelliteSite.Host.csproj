@@ -4,12 +4,14 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>SatelliteSite</RootNamespace>
     <IsPackable>false</IsPackable>
+    <UserSecretsId>ed28fc1c-e408-439e-9894-fff904130b9b</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Extensions.IdentityModel\SatelliteSite.IdentityModule.csproj" />
     <ProjectReference Include="..\..\src\HostBuilder\SatelliteSite.HostBuilder.csproj" />
     <ProjectReference Include="..\SatelliteSite.SampleModule\SatelliteSite.SampleModule.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="$(AspNetCoreVersion)" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="$(AspNetCoreVersion)">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
