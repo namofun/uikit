@@ -22,7 +22,7 @@ namespace SatelliteSite.IdentityModule
 
         public void Apply(ControllerModel controller)
         {
-            if (controller.ControllerType.Assembly != typeof(IdentityAdvancedOptions).Assembly)
+            if (controller.ControllerType.Assembly != typeof(IdentityAdvancedConfigurator).Assembly)
             {
                 return;
             }
