@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Patterns;
 using System;
@@ -97,7 +97,7 @@ namespace Microsoft.AspNetCore.Builder
         {
             return MapFallback(pattern, context =>
             {
-                context.Features.Set<IClaimedNoStatusCodePageFeature>(new ClaimedNoStatusCodePageFeature());
+                context.Features.Get<IStatusCodePagesFeature>().Enabled = false;
                 context.Response.StatusCode = 404;
                 return Task.CompletedTask;
             })

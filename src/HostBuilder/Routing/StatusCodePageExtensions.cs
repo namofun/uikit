@@ -95,9 +95,6 @@ namespace Microsoft.AspNetCore.Builder
                     && s.First() == "XMLHttpRequest")
                     return;
 
-                if (context.HttpContext.Features.Get<IClaimedNoStatusCodePageFeature>() != null)
-                    return;
-
                 if (context.HttpContext.Items.ContainsKey("AuditlogType"))
                     context.HttpContext.Items.Remove("AuditlogType");
 
