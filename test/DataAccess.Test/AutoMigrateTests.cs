@@ -64,7 +64,8 @@ namespace SatelliteSite.Tests
             using (var scope = host.Services.CreateScope())
             {
                 using var context = scope.ServiceProvider.GetRequiredService<Context>();
-                IConfigurationRegistry configurationRegistry = new ConfigurationRegistry<Context>(context);
+                var cache = scope.ServiceProvider.GetRequiredService<ConfigurationRegistryCache>();
+                IConfigurationRegistry configurationRegistry = new ConfigurationRegistry<Context>(context, cache);
                 Assert.IsNotNull(await configurationRegistry.FindAsync("conf_name"));
             }
 
