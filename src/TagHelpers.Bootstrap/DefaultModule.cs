@@ -70,6 +70,7 @@ namespace SatelliteSite.Substrate
         public override void RegisterServices(IServiceCollection services)
         {
             services.AddScoped<IAuditlogger, Auditlogger<TContext>>();
+            services.AddSingleton<ConfigurationRegistryCache>();
             services.AddScoped<IConfigurationRegistry, ConfigurationRegistry<TContext>>();
             services.AddDbModelSupplier<TContext, CoreEntityConfiguration<TContext>>();
         }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using SatelliteSite.Entities;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,11 @@ namespace SatelliteSite.Services
         public TContext Context { get; }
 
         /// <summary>
+        /// The default memory cache.
+        /// </summary>
+        public IMemoryCache Cache { get; }
+
+        /// <summary>
         /// The default set.
         /// </summary>
         DbSet<Configuration> Configurations => Context.Set<Configuration>();
@@ -28,9 +34,11 @@ namespace SatelliteSite.Services
         /// Constructs a registry.
         /// </summary>
         /// <param name="context">The database context.</param>
-        public ConfigurationRegistry(TContext context)
+        /// <param name="cache">The memory cache.</param>
+        public ConfigurationRegistry(TContext context, ConfigurationRegistryCache cache)
         {
             Context = context;
+            Cache = cache;
         }
 
         /// <inheritdoc />
@@ -39,23 +47,41 @@ namespace SatelliteSite.Services
             var result = await Configurations
                 .Where(c => c.Name == name)
                 .BatchUpdateAsync(c => new Configuration { Value = newValue });
+
+            Cache.Remove(name);
             return result == 1;
         }
 
         /// <inheritdoc />
         public Task<Configuration?> FindAsync(string config)
         {
-            return Configurations
-                .Where(c => c.Name == config)
-                .SingleOrDefaultAsync()!;
+            return Cache.GetOrCreateAsync(config,
+            async entry =>
+            {
+                var config = (string)entry.Key;
+                var result = await Configurations.FindAsync(config);
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
+                return result;
+            })!;
         }
 
         /// <inheritdoc />
-        public Task<List<Configuration>> GetAsync(string? name)
+        public async Task<List<Configuration>> GetAsync(string? name)
         {
-            return Configurations
-                .WhereIf(name != null, c => c.Name == name)
-                .ToListAsync();
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return await Configurations.ToListAsync();
+            }
+
+            var item = await FindAsync(name);
+            if (item == null)
+            {
+                return new List<Configuration>(0);
+            }
+            else
+            {
+                return new List<Configuration>(1) { item };
+            }
         }
 
         /// <inheritdoc />
@@ -64,6 +90,7 @@ namespace SatelliteSite.Services
             var conf = await Configurations
                 .Where(c => c.Public)
                 .ToListAsync();
+
             return conf.OrderBy(c => c.DisplayPriority)
                 .ToLookup(c => c.Category);
         }
@@ -76,13 +103,18 @@ namespace SatelliteSite.Services
         /// <returns>The task for configuration result or <c>null</c>.</returns>
         private async Task<T> GetValueAsync<T>(string name, string typeName)
         {
-            var conf = await Configurations
-                .Where(c => c.Name == name && c.Type == typeName)
-                .Select(c => new { c.Value })
-                .SingleOrDefaultAsync();
+            var conf = await FindAsync(name);
 
             if (conf == null)
-                throw new KeyNotFoundException($"The configuration {name} is not saved. Please check your migration status.");
+            {
+                throw new KeyNotFoundException(
+                    $"The configuration {name} is not saved. Please check your migration status.");
+            }
+            else if (conf.Type != typeName)
+            {
+                throw new InvalidCastException(
+                    $"The type of configuration {name} is not correct.");
+            }
 
             return conf.Value.AsJson<T>();
         }
