@@ -52,7 +52,7 @@ function showWindow(handlekey, geturl) {
 
 function notice(text, type, header, autohide = true) {
     type = type || "info";
-    header = header || "Namomo OJ";
+    header = header || "System Message";
 
     $('#notification-box').append(
         '<div class="toast new-add" data-delay="10000" data-autohide="' + autohide + '" role="alert" aria-live="assertive" aria-atomic="true">'
