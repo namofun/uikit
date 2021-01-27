@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SatelliteSite.IdentityModule.Models;
@@ -36,12 +37,16 @@ namespace SatelliteSite.IdentityModule.Dashboards
 
 
         [HttpGet("{uid}")]
-        public async Task<IActionResult> Detail(int uid)
+        public async Task<IActionResult> Detail(int uid, [FromServices] IMediator mediator)
         {
             var user = await UserManager.FindByIdAsync(uid);
             if (user == null) return NotFound();
-            ViewBag.Roles = await UserManager.ListRolesAsync(user);
-            return View(user);
+            var roles = await UserManager.ListRolesAsync(user);
+
+            var model = new UserDetailModel(user, roles);
+            model.AddMore(roles.Where(r => r.ShortName != null).Select(r => new RolesAddition(r)));
+            await mediator.Publish(model);
+            return View(model);
         }
 
 
