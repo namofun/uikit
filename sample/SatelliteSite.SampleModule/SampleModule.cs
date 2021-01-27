@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using SatelliteSite;
@@ -51,6 +52,8 @@ namespace SatelliteSite.SampleModule
         public override void RegisterServices(IServiceCollection services)
         {
             services.AddScoped<ForecastService>();
+            services.AddScoped<IUserClaimsProvider, RandomClaimsProvider>();
+            services.AddScoped<IUserClaimsProvider, RandomClaimsProvider>();
         }
 
         public override void RegisterMenu(IMenuContributor menus)

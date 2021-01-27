@@ -193,18 +193,24 @@ namespace Microsoft.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        public Task<List<Claim>> ListUserRoleClaimsAsync(TUser user, CancellationToken cancellationToken)
+        public async Task<List<Claim>> ListUserRoleClaimsAsync(TUser user, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
 
-            return UserRoles
+            var claims = new List<Claim>();
+            var query = UserRoles
                 .Where(ur => ur.UserId == user.Id)
                 .Join(RoleClaims, ur => ur.RoleId, rc => rc.RoleId, (ur, rc) => rc)
                 .Select(rc => new { rc.ClaimType, rc.ClaimValue })
-                .Distinct()
-                .Select(rc => new Claim(rc.ClaimType, rc.ClaimValue))
-                .ToListAsync();
+                .Distinct();
+
+            await foreach (var claim in query.AsAsyncEnumerable().WithCancellation(cancellationToken))
+            {
+                claims.Add(new Claim(claim.ClaimType, claim.ClaimValue));
+            }
+
+            return claims;
         }
     }
 

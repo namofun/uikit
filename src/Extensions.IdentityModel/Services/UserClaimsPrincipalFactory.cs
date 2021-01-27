@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -12,19 +15,33 @@ namespace Microsoft.AspNetCore.Identity
     /// <typeparam name="TUser">The type used to represent a user.</typeparam>
     /// <typeparam name="TRole">The type used to represent a role.</typeparam>
     public class FullUserClaimsPrincipalFactory<TUser, TRole> :
-        UserClaimsPrincipalFactory<TUser>
+        UserClaimsPrincipalFactory<TUser>,
+        ILightweightUserClaimsPrincipalFactory<TUser>
         where TUser : SatelliteSite.IdentityModule.Entities.User, new()
         where TRole : SatelliteSite.IdentityModule.Entities.Role, new()
     {
+        /// <inheritdoc cref="UserClaimsPrincipalFactory{TUser}.UserManager" />
         public new UserManager<TUser, TRole> UserManager => (UserManager<TUser, TRole>)base.UserManager;
 
+        /// <summary>The external claims provider</summary>
+        public CompositeUserClaimsProvider ClaimsProvider { get; }
+
+        /// <summary>
+        /// Initializes a new instance of the Microsoft.AspNetCore.Identity.UserClaimsPrincipalFactory`1 class.
+        /// </summary>
+        /// <param name="userManager">The <see cref="UserManager{TUser,TRole}"/> to retrieve user information from.</param>
+        /// <param name="options">The configured <see cref="IdentityOptions"/>.</param>
+        /// <param name="claimsProvider">The external <see cref="IUserClaimsProvider"/>s.</param>
         public FullUserClaimsPrincipalFactory(
             UserManager<TUser, TRole> userManager,
-            IOptions<IdentityOptions> options)
+            IOptions<IdentityOptions> options,
+            CompositeUserClaimsProvider claimsProvider)
             : base(userManager, options)
         {
+            ClaimsProvider = claimsProvider;
         }
 
+        /// <inheritdoc />
         protected override async Task<ClaimsIdentity> GenerateClaimsAsync(TUser user)
         {
             var content = await base.GenerateClaimsAsync(user);
@@ -40,6 +57,8 @@ namespace Microsoft.AspNetCore.Identity
 
             if (user.EmailConfirmed)
                 content.AddClaim(new Claim("email_verified", "true"));
+
+            await ClaimsProvider.ExecuteAsync(user, content);
 
             return content;
         }
@@ -90,6 +109,37 @@ namespace Microsoft.AspNetCore.Identity
             id.AddClaim(new Claim(Options.ClaimsIdentity.SecurityStampClaimType, user.SecurityStamp));
             id.AddClaims(ur.Select(r => new Claim(Options.ClaimsIdentity.RoleClaimType, r)));
             return new ClaimsPrincipal(id);
+        }
+    }
+
+
+    /// <summary>
+    /// Compose providers together as a lazy service.
+    /// </summary>
+    public class CompositeUserClaimsProvider : Lazy<IEnumerable<IUserClaimsProvider>>
+    {
+        /// <summary>
+        /// Instantiate the <see cref="CompositeUserClaimsProvider"/>.
+        /// </summary>
+        /// <param name="sp">The service provider to take from.</param>
+        public CompositeUserClaimsProvider(IServiceProvider sp)
+            : base(sp.GetServices<IUserClaimsProvider>)
+        {
+        }
+
+        /// <summary>
+        /// Gets claims for such user.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="identity">The claims identity.</param>
+        /// <returns>The task for creating claims.</returns>
+        public async Task ExecuteAsync(IUser user, ClaimsIdentity identity)
+        {
+            foreach (var provider in Value)
+            {
+                var claims = await provider.GetClaimsAsync(user);
+                identity.AddClaims(claims);
+            }
         }
     }
 }

@@ -64,6 +64,8 @@ namespace SatelliteSite.IdentityModule
                 ILightweightUserClaimsPrincipalFactory<TUser>,
                 LightweightUserClaimsPrincipalFactory<TUser, TRole>>();
 
+            services.AddScoped<CompositeUserClaimsProvider>();
+
             services.AddSingleton<BasicAuthenticationValidator>();
             services.AddSingleton<CookieAuthenticationValidator>();
             services.AddSingleton<ISignInSlideExpiration, DefaultSignInSlideExpiration<TUser>>();

@@ -124,7 +124,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <returns>The service collection.</returns>
         public static IServiceCollection AddLazyScoped(this IServiceCollection services)
         {
-            services.TryAdd(ServiceDescriptor.Scoped(typeof(Lazy<>), typeof(LazyServiceProvider<>)));
+            services.TryAdd(ServiceDescriptor.Scoped(typeof(Lazy<>), typeof(ServiceProviderLazyService<>)));
             return services;
         }
 
@@ -132,9 +132,9 @@ namespace Microsoft.Extensions.DependencyInjection
         /// The lazy support by <see cref="IServiceProvider"/>.
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
-        private class LazyServiceProvider<T> : Lazy<T>
+        private class ServiceProviderLazyService<T> : Lazy<T>
         {
-            public LazyServiceProvider(IServiceProvider sp) : base(sp.GetRequiredService<T>)
+            public ServiceProviderLazyService(IServiceProvider sp) : base(sp.GetRequiredService<T>)
             {
             }
         }
