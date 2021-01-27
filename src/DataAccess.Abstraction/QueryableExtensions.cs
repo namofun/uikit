@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace System.Linq
@@ -94,25 +95,85 @@ namespace System.Linq
         }
 
         /// <summary>
-        /// Get a paged view list from the query source.
+        /// Asynchronously creates an <see cref="IPagedList{T}"/> from the query source.
         /// </summary>
-        /// <typeparam name="T">The entity type.</typeparam>
+        /// <remarks>
+        /// Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        /// that any asynchronous operations have completed before calling another method on this context.
+        /// </remarks>
+        /// <typeparam name="TSource">The type of the elements of source.</typeparam>
         /// <param name="queryable">The source queryable.</param>
         /// <param name="currentPage">The current page.</param>
         /// <param name="countPerPage">The count per page.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
         /// <returns>The task for fetching paged list.</returns>
-        public static async Task<IPagedList<T>> ToPagedListAsync<T>(
-            this IQueryable<T> queryable,
+        public static async Task<IPagedList<TSource>> ToPagedListAsync<TSource>(
+            this IQueryable<TSource> queryable,
             int currentPage,
-            int countPerPage)
+            int countPerPage,
+            CancellationToken cancellationToken = default)
         {
             if (queryable == null) throw new ArgumentNullException(nameof(queryable));
             if (currentPage <= 0) throw new ArgumentOutOfRangeException(nameof(currentPage));
             if (countPerPage <= 0) throw new ArgumentOutOfRangeException(nameof(countPerPage));
 
-            var count = await queryable.CountAsync();
-            var content = await queryable.Skip((currentPage - 1) * countPerPage).Take(countPerPage).ToListAsync();
-            return new PagedViewList<T>(content, currentPage, count, countPerPage);
+            var count = await queryable.CountAsync(cancellationToken);
+            var content = await queryable.Skip((currentPage - 1) * countPerPage).Take(countPerPage).ToListAsync(cancellationToken);
+            return new PagedViewList<TSource>(content, currentPage, count, countPerPage);
+        }
+
+        /// <summary>
+        /// Asynchronously creates a <see cref="Lookup{TKey, TElement}"/> from an <see cref="IQueryable{T}"/> according to specified key selector and element selector functions.
+        /// </summary>
+        /// <remarks>
+        /// Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        /// that any asynchronous operations have completed before calling another method on this context.
+        /// </remarks>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/>.</typeparam>
+        /// <typeparam name="TElement">The type of the element returned by <paramref name="elementSelector"/>.</typeparam>
+        /// <param name="source">The <see cref="IQueryable{T}"/> to create a <see cref="ILookup{TKey, TElement}"/> from.</param>
+        /// <param name="keySelector">A function to extract a key from each element.</param>
+        /// <param name="elementSelector">A transform function to produce a result element value from each element.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>The task for an <see cref="ILookup{TKey, TElement}"/> that contains keys and values.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="keySelector"/> or <paramref name="elementSelector"/> is null.</exception>
+        public static async Task<ILookup<TKey, TElement>> ToLookupAsync<TSource, TKey, TElement>(
+            this IQueryable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            Func<TSource, TElement> elementSelector,
+            CancellationToken cancellationToken = default)
+        {
+            if (source == null) throw new ArgumentNullException(nameof(source));
+            if (keySelector == null) throw new ArgumentNullException(nameof(keySelector));
+            if (elementSelector == null) throw new ArgumentNullException(nameof(elementSelector));
+
+            var results = await source.ToListAsync(cancellationToken);
+            return results.ToLookup(keySelector, elementSelector);
+        }
+
+        /// <summary>
+        /// Asynchronously creates a <see cref="HashSet{T}"/> from an <see cref="IQueryable{T}"/>.
+        /// </summary>
+        /// <remarks>
+        /// Multiple active operations on the same context instance are not supported.  Use 'await' to ensure
+        /// that any asynchronous operations have completed before calling another method on this context.
+        /// </remarks>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <param name="source">The <see cref="IQueryable{T}"/> to create a <see cref="HashSet{T}"/> from.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+        /// <returns>The task for a <see cref="HashSet{T}"/> that contains keys and values.</returns>
+        public static async Task<HashSet<TSource>> ToHashSetAsync<TSource>(
+            this IQueryable<TSource> source,
+            CancellationToken cancellationToken = default)
+        {
+            var hashSet = new HashSet<TSource>();
+            await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken))
+            {
+                hashSet.Add(element);
+            }
+
+            return hashSet;
         }
 
         /// <summary>
