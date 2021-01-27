@@ -1,25 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Identity
 {
-    /// <summary>
-    /// The user store interface containing the DbContext.
-    /// </summary>
-    public interface IContextedStore<TUser, TRole>
-        where TUser : SatelliteSite.IdentityModule.Entities.User
-        where TRole : SatelliteSite.IdentityModule.Entities.Role
-    {
-        /// <summary>
-        /// Gets the database context for this store.
-        /// </summary>
-        IdentityDbContext<TUser, TRole, int> Context { get; }
-    }
-
     /// <summary>
     /// Represents a new instance of a persistence store for the specified user and role types.
     /// </summary>
@@ -34,11 +22,21 @@ namespace Microsoft.AspNetCore.Identity
             IdentityUserLogin<int>,
             IdentityUserToken<int>,
             IdentityRoleClaim<int>>,
-        IContextedStore<TUser, TRole>
-        where TUser : SatelliteSite.IdentityModule.Entities.User
-        where TRole : SatelliteSite.IdentityModule.Entities.Role
+        IUserListStore<TUser, TRole>
+        where TUser : SatelliteSite.IdentityModule.Entities.User, new()
+        where TRole : SatelliteSite.IdentityModule.Entities.Role, new()
         where TContext : IdentityDbContext<TUser, TRole, int>
     {
+        /// <summary>
+        /// A navigation property for the roles the store contains.
+        /// </summary>
+        public IQueryable<TRole> Roles => Context.Roles;
+
+        /// <summary>
+        /// A navigation property for the user-role relations the store contains.
+        /// </summary>
+        public IQueryable<IdentityUserRole<int>> UserRoles => Context.UserRoles;
+
         /// <summary>
         /// Creates a new instance of the store.
         /// </summary>
@@ -97,7 +95,56 @@ namespace Microsoft.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        IdentityDbContext<TUser, TRole, int> IContextedStore<TUser, TRole>.Context => Context;
+        public Task<IPagedList<TUser>> ListAsync(int page, int pageCount, CancellationToken cancellationToken)
+            => Users
+                .OrderBy(u => u.Id)
+                .ToPagedListAsync(page, pageCount, cancellationToken);
+
+        /// <inheritdoc />
+        public Task<List<TRole>> ListRolesAsync(TUser user, CancellationToken cancellationToken)
+            => UserRoles
+                .Where(ur => ur.UserId.Equals(user.Id))
+                .Join(Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r)
+                .ToListAsync(cancellationToken);
+
+        /// <inheritdoc />
+        public Task<List<TRole>> ListNamedRolesAsync(CancellationToken cancellationToken)
+            => Roles
+                .Where(r => r.ShortName != null)
+                .ToListAsync(cancellationToken);
+
+        /// <inheritdoc />
+        public Task<ILookup<int, int>> ListUserRolesAsync(int minUserId, int maxUserId, CancellationToken cancellationToken)
+            => UserRoles
+                .Where(ur => ur.UserId >= minUserId && ur.UserId <= maxUserId)
+                .ToLookupAsync(a => a.UserId, a => a.RoleId);
+
+        /// <inheritdoc />
+        public Task<List<string>> ListSubscribedEmailsAsync(CancellationToken cancellationToken)
+            => Users
+                .Where(u => u.EmailConfirmed && u.SubscribeNews)
+                .OrderBy(u => u.Id)
+                .Select(u => u.Email)
+                .ToListAsync(cancellationToken);
+
+        /// <inheritdoc />
+        public Task<bool> ExistRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
+            => Roles
+                .Where(r => r.NormalizedName == normalizedRoleName)
+                .AnyAsync();
+
+        /// <inheritdoc />
+        public Task<int> LockOutUsersAsync(IEnumerable<int> userIds, CancellationToken cancellationToken)
+            => Users
+                .Where(u => userIds.Contains(u.Id))
+                .BatchUpdateAsync(u => new TUser { LockoutEnd = DateTimeOffset.MaxValue }, cancellationToken);
+
+        /// <inheritdoc />
+        public Task<Dictionary<int, string>> ListUserNamesAsync(IEnumerable<int> userIds, CancellationToken cancellationToken)
+            => Users
+                .Where(u => userIds.Contains(u.Id))
+                .Select(u => new { u.Id, u.UserName })
+                .ToDictionaryAsync(a => a.Id, a => a.UserName, cancellationToken);
     }
 
     /// <summary>

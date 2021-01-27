@@ -82,6 +82,8 @@ namespace Microsoft.AspNetCore.Identity
             return nickName;
         }
 
+        #region Slide Expiration
+
         /// <summary>
         /// Mark the user's information as slide expiration so that the user claims will be re-generated.
         /// </summary>
@@ -169,6 +171,10 @@ namespace Microsoft.AspNetCore.Identity
             return result;
         }
 
+        #endregion
+
+        #region Relay with IUserListStore<TUser, TRole>
+
         /// <summary>
         /// Finds and returns a user, if any, who has the specified <paramref name="userId"/>.
         /// </summary>
@@ -180,39 +186,77 @@ namespace Microsoft.AspNetCore.Identity
         }
 
         /// <summary>
-        /// List roles of users.
+        /// Gets the instance of <see cref="IUserListStore{TUser, TRole}"/>.
         /// </summary>
-        /// <param name="user">The user.</param>
-        /// <returns>The task for fetching role list.</returns>
-        public abstract Task<IReadOnlyList<IRole>> ListRolesAsync(TUser user);
+        /// <returns>The store type.</returns>
+        private IUserListStore<TUser, TRole> GetListStore()
+        {
+            var cast = Store as IUserListStore<TUser, TRole>;
+            if (cast == null)
+            {
+                throw new NotSupportedException("The store doesn't implement IUserListStore<TUser, TRole>.");
+            }
 
-        /// <summary>
-        /// Gets the paged list of users.
-        /// </summary>
-        /// <param name="page">The page id.</param>
-        /// <param name="pageCount">The count per page.</param>
-        /// <returns>The task for fetching user list.</returns>
-        public abstract Task<IPagedList<IUser>> ListUsersAsync(int page, int pageCount);
+            return cast;
+        }
 
-        /// <summary>
-        /// Gets the paged list of user roles.
-        /// </summary>
-        /// <param name="minUid">The minimum user ID.</param>
-        /// <param name="maxUid">The maximum user ID.</param>
-        /// <returns>The task for fetching user role list.</returns>
-        public abstract Task<ILookup<int, int>> ListUserRolesAsync(int minUid, int maxUid);
+        /// <inheritdoc cref="IUserManager.ListRolesAsync(IUser)" />
+        public virtual Task<List<TRole>> ListRolesAsync(TUser user)
+        {
+            ThrowIfDisposed();
+            return GetListStore().ListRolesAsync(user, CancellationToken);
+        }
 
-        /// <summary>
-        /// Gets the dictionary of named roles.
-        /// </summary>
-        /// <returns>The task for fetching role dictionary.</returns>
-        public abstract Task<IReadOnlyDictionary<int, IRole>> ListNamedRolesAsync();
+        /// <inheritdoc cref="IUserManager.ListUsersAsync(int, int)" />
+        public virtual Task<IPagedList<TUser>> ListUsersAsync(int page, int pageCount)
+        {
+            ThrowIfDisposed();
+            return GetListStore().ListAsync(page, pageCount, CancellationToken);
+        }
 
-        /// <summary>
-        /// Gets the mail list of users with subscription.
-        /// </summary>
-        /// <returns>The task for fetching user list.</returns>
-        public abstract Task<IReadOnlyList<string>> ListSubscribedEmailsAsync();
+        /// <inheritdoc />
+        public virtual Task<ILookup<int, int>> ListUserRolesAsync(int minUserId, int maxUserId)
+        {
+            ThrowIfDisposed();
+            return GetListStore().ListUserRolesAsync(minUserId, maxUserId, CancellationToken);
+        }
+
+        /// <inheritdoc cref="IUserManager.ListNamedRolesAsync" />
+        public virtual Task<List<TRole>> ListNamedRolesAsync()
+        {
+            ThrowIfDisposed();
+            return GetListStore().ListNamedRolesAsync(CancellationToken);
+        }
+
+        /// <inheritdoc />
+        public virtual async Task<IReadOnlyList<string>> ListSubscribedEmailsAsync()
+        {
+            ThrowIfDisposed();
+            return await GetListStore().ListSubscribedEmailsAsync(CancellationToken);
+        }
+
+        /// <inheritdoc />
+        public virtual Task<bool> RoleExistsAsync(string roleName)
+        {
+            ThrowIfDisposed();
+            return GetListStore().ExistRoleAsync(NormalizeName(roleName), CancellationToken);
+        }
+
+        /// <inheritdoc />
+        public virtual Task<int> BatchLockOutAsync(IEnumerable<int> userIds)
+        {
+            ThrowIfDisposed();
+            return GetListStore().LockOutUsersAsync(userIds, CancellationToken);
+        }
+
+        /// <inheritdoc />
+        public virtual Task<Dictionary<int, string>> FindUserNamesAsync(IEnumerable<int> userIds)
+        {
+            ThrowIfDisposed();
+            return GetListStore().ListUserNamesAsync(userIds, CancellationToken);
+        }
+
+        #endregion
 
         #region IUser conversion
         Task<IdentityResult> IUserManager.AddToRoleAsync(IUser user, string role) => AddToRoleAsync((TUser)user, role);
@@ -221,7 +265,7 @@ namespace Microsoft.AspNetCore.Identity
         Task<IdentityResult> IUserManager.RemoveFromRoleAsync(IUser user, string role) => RemoveFromRoleAsync((TUser)user, role);
         Task<IdentityResult> IUserManager.RemoveFromRolesAsync(IUser user, IEnumerable<string> roles) => RemoveFromRolesAsync((TUser)user, roles);
         Task<IList<string>> IUserManager.GetRolesAsync(IUser user) => GetRolesAsync((TUser)user);
-        Task<IReadOnlyList<IRole>> IUserManager.ListRolesAsync(IUser user) => ListRolesAsync((TUser)user);
+        async Task<IReadOnlyList<IRole>> IUserManager.ListRolesAsync(IUser user) => await ListRolesAsync((TUser)user);
         async Task<IReadOnlyList<IUser>> IUserManager.GetUsersInRoleAsync(string roleName) => (List<TUser>)await GetUsersInRoleAsync(roleName);
         Task<IdentityResult> IUserManager.DeleteAsync(IUser user) => DeleteAsync((TUser)user);
         async Task<IUser> IUserManager.FindByNameAsync(string userName) => await FindByNameAsync(userName);
@@ -243,6 +287,8 @@ namespace Microsoft.AspNetCore.Identity
         Task<IdentityResult> IUserManager.CreateAsync(IRole role) => RoleStore.CreateAsync((TRole)role, CancellationToken);
         Task<IdentityResult> IUserManager.UpdateAsync(IRole role) => RoleStore.UpdateAsync((TRole)role, CancellationToken);
         Task<IdentityResult> IUserManager.DeleteAsync(IRole role) => RoleStore.DeleteAsync((TRole)role, CancellationToken);
+        async Task<IPagedList<IUser>> IUserManager.ListUsersAsync(int page, int pageCount) => await ListUsersAsync(page, pageCount);
+        async Task<IReadOnlyDictionary<int, IRole>> IUserManager.ListNamedRolesAsync() => (await ListNamedRolesAsync()).ToDictionary(a => a.Id, a => (IRole)a);
         async Task<IRole> IUserManager.FindRoleByNameAsync(string roleName) => await RoleStore.FindByNameAsync(NormalizeName(roleName), CancellationToken);
         async Task<IRole> IUserManager.FindRoleByIdAsync(int roleId) => await RoleStore.FindByIdAsync($"{roleId}", CancellationToken);
         Task<bool> IUserManager.IsLockedOutAsync(IUser user) => IsLockedOutAsync((TUser)user);
@@ -277,9 +323,6 @@ namespace Microsoft.AspNetCore.Identity
         #endregion
 
         /// <inheritdoc />
-        public abstract Task<bool> RoleExistsAsync(string roleName);
-
-        /// <inheritdoc />
         protected override void Dispose(bool disposing)
         {
             if (disposing && !_disposed)
@@ -287,12 +330,6 @@ namespace Microsoft.AspNetCore.Identity
             base.Dispose(disposing);
             _disposed = true;
         }
-
-        /// <inheritdoc />
-        public abstract Task BatchLockOutAsync(IEnumerable<int> query);
-
-        /// <inheritdoc />
-        public abstract Task<Dictionary<int, string>> FindUserNamesAsync(IEnumerable<int> userIds);
 
         /// <inheritdoc />
         public virtual async Task<string[]> GetRecoveryCodesAsync(TUser user)

@@ -174,9 +174,9 @@ namespace Microsoft.AspNetCore.Identity
         /// <summary>
         /// Locks out all users with its ID in the query.
         /// </summary>
-        /// <param name="query">The user IDs whom should be locked out.</param>
-        /// <returns>The <see cref="Task"/> that represents the asynchronous operation.</returns>
-        Task BatchLockOutAsync(IEnumerable<int> query);
+        /// <param name="userIds">The user IDs whom should be locked out.</param>
+        /// <returns>The <see cref="Task"/> that represents the asynchronous operation, returning the count of affected users.</returns>
+        Task<int> BatchLockOutAsync(IEnumerable<int> userIds);
 
         /// <summary>
         /// Generates a token for the given user and purpose.
@@ -476,10 +476,10 @@ namespace Microsoft.AspNetCore.Identity
         /// <summary>
         /// Gets the paged list of user roles.
         /// </summary>
-        /// <param name="minUid">The minimum user ID.</param>
-        /// <param name="maxUid">The maximum user ID.</param>
+        /// <param name="minUserId">The minimum user ID.</param>
+        /// <param name="maxUserId">The maximum user ID.</param>
         /// <returns>The task for fetching user role list.</returns>
-        Task<ILookup<int, int>> ListUserRolesAsync(int minUid, int maxUid);
+        Task<ILookup<int, int>> ListUserRolesAsync(int minUserId, int maxUserId);
 
         /// <summary>
         /// Gets the dictionary of named roles.
