@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -31,6 +32,11 @@ namespace Microsoft.AspNetCore.Identity
         /// A navigation property for the roles the store contains.
         /// </summary>
         public IQueryable<TRole> Roles => Context.Roles;
+
+        /// <summary>
+        /// A navigation property for the role claims the store contains.
+        /// </summary>
+        public IQueryable<IdentityRoleClaim<int>> RoleClaims => Context.RoleClaims;
 
         /// <summary>
         /// A navigation property for the user-role relations the store contains.
@@ -96,55 +102,110 @@ namespace Microsoft.AspNetCore.Identity
 
         /// <inheritdoc />
         public Task<IPagedList<TUser>> ListAsync(int page, int pageCount, CancellationToken cancellationToken)
-            => Users
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            return Users
                 .OrderBy(u => u.Id)
                 .ToPagedListAsync(page, pageCount, cancellationToken);
+        }
 
         /// <inheritdoc />
         public Task<List<TRole>> ListRolesAsync(TUser user, CancellationToken cancellationToken)
-            => UserRoles
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            return UserRoles
                 .Where(ur => ur.UserId.Equals(user.Id))
                 .Join(Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r)
                 .ToListAsync(cancellationToken);
+        }
 
         /// <inheritdoc />
         public Task<List<TRole>> ListNamedRolesAsync(CancellationToken cancellationToken)
-            => Roles
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            return Roles
                 .Where(r => r.ShortName != null)
                 .ToListAsync(cancellationToken);
+        }
 
         /// <inheritdoc />
         public Task<ILookup<int, int>> ListUserRolesAsync(int minUserId, int maxUserId, CancellationToken cancellationToken)
-            => UserRoles
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            return UserRoles
                 .Where(ur => ur.UserId >= minUserId && ur.UserId <= maxUserId)
                 .ToLookupAsync(a => a.UserId, a => a.RoleId);
+        }
 
         /// <inheritdoc />
         public Task<List<string>> ListSubscribedEmailsAsync(CancellationToken cancellationToken)
-            => Users
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            return Users
                 .Where(u => u.EmailConfirmed && u.SubscribeNews)
                 .OrderBy(u => u.Id)
                 .Select(u => u.Email)
                 .ToListAsync(cancellationToken);
+        }
 
         /// <inheritdoc />
         public Task<bool> ExistRoleAsync(string normalizedRoleName, CancellationToken cancellationToken)
-            => Roles
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            return Roles
                 .Where(r => r.NormalizedName == normalizedRoleName)
                 .AnyAsync();
+        }
 
         /// <inheritdoc />
         public Task<int> LockOutUsersAsync(IEnumerable<int> userIds, CancellationToken cancellationToken)
-            => Users
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            return Users
                 .Where(u => userIds.Contains(u.Id))
                 .BatchUpdateAsync(u => new TUser { LockoutEnd = DateTimeOffset.MaxValue }, cancellationToken);
+        }
 
         /// <inheritdoc />
         public Task<Dictionary<int, string>> ListUserNamesAsync(IEnumerable<int> userIds, CancellationToken cancellationToken)
-            => Users
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            return Users
                 .Where(u => userIds.Contains(u.Id))
                 .Select(u => new { u.Id, u.UserName })
                 .ToDictionaryAsync(a => a.Id, a => a.UserName, cancellationToken);
+        }
+
+        /// <inheritdoc />
+        public Task<List<Claim>> ListUserRoleClaimsAsync(TUser user, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            ThrowIfDisposed();
+
+            return UserRoles
+                .Where(ur => ur.UserId == user.Id)
+                .Join(RoleClaims, ur => ur.RoleId, rc => rc.RoleId, (ur, rc) => rc)
+                .Select(rc => new { rc.ClaimType, rc.ClaimValue })
+                .Distinct()
+                .Select(rc => new Claim(rc.ClaimType, rc.ClaimValue))
+                .ToListAsync();
+        }
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+using System;
 using System.Reflection;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -114,6 +115,28 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             MediatR.Registration.ServiceRegistrar.AddMediatRClasses(services, new[] { assembly });
             return services;
+        }
+
+        /// <summary>
+        /// Adds the support of <see cref="Lazy{T}"/> with <see cref="ServiceLifetime.Scoped"/>.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <returns>The service collection.</returns>
+        public static IServiceCollection AddLazyScoped(this IServiceCollection services)
+        {
+            services.TryAdd(ServiceDescriptor.Scoped(typeof(Lazy<>), typeof(LazyServiceProvider<>)));
+            return services;
+        }
+
+        /// <summary>
+        /// The lazy support by <see cref="IServiceProvider"/>.
+        /// </summary>
+        /// <typeparam name="T">The service type.</typeparam>
+        private class LazyServiceProvider<T> : Lazy<T>
+        {
+            public LazyServiceProvider(IServiceProvider sp) : base(sp.GetRequiredService<T>)
+            {
+            }
         }
     }
 }

@@ -4,12 +4,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using SatelliteSite;
 using SatelliteSite.Services;
 using System;
-using SystemClock = Microsoft.Extensions.Internal.SystemClock;
 
 [assembly: RoleDefinition(1, "Administrator", "admin", "Administrative User")]
 [assembly: RoleDefinition(2, "Blocked", "blocked", "Blocked User")]
@@ -60,37 +58,21 @@ namespace SatelliteSite.IdentityModule
 
             services.ReplaceScoped<
                 IUserClaimsPrincipalFactory<TUser>,
-                UserClaimsPrincipalFactory<TUser, TRole, TContext>>();
+                FullUserClaimsPrincipalFactory<TUser, TRole>>();
 
-            var memoryCacheOptions = new MemoryCacheOptions() { Clock = new SystemClock() };
-            var basicCache = new MemoryCache(memoryCacheOptions);
-            var cookieCache = new SlideExpirationService(new MemoryCache(memoryCacheOptions));
+            services.AddScoped<
+                ILightweightUserClaimsPrincipalFactory<TUser>,
+                LightweightUserClaimsPrincipalFactory<TUser, TRole>>();
 
-            services.AddSingleton(cookieCache);
+            services.AddSingleton<BasicAuthenticationValidator>();
+            services.AddSingleton<CookieAuthenticationValidator>();
+            services.AddSingleton<ISignInSlideExpiration, DefaultSignInSlideExpiration<TUser>>();
 
-            services.ConfigureApplicationCookie(
-                options =>
-                {
-                    options.Cookie.HttpOnly = true;
-                    options.ExpireTimeSpan = TimeSpan.FromDays(30);
-                    options.LoginPath = "/account/login";
-                    options.LogoutPath = "/account/logout";
-                    options.AccessDeniedPath = "/account/access-denied";
-                    options.SlidingExpiration = true;
-                    options.Events = new CookieAuthenticationValidator(cookieCache);
-                });
-
-            services.AddAuthentication()
-                .AddBasic(options =>
-                {
-                    options.Realm = "Satellite Site";
-                    options.AllowInsecureProtocol = true;
-                    options.Events = new BasicAuthenticationValidator(basicCache);
-                });
-
+            services.AddAuthentication().AddBasic();
             services.AddAuthorization();
             services.ConfigureOptions<ConfigureAuthoraztionPolicy>();
             services.ConfigureOptions<IdentityAdvancedConfigurator>();
+            services.ConfigureOptions<AuthenticateSchemeConfigurator>();
 
             services.AddScopedUpcast<IUserManager, UserManager<TUser, TRole>>();
             services.AddScopedUpcast<ISignInManager, SignInManager2<TUser>>();

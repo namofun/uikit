@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SatelliteSite.SampleModule.Models;
 using SatelliteSite.SampleModule.Services;
 using System.ComponentModel.DataAnnotations;
@@ -18,7 +19,19 @@ namespace SatelliteSite.SampleModule.Apis
             Service = service;
         }
 
-        
+
+        /// <summary>
+        /// Get all the weather forecasts
+        /// </summary>
+        /// <response code="200">Returns all the weather forecasts</response>
+        [Authorize(AuthenticationSchemes = "Basic")]
+        [HttpGet("[action]")]
+        public ActionResult<WeatherForecast[]> TestAuth()
+        {
+            return Service.Forecast().ToArray();
+        }
+
+
         /// <summary>
         /// Get all the weather forecasts
         /// </summary>
@@ -37,7 +50,7 @@ namespace SatelliteSite.SampleModule.Apis
         /// <response code="200">Returns the given weather forecast</response>
         [HttpGet("{id}")]
         public ActionResult<WeatherForecast> GetOne(
-            [FromRoute, Required]string id)
+            [FromRoute, Required] string id)
         {
             return Service.Forecast().First();
         }

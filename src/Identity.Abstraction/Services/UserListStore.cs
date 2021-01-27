@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -77,5 +78,13 @@ namespace Microsoft.AspNetCore.Identity
         /// <param name="cancellationToken">The cancellation token to cancel operations.</param>
         /// <returns>The dictionary of user name.</returns>
         Task<Dictionary<int, string>> ListUserNamesAsync(IEnumerable<int> userIds, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Finds the role claims for <paramref name="user"/>.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <param name="cancellationToken">The cancellation token to cancel operations.</param>
+        /// <returns>The enumerable of role claims.</returns>
+        Task<List<Claim>> ListUserRoleClaimsAsync(TUser user, CancellationToken cancellationToken);
     }
 }

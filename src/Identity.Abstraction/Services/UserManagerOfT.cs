@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SatelliteSite.IdentityModule.Entities;
 using System;
@@ -10,25 +11,26 @@ using System.Threading.Tasks;
 namespace Microsoft.AspNetCore.Identity
 {
     /// <inheritdoc cref="UserManager{TUser}" />
-    public abstract class UserManagerBase<TUser, TRole> :
+    public class UserManager<TUser, TRole> :
         UserManager<TUser>, IUserManager
         where TUser : User, new()
         where TRole : Role, new()
     {
         private bool _disposed = false;
 
-        /// <summary>
-        /// The store for roles
-        /// </summary>
+        /// <summary>The store for roles</summary>
         protected IRoleStore<TRole> RoleStore { get; }
 
         /// <inheritdoc />
         public IdentityAdvancedOptions Features { get; }
 
+        /// <summary>The store for slide expiration</summary>
+        public ISignInSlideExpiration SlideExpiration { get; }
+
         /// <summary>
-        /// Construct a new instance of <see cref="UserManagerBase{TUser,TRole}"/>.
+        /// Construct a new instance of <see cref="UserManager{TUser,TRole}"/>.
         /// </summary>
-        public UserManagerBase(
+        public UserManager(
             IUserStore<TUser> store,
             IRoleStore<TRole> roleStore,
             IOptions<IdentityOptions> optionsAccessor,
@@ -38,7 +40,8 @@ namespace Microsoft.AspNetCore.Identity
             ILookupNormalizer keyNormalizer,
             IdentityErrorDescriber errors,
             IServiceProvider services,
-            ILogger<UserManagerBase<TUser, TRole>> logger,
+            ILogger<UserManager<TUser>> logger,
+            ISignInSlideExpiration signInSlideExpiration,
             IOptions<IdentityAdvancedOptions> options2Accessor)
             : base(store,
                   optionsAccessor,
@@ -52,6 +55,7 @@ namespace Microsoft.AspNetCore.Identity
         {
             RoleStore = roleStore;
             Features = options2Accessor.Value;
+            SlideExpiration = signInSlideExpiration;
         }
 
         /// <inheritdoc />
@@ -89,7 +93,11 @@ namespace Microsoft.AspNetCore.Identity
         /// </summary>
         /// <param name="user">The user entity.</param>
         /// <returns>The operation result.</returns>
-        public abstract Task<IdentityResult> SlideExpirationAsync(TUser user);
+        public virtual Task<IdentityResult> SlideExpirationAsync(TUser user)
+        {
+            SlideExpiration.MarkExpired(user.UserName);
+            return Task.FromResult(IdentityResult.Success);
+        }
 
         /// <inheritdoc />
         public override async Task<IdentityResult> AddToRoleAsync(TUser user, string role)
@@ -169,6 +177,17 @@ namespace Microsoft.AspNetCore.Identity
             var result = await base.ReplaceClaimAsync(user, claim, newClaim);
             if (result.Succeeded) await SlideExpirationAsync(user);
             return result;
+        }
+
+        /// <summary>
+        /// Gets a list of <see cref="Claim"/>s to be belonging to the roles from specified user as an asynchronous operation.
+        /// </summary>
+        /// <param name="user">The user whose role claims to retrieve.</param>
+        /// <returns>A <see cref="Task{TResult}"/> that represents the result of the asynchronous query, a list of <see cref="Claim"/>s.</returns>
+        public virtual Task<List<Claim>> GetRoleClaimsAsync(TUser user)
+        {
+            ThrowIfDisposed();
+            return GetListStore().ListUserRoleClaimsAsync(user, CancellationToken);
         }
 
         #endregion
