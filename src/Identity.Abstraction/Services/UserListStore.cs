@@ -67,9 +67,10 @@ namespace Microsoft.AspNetCore.Identity
         /// Locks out all users in the <paramref name="userIds"/>.
         /// </summary>
         /// <param name="userIds">The user IDs whom should be locked out.</param>
+        /// <param name="newSecurityStamp">The new security stamp.</param>
         /// <param name="cancellationToken">The cancellation token to cancel operations.</param>
         /// <returns>The <see cref="Task"/> that represents the asynchronous operation, returning the count of affected users.</returns>
-        Task<int> LockOutUsersAsync(IEnumerable<int> userIds, CancellationToken cancellationToken);
+        Task<int> LockOutUsersAsync(IEnumerable<int> userIds, string newSecurityStamp, CancellationToken cancellationToken);
 
         /// <summary>
         /// Finds the user names in the <paramref name="userIds"/>.

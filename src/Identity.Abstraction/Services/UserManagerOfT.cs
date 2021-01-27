@@ -223,6 +223,7 @@ namespace Microsoft.AspNetCore.Identity
         public virtual Task<List<TRole>> ListRolesAsync(TUser user)
         {
             ThrowIfDisposed();
+            if (user == null) throw new ArgumentNullException(nameof(user));
             return GetListStore().ListRolesAsync(user, CancellationToken);
         }
 
@@ -230,6 +231,7 @@ namespace Microsoft.AspNetCore.Identity
         public virtual Task<IPagedList<TUser>> ListUsersAsync(int page, int pageCount)
         {
             ThrowIfDisposed();
+            if (pageCount == 0) throw new ArgumentNullException(nameof(pageCount));
             return GetListStore().ListAsync(page, pageCount, CancellationToken);
         }
 
@@ -258,6 +260,7 @@ namespace Microsoft.AspNetCore.Identity
         public virtual Task<bool> RoleExistsAsync(string roleName)
         {
             ThrowIfDisposed();
+            if (roleName == null) throw new ArgumentNullException(nameof(roleName));
             return GetListStore().ExistRoleAsync(NormalizeName(roleName), CancellationToken);
         }
 
@@ -265,13 +268,15 @@ namespace Microsoft.AspNetCore.Identity
         public virtual Task<int> BatchLockOutAsync(IEnumerable<int> userIds)
         {
             ThrowIfDisposed();
-            return GetListStore().LockOutUsersAsync(userIds, CancellationToken);
+            if (userIds == null) throw new ArgumentNullException(nameof(userIds));
+            return GetListStore().LockOutUsersAsync(userIds, GenerateNewAuthenticatorKey(), CancellationToken);
         }
 
         /// <inheritdoc />
         public virtual Task<Dictionary<int, string>> FindUserNamesAsync(IEnumerable<int> userIds)
         {
             ThrowIfDisposed();
+            if (userIds == null) throw new ArgumentNullException(nameof(userIds));
             return GetListStore().ListUserNamesAsync(userIds, CancellationToken);
         }
 

@@ -170,14 +170,14 @@ namespace Microsoft.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        public Task<int> LockOutUsersAsync(IEnumerable<int> userIds, CancellationToken cancellationToken)
+        public Task<int> LockOutUsersAsync(IEnumerable<int> userIds, string newSecurityStamp, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
 
             return Users
                 .Where(u => userIds.Contains(u.Id))
-                .BatchUpdateAsync(u => new TUser { LockoutEnd = DateTimeOffset.MaxValue }, cancellationToken);
+                .BatchUpdateAsync(u => new TUser { LockoutEnd = DateTimeOffset.MaxValue, SecurityStamp = newSecurityStamp }, cancellationToken);
         }
 
         /// <inheritdoc />
