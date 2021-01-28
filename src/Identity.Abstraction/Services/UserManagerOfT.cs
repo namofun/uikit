@@ -86,6 +86,48 @@ namespace Microsoft.AspNetCore.Identity
             return nickName;
         }
 
+        /// <inheritdoc />
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && !_disposed)
+                RoleStore.Dispose();
+            base.Dispose(disposing);
+            _disposed = true;
+        }
+
+        /// <inheritdoc />
+        public virtual async Task<string[]> GetRecoveryCodesAsync(TUser user)
+        {
+            const string InternalLoginProvider = "[AspNetUserStore]";
+            const string RecoveryCodeTokenName = "RecoveryCodes";
+            var tokens = await GetAuthenticationTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName);
+            if (tokens == null || tokens.Length == 0) return Array.Empty<string>();
+            return tokens.Split(';');
+        }
+
+        /// <inheritdoc />
+        public virtual string FormatAuthenticatorUri(string userName, string email, string unformattedKey)
+        {
+            var formatter = Features.AuthenticatorUriFormat;
+            formatter ??= Features.DefaultFormatter;
+            return formatter.Invoke(userName, email, unformattedKey);
+        }
+
+        /// <inheritdoc />
+        int? IUserManager.GetUserId(ClaimsPrincipal principal)
+        {
+            string result = GetUserId(principal);
+            if (result == null) return null;
+            return int.Parse(result);
+        }
+
+        /// <inheritdoc />
+        PasswordVerificationResult IUserManager.VerifyPassword(IUser user, string providedPassword)
+        {
+            TUser userEntity = (TUser)user;
+            return PasswordHasher.VerifyHashedPassword(userEntity, userEntity.PasswordHash, providedPassword);
+        }
+
         #region Slide Expiration
 
         /// <summary>
@@ -95,7 +137,18 @@ namespace Microsoft.AspNetCore.Identity
         /// <returns>The operation result.</returns>
         public virtual Task<IdentityResult> SlideExpirationAsync(TUser user)
         {
+            ThrowIfDisposed();
+            if (user == null) throw new ArgumentNullException(nameof(user));
             SlideExpiration.MarkExpired(user.UserName);
+            return Task.FromResult(IdentityResult.Success);
+        }
+
+        /// <inheritdoc />
+        public virtual Task<IdentityResult> SlideExpirationAsync(string userName)
+        {
+            ThrowIfDisposed();
+            if (userName == null) throw new ArgumentNullException(nameof(userName));
+            SlideExpiration.MarkExpired(userName);
             return Task.FromResult(IdentityResult.Success);
         }
 
@@ -257,7 +310,7 @@ namespace Microsoft.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        public virtual Task<bool> RoleExistsAsync(string roleName)
+        public virtual Task<bool> ExistRoleAsync(string roleName)
         {
             ThrowIfDisposed();
             if (roleName == null) throw new ArgumentNullException(nameof(roleName));
@@ -265,7 +318,7 @@ namespace Microsoft.AspNetCore.Identity
         }
 
         /// <inheritdoc />
-        public virtual Task<int> BatchLockOutAsync(IEnumerable<int> userIds)
+        public virtual Task<int> LockoutUsersAsync(IEnumerable<int> userIds)
         {
             ThrowIfDisposed();
             if (userIds == null) throw new ArgumentNullException(nameof(userIds));
@@ -283,6 +336,8 @@ namespace Microsoft.AspNetCore.Identity
         #endregion
 
         #region IUser conversion
+        IUser IUserManager.CreateEmpty(string username) => new TUser() { UserName = username };
+        IRole IUserManager.CreateEmptyRole(string roleName) => new TRole { Name = roleName, NormalizedName = NormalizeName(roleName) };
         Task<IdentityResult> IUserManager.AddToRoleAsync(IUser user, string role) => AddToRoleAsync((TUser)user, role);
         Task<IdentityResult> IUserManager.AddToRolesAsync(IUser user, IEnumerable<string> roles) => AddToRolesAsync((TUser)user, roles);
         Task<bool> IUserManager.IsInRoleAsync(IUser user, string role) => IsInRoleAsync((TUser)user, role);
@@ -298,12 +353,10 @@ namespace Microsoft.AspNetCore.Identity
         Task<IdentityResult> IUserManager.UpdateAsync(IUser user) => UpdateAsync((TUser)user);
         Task<IdentityResult> IUserManager.CreateAsync(IUser user) => CreateAsync((TUser)user);
         Task<IdentityResult> IUserManager.CreateAsync(IUser user, string password) => CreateAsync((TUser)user, password);
-        Task<bool> IUserManager.HasPasswordAsync(IUser user) => HasPasswordAsync((TUser)user);
         Task<IdentityResult> IUserManager.AddPasswordAsync(IUser user, string password) => AddPasswordAsync((TUser)user, password);
         Task<IdentityResult> IUserManager.ChangePasswordAsync(IUser user, string currentPassword, string newPassword) => ChangePasswordAsync((TUser)user, currentPassword, newPassword);
         Task<string> IUserManager.GeneratePasswordResetTokenAsync(IUser user) => GeneratePasswordResetTokenAsync((TUser)user);
         Task<IdentityResult> IUserManager.ResetPasswordAsync(IUser user, string token, string newPassword) => ResetPasswordAsync((TUser)user, token, newPassword);
-        Task<bool> IUserManager.IsEmailConfirmedAsync(IUser user) => IsEmailConfirmedAsync((TUser)user);
         Task<string> IUserManager.GenerateEmailConfirmationTokenAsync(IUser user) => GenerateEmailConfirmationTokenAsync((TUser)user);
         Task<IdentityResult> IUserManager.ConfirmEmailAsync(IUser user, string token) => ConfirmEmailAsync((TUser)user, token);
         Task<IdentityResult> IUserManager.SetEmailAsync(IUser user, string email) => SetEmailAsync((TUser)user, email);
@@ -328,49 +381,33 @@ namespace Microsoft.AspNetCore.Identity
         Task<IEnumerable<string>> IUserManager.GenerateNewTwoFactorRecoveryCodesAsync(IUser user, int number) => GenerateNewTwoFactorRecoveryCodesAsync((TUser)user, number);
         Task<bool> IUserManager.VerifyTwoFactorTokenAsync(IUser user, string tokenProvider, string token) => VerifyTwoFactorTokenAsync((TUser)user, tokenProvider, token);
         Task<string[]> IUserManager.GetRecoveryCodesAsync(IUser user) => GetRecoveryCodesAsync((TUser)user);
-
-        int? IUserManager.GetUserId(ClaimsPrincipal principal)
-        {
-            string result = GetUserId(principal);
-            if (result == null) return null;
-            return int.Parse(result);
-        }
-
-        PasswordVerificationResult IUserManager.VerifyPassword(IUser user, string providedPassword)
-        {
-            TUser userEntity = (TUser)user;
-            return PasswordHasher.VerifyHashedPassword(userEntity, userEntity.PasswordHash, providedPassword);
-        }
-
-        IUser IUserManager.CreateEmpty(string username) => new TUser() { UserName = username };
-        IRole IUserManager.CreateEmptyRole(string roleName) => new TRole { Name = roleName, NormalizedName = NormalizeName(roleName) };
+        async Task<IUser> IUserManager.FindByLoginAsync(string loginProvider, string providerKey) => await FindByLoginAsync(loginProvider, providerKey);
+        Task<byte[]> IUserManager.CreateSecurityTokenAsync(IUser user) => CreateSecurityTokenAsync((TUser)user);
+        Task<string> IUserManager.GenerateConcurrencyStampAsync(IUser user) => GenerateConcurrencyStampAsync((TUser)user);
+        Task<IdentityResult> IUserManager.UpdateSecurityStampAsync(IUser user) => UpdateSecurityStampAsync((TUser)user);
+        Task<IdentityResult> IUserManager.AccessFailedAsync(IUser user) => AccessFailedAsync((TUser)user);
+        Task<IdentityResult> IUserManager.ResetAccessFailedCountAsync(IUser user) => ResetAccessFailedCountAsync((TUser)user);
+        Task<IdentityResult> IUserManager.SetAuthenticationTokenAsync(IUser user, string loginProvider, string tokenName, string tokenValue) => SetAuthenticationTokenAsync((TUser)user, loginProvider, tokenName, tokenValue);
+        Task<string> IUserManager.GetAuthenticationTokenAsync(IUser user, string loginProvider, string tokenName) => GetAuthenticationTokenAsync((TUser)user, loginProvider, tokenName);
+        Task<IdentityResult> IUserManager.RemoveAuthenticationTokenAsync(IUser user, string loginProvider, string tokenName) => RemoveAuthenticationTokenAsync((TUser)user, loginProvider, tokenName);
+        Task<string> IUserManager.GenerateTwoFactorTokenAsync(IUser user, string tokenProvider) => GenerateTwoFactorTokenAsync((TUser)user, tokenProvider);
+        Task<IList<string>> IUserManager.GetValidTwoFactorProvidersAsync(IUser user) => GetValidTwoFactorProvidersAsync((TUser)user);
+        Task<IdentityResult> IUserManager.RedeemTwoFactorRecoveryCodeAsync(IUser user, string code) => RedeemTwoFactorRecoveryCodeAsync((TUser)user, code);
+        Task<IdentityResult> IUserManager.ChangeEmailAsync(IUser user, string newEmail, string token) => ChangeEmailAsync((TUser)user, newEmail, token);
+        Task<string> IUserManager.GenerateChangeEmailTokenAsync(IUser user, string newEmail) => GenerateChangeEmailTokenAsync((TUser)user, newEmail);
+        Task<bool> IUserManager.CheckPasswordAsync(IUser user, string password) => CheckPasswordAsync((TUser)user, password);
+        Task<IdentityResult> IUserManager.RemovePasswordAsync(IUser user) => RemovePasswordAsync((TUser)user);
+        Task<bool> IUserManager.VerifyChangePhoneNumberTokenAsync(IUser user, string token, string phoneNumber) => VerifyChangePhoneNumberTokenAsync((TUser)user, token, phoneNumber);
+        Task<IdentityResult> IUserManager.ChangePhoneNumberAsync(IUser user, string phoneNumber, string token) => ChangePhoneNumberAsync((TUser)user, phoneNumber, token);
+        Task<string> IUserManager.GenerateChangePhoneNumberTokenAsync(IUser user, string phoneNumber) => GenerateChangePhoneNumberTokenAsync((TUser)user, phoneNumber);
+        Task<IdentityResult> IUserManager.AddClaimAsync(IUser user, Claim claim) => AddClaimAsync((TUser)user, claim);
+        Task<IdentityResult> IUserManager.AddClaimsAsync(IUser user, IEnumerable<Claim> claims) => AddClaimsAsync((TUser)user, claims);
+        Task<IList<Claim>> IUserManager.GetClaimsAsync(IUser user) => GetClaimsAsync((TUser)user);
+        async Task<IReadOnlyList<IUser>> IUserManager.GetUsersForClaimAsync(Claim claim) => (List<TUser>)await GetUsersForClaimAsync(claim);
+        Task<IdentityResult> IUserManager.RemoveClaimAsync(IUser user, Claim claim) => RemoveClaimAsync((TUser)user, claim);
+        Task<IdentityResult> IUserManager.RemoveClaimsAsync(IUser user, IEnumerable<Claim> claims) => RemoveClaimsAsync((TUser)user, claims);
+        Task<IdentityResult> IUserManager.ReplaceClaimAsync(IUser user, Claim claim, Claim newClaim) => ReplaceClaimAsync((TUser)user, claim, newClaim);
+        Task<IdentityResult> IUserManager.SlideExpirationAsync(IUser user) => SlideExpirationAsync((TUser)user);
         #endregion
-
-        /// <inheritdoc />
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && !_disposed)
-                RoleStore.Dispose();
-            base.Dispose(disposing);
-            _disposed = true;
-        }
-
-        /// <inheritdoc />
-        public virtual async Task<string[]> GetRecoveryCodesAsync(TUser user)
-        {
-            const string InternalLoginProvider = "[AspNetUserStore]";
-            const string RecoveryCodeTokenName = "RecoveryCodes";
-            var tokens = await GetAuthenticationTokenAsync(user, InternalLoginProvider, RecoveryCodeTokenName);
-            if (tokens == null || tokens.Length == 0) return Array.Empty<string>();
-            return tokens.Split(';');
-        }
-
-        /// <inheritdoc />
-        public virtual string FormatAuthenticatorUri(string userName, string email, string unformattedKey)
-        {
-            var formatter = Features.AuthenticatorUriFormat;
-            formatter ??= Features.DefaultFormatter;
-            return formatter.Invoke(userName, email, unformattedKey);
-        }
     }
 }

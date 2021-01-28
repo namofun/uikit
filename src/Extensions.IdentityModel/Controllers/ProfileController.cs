@@ -74,7 +74,7 @@ namespace SatelliteSite.IdentityModule.Controllers
                 Username = user.UserName,
                 NickName = user.NickName,
                 Email = user.Email,
-                IsEmailConfirmed = await UserManager.IsEmailConfirmedAsync(user),
+                IsEmailConfirmed = user.EmailConfirmed,
                 Plan = user.Plan,
                 SubscribeNews = user.SubscribeNews,
             };
@@ -92,8 +92,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             var user = await GetUserAsync();
             if (!user.HasUserName(username)) return NotFound();
 
-            var hasPassword = await UserManager.HasPasswordAsync(user);
-            if (!hasPassword)
+            if (!user.HasPassword())
                 return RedirectToAction(nameof(SetPassword));
             
             return View(new ChangePasswordModel());
@@ -127,8 +126,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             var user = await GetUserAsync();
             if (!user.HasUserName(username)) return NotFound();
 
-            var hasPassword = await UserManager.HasPasswordAsync(user);
-            if (hasPassword)
+            if (user.HasPassword())
                 return RedirectToAction(nameof(ChangePassword));
             
             return View(new SetPasswordModel());
@@ -167,7 +165,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             model.OtherLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync())
                 .Where(auth => model.CurrentLogins.All(ul => auth.Name != ul.LoginProvider))
                 .ToList();
-            model.ShowRemoveButton = await UserManager.HasPasswordAsync(user) || model.CurrentLogins.Count > 1;
+            model.ShowRemoveButton = user.HasPassword() || model.CurrentLogins.Count > 1;
             model.StatusMessage = StatusMessage;
 
             return View(model);

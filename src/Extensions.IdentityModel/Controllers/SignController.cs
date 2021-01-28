@@ -373,7 +373,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             if (!ModelState.IsValid) return View(model);
 
             var user = await UserManager.FindByEmailAsync(model.Email);
-            if (user == null || !(await UserManager.IsEmailConfirmedAsync(user)))
+            if (user == null || !user.EmailConfirmed)
             {
                 // Don't reveal that the user does not exist or is not confirmed
                 return RedirectToAction(nameof(ForgotPasswordConfirmation));

@@ -20,16 +20,25 @@ namespace Microsoft.AspNetCore.Identity
         bool TwoFactorEnabled { get; set; }
 
         /// <summary>
-        /// Gets or sets the email address for this user.
+        /// Gets or sets a flag indicating if a user has confirmed their telephone address.
         /// </summary>
-        string Email { get; set; }
+        /// <value>True if the telephone number has been confirmed, otherwise false.</value>
+        bool PhoneNumberConfirmed { get; set; }
+        
+        /// <summary>
+        /// Gets or sets a telephone number for the user.
+        /// </summary>
+        string PhoneNumber { get; set; }
 
         /// <summary>
-        /// Check the <paramref name="username"/> is the same as NormalizedUserName.
+        /// A random value that must change whenever a user is persisted to the store
         /// </summary>
-        /// <param name="username">The username to check.</param>
-        /// <returns>Whether this user matches this user name.</returns>
-        bool HasUserName(string username);
+        string ConcurrencyStamp { get; }
+
+        /// <summary>
+        /// A random value that must change whenever a users credentials change (password changed, login removed)
+        /// </summary>
+        string SecurityStamp { get; }
 
         /// <summary>
         /// Checks whether the user has a password.
@@ -44,14 +53,21 @@ namespace Microsoft.AspNetCore.Identity
         bool EmailConfirmed { get; set; }
 
         /// <summary>
+        /// Gets or sets the email address for this user.
+        /// </summary>
+        string Email { get; set; }
+
+        /// <summary>
         /// Gets or sets the user name for this user.
         /// </summary>
         string UserName { get; set; }
 
         /// <summary>
-        /// A random value that must change whenever a users credentials change (password changed, login removed)
+        /// Check the <paramref name="username"/> is the same as NormalizedUserName.
         /// </summary>
-        string SecurityStamp { get; }
+        /// <param name="username">The username to check.</param>
+        /// <returns>Whether this user matches this user name.</returns>
+        bool HasUserName(string username);
 
         /// <summary>
         /// Gets the primary key for this user.
