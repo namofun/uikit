@@ -11,7 +11,6 @@ namespace Microsoft.AspNetCore.Authorization
     {
         private readonly AuthorizationPolicyBuilder _builder;
         private List<string> _roles;
-        private List<string> _schemes;
         private readonly Dictionary<string, List<string>> _claims;
 
         /// <summary>
@@ -29,13 +28,25 @@ namespace Microsoft.AspNetCore.Authorization
         /// <returns>A new <see cref="AuthorizationPolicy"/> built from the requirements in this instance.</returns>
         public AuthorizationPolicy Build()
         {
-            if (_roles != null) _builder.RequireRole(_roles);
-            if (_schemes != null) _builder.AddAuthenticationSchemes(_schemes.ToArray());
+            var partialRequirements = new List<IAuthorizationRequirement>();
+
+            if (_roles != null)
+            {
+                partialRequirements.Add(new Infrastructure.RolesAuthorizationRequirement(_roles));
+            }
 
             foreach (var (claimType, acceptValues) in _claims)
             {
-                if (acceptValues == null) _builder.RequireClaim(claimType);
-                else _builder.RequireClaim(claimType, acceptValues);
+                partialRequirements.Add(new Infrastructure.ClaimsAuthorizationRequirement(claimType, acceptValues));
+            }
+
+            if (partialRequirements.Count == 1)
+            {
+                _builder.AddRequirements(partialRequirements[0]);
+            }
+            else if (partialRequirements.Count > 1)
+            {
+                _builder.AddRequirements(new Infrastructure.AcceptanceRequirement(partialRequirements));
             }
 
             return _builder.Build();
@@ -68,10 +79,66 @@ namespace Microsoft.AspNetCore.Authorization
         /// </summary>
         /// <param name="schemes">The schemes to add.</param>
         /// <returns>A reference to this instance after the operation has completed.</returns>
-        public AcceptancePolicyBuilder AcceptAuthenticationSchemes(params string[] schemes)
+        public AcceptancePolicyBuilder AddAuthenticationSchemes(params string[] schemes)
         {
-            _schemes ??= new List<string>();
-            _schemes.AddRange(schemes);
+            _builder.AddAuthenticationSchemes(schemes);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a <see cref="Infrastructure.ClaimsAuthorizationRequirement"/> to the current instance.
+        /// </summary>
+        /// <param name="claimType">The claim type required.</param>
+        /// <param name="allowedValues">Values the claim must process one or more of for evaluation to succeed.</param>
+        /// <returns>A reference to this instance after the operation has completed.</returns>
+        public AcceptancePolicyBuilder RequireClaim(string claimType, params string[] allowedValues)
+        {
+            _builder.RequireClaim(claimType, allowedValues);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a <see cref="Infrastructure.ClaimsAuthorizationRequirement"/> to the current instance.
+        /// </summary>
+        /// <param name="claimType">The claim type required.</param>
+        /// <param name="allowedValues">Values the claim must process one or more of for evaluation to succeed.</param>
+        /// <returns>A reference to this instance after the operation has completed.</returns>
+        public AcceptancePolicyBuilder RequireClaim(string claimType, IEnumerable<string> allowedValues)
+        {
+            _builder.RequireClaim(claimType, allowedValues);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a <see cref="Infrastructure.ClaimsAuthorizationRequirement"/> to the current instance.
+        /// </summary>
+        /// <param name="claimType">The claim type required, which no restrictions on claim value.</param>
+        /// <returns>A reference to this instance after the operation has completed.</returns>
+        public AcceptancePolicyBuilder RequireClaim(string claimType)
+        {
+            _builder.RequireClaim(claimType);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a <see cref="Infrastructure.RolesAuthorizationRequirement"/> to the current instance.
+        /// </summary>
+        /// <param name="roles">The allowed roles.</param>
+        /// <returns>A reference to this instance after the operation has completed.</returns>
+        public AcceptancePolicyBuilder RequireRole(params string[] roles)
+        {
+            _builder.RequireRole(roles);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds a <see cref="Infrastructure.RolesAuthorizationRequirement"/> to the current instance.
+        /// </summary>
+        /// <param name="roles">The allowed roles.</param>
+        /// <returns>A reference to this instance after the operation has completed.</returns>
+        public AcceptancePolicyBuilder RequireRole(IEnumerable<string> roles)
+        {
+            _builder.RequireRole(roles);
             return this;
         }
 

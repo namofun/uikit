@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace SatelliteSite.SampleModule
 {
-    public class SampleModule : AbstractModule
+    public class SampleModule : AbstractModule, IAuthorizationPolicyRegistry
     {
         public override string Area => "Sample";
 
@@ -81,6 +82,11 @@ namespace SatelliteSite.SampleModule
 
             menus.Component("Component_DashboardUserDetail")
                 .HasComponent<WeatherViewComponent>(10);
+        }
+
+        public void RegisterPolicies(IAuthorizationPolicyContainer container)
+        {
+            container.AddPolicy2("HasDashboard", b => b.AcceptClaim("666", "777"));
         }
     }
 }
