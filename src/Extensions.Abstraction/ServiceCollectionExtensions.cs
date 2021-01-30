@@ -118,6 +118,68 @@ namespace Microsoft.Extensions.DependencyInjection
         }
 
         /// <summary>
+        /// Ensure the service has been registered.
+        /// </summary>
+        /// <typeparam name="TService">The service type.</typeparam>
+        /// <param name="services">The service collection.</param>
+        /// <param name="serviceLifetime">The service lifetime.</param>
+        private static void EnsureRegistered<TService>(IServiceCollection services, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+        {
+            var serviceType = typeof(TService);
+
+            for (int i = 0; i < services.Count; i++)
+            {
+                if (services[i].ServiceType != serviceType) continue;
+                if (services[i].Lifetime != serviceLifetime)
+                    throw new InvalidOperationException(
+                        $"The service lifetime for {serviceType} is not correct.");
+                return;
+            }
+
+            throw new InvalidOperationException(
+                $"No implementation for {serviceType} was registered.");
+        }
+
+        /// <summary>
+        /// Checks whether a scoped service of the type <typeparamref name="TService"/> has
+        /// been registered in <see cref="IServiceCollection"/>. If not registered, throws an exception.
+        /// </summary>
+        /// <typeparam name="TService">The type of the service to ensure.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> to check the service.</param>
+        /// <returns>A reference to this instance after the operation has completed.</returns>
+        public static IServiceCollection EnsureScoped<TService>(this IServiceCollection services) where TService : class
+        {
+            EnsureRegistered<TService>(services, ServiceLifetime.Scoped);
+            return services;
+        }
+
+        /// <summary>
+        /// Checks whether a transient service of the type <typeparamref name="TService"/> has
+        /// been registered in <see cref="IServiceCollection"/>. If not registered, throws an exception.
+        /// </summary>
+        /// <typeparam name="TService">The type of the service to ensure.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> to check the service.</param>
+        /// <returns>A reference to this instance after the operation has completed.</returns>
+        public static IServiceCollection EnsureTransient<TService>(this IServiceCollection services) where TService : class
+        {
+            EnsureRegistered<TService>(services, ServiceLifetime.Transient);
+            return services;
+        }
+
+        /// <summary>
+        /// Checks whether a singleton service of the type <typeparamref name="TService"/> has
+        /// been registered in <see cref="IServiceCollection"/>. If not registered, throws an exception.
+        /// </summary>
+        /// <typeparam name="TService">The type of the service to ensure.</typeparam>
+        /// <param name="services">The <see cref="IServiceCollection"/> to check the service.</param>
+        /// <returns>A reference to this instance after the operation has completed.</returns>
+        public static IServiceCollection EnsureSingleton<TService>(this IServiceCollection services) where TService : class
+        {
+            EnsureRegistered<TService>(services, ServiceLifetime.Singleton);
+            return services;
+        }
+
+        /// <summary>
         /// Adds the support of <see cref="Lazy{T}"/> with <see cref="ServiceLifetime.Scoped"/>.
         /// </summary>
         /// <param name="services">The service collection.</param>
