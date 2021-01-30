@@ -53,7 +53,7 @@ namespace SatelliteSite.IdentityModule
                 .AddUserStore<UserStore<TUser, TRole, TContext>>()
                 .AddRoleStore<RoleStore<TRole, TContext>>()
                 .AddUserManager<UserManager<TUser, TRole>>()
-                .AddSignInManager<SignInManager2<TUser>>()
+                .AddSignInManager<CompatibleSignInManager<TUser>>()
                 .AddDefaultTokenProviders();
 
             services.ReplaceScoped<
@@ -77,7 +77,7 @@ namespace SatelliteSite.IdentityModule
             services.ConfigureOptions<AuthenticateSchemeConfigurator>();
 
             services.AddScopedUpcast<IUserManager, UserManager<TUser, TRole>>();
-            services.AddScopedUpcast<ISignInManager, SignInManager2<TUser>>();
+            services.AddScopedUpcast<ISignInManager, CompatibleSignInManager<TUser>>();
 
             services.AddSingleton<IEmailSender, SmtpSender>();
             services.AddOptions<AuthMessageSenderOptions>();

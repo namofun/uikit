@@ -52,17 +52,10 @@ namespace SatelliteSite.IdentityModule.Controllers
 
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-            var user = await SignInManager.FindUserAsync(model.Username);
-            var result = await SignInManager.PasswordSignInAsync(user, model.Password, model.RememberMe, lockoutOnFailure: false);
+            var result = await SignInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
 
             if (result.Succeeded)
             {
-                // only succeed when user is not null
-                await HttpContext.AuditAsync(
-                    "logged in",
-                    user.Id.ToString(),
-                    $"at {HttpContext.Connection.RemoteIpAddress}");
-
                 return RedirectToLocal(returnUrl);
             }
             else if (result.RequiresTwoFactor)
@@ -228,11 +221,6 @@ namespace SatelliteSite.IdentityModule.Controllers
             var result = await SignInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
             if (result.Succeeded)
             {
-                await HttpContext.AuditAsync(
-                    "external login",
-                    info.Principal.GetUserId(),
-                    $"at {HttpContext.Connection.RemoteIpAddress} via {info.LoginProvider}");
-
                 return RedirectToLocal(returnUrl);
             }
             else if (result.IsLockedOut)

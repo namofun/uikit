@@ -5,12 +5,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace SatelliteSite.IdentityModule
 {
     internal class IdentityAdvancedConfigurator :
         IConfigureOptions<MvcOptions>,
         IConfigureOptions<IdentityOptions>,
+        IConfigureOptions<SecurityStampValidatorOptions>,
         IControllerModelConvention
     {
         private readonly IdentityAdvancedOptions _options;
@@ -50,6 +53,21 @@ namespace SatelliteSite.IdentityModule
                 options.ClaimsIdentity.UserIdClaimType = UserClaimsPrincipalExtensions.ClaimTypes_NameIdentifier;
                 options.ClaimsIdentity.UserNameClaimType = UserClaimsPrincipalExtensions.ClaimTypes_Name;
             }
+        }
+
+        public void Configure(SecurityStampValidatorOptions options)
+        {
+            options.OnRefreshingPrincipal = ctx =>
+            {
+                if (ctx.CurrentPrincipal.FindFirst("amr") is Claim amr
+                    && ctx.NewPrincipal.Identities.Count() == 1
+                    && !ctx.NewPrincipal.HasClaim(c => c.Type == "amr"))
+                {
+                    ctx.NewPrincipal.Identities.First().AddClaim(amr);
+                }
+
+                return Task.CompletedTask;
+            };
         }
     }
 }

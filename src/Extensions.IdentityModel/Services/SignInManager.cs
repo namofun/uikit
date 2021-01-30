@@ -1,19 +1,22 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Identity
 {
     /// <inheritdoc />
-    public class SignInManager2<TUser> :
+    public class CompatibleSignInManager<TUser> :
         SignInManager<TUser>, ISignInManager, ICompatibleSignInManager
         where TUser : SatelliteSite.IdentityModule.Entities.User, new()
     {
         /// <inheritdoc />
-        public SignInManager2(
+        public CompatibleSignInManager(
             UserManager<TUser> userManager,
             IHttpContextAccessor httpContextAccessor,
             IUserClaimsPrincipalFactory<TUser> userClaimsPrincipalFactory,
@@ -54,6 +57,36 @@ namespace Microsoft.AspNetCore.Identity
         }
 
         /// <inheritdoc />
+        public override Task SignInAsync(TUser user, AuthenticationProperties authenticationProperties, string authenticationMethod = null)
+        {
+            var additionalClaims = new List<Claim>();
+            if (authenticationMethod != null)
+            {
+                additionalClaims.Add(new Claim("amr", authenticationMethod));
+            }
+
+            return SignInWithClaimsAsync(user, authenticationProperties, additionalClaims);
+        }
+
+        /// <inheritdoc />
+        public override async Task SignInWithClaimsAsync(TUser user, AuthenticationProperties authenticationProperties, IEnumerable<Claim> additionalClaims)
+        {
+            await base.SignInWithClaimsAsync(user, authenticationProperties, additionalClaims);
+
+            int? cid = null;
+            if (Context.Items.TryGetValue(nameof(cid), out object cidd) && cidd is int ciddd)
+                cid = ciddd;
+
+            var amr = additionalClaims.FirstOrDefault(c => c.Type == "amr");
+            var loginType = amr?.Value ?? "unknown";
+
+            await Context.AuditAsync(
+                SatelliteSite.AuditlogType.User, cid,
+                user.UserName, "logged in", user.Id.ToString(),
+                $"at {Context.Connection.RemoteIpAddress} via {loginType}");
+        }
+
+        /// <inheritdoc />
         IUserManager ISignInManager.UserManager => (IUserManager)UserManager;
 
         /// <inheritdoc />
@@ -77,7 +110,7 @@ namespace Microsoft.AspNetCore.Identity
             }
             else
             {
-                return Task.FromResult(System.Linq.Enumerable.Empty<AuthenticationScheme>());
+                return Task.FromResult(Enumerable.Empty<AuthenticationScheme>());
             }
         }
     }
