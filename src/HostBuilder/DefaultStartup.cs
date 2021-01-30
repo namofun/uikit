@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -83,12 +84,12 @@ namespace Microsoft.AspNetCore.Mvc
 
             services.AddControllersWithViews()
                 .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new TimeSpanJsonConverter()))
-                .AddSessionStateTempDataProvider()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                 .ContinueWith(ConfigureParts);
 
             services.AddSingleton<SubstrateApiVisibilityConvention>();
             services.ConfigureOptions<SubstrateMvcOptionsConfigurator>();
+            services.ReplaceSingleton<ITempDataProvider, CompositeTempDataProvider>();
 
             if (!string.IsNullOrWhiteSpace(Environment.WebRootPath))
                 services.AddSingleton<IWwwrootFileProvider, WwwrootFileProvider>();
