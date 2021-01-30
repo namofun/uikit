@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -13,13 +14,13 @@ namespace Microsoft.AspNetCore.Authentication
     {
         private readonly IMemoryCache _cache;
         private readonly ILookupNormalizer _normalizer;
+        private readonly SecurityStampValidatorOptions _options;
 
-        public DefaultSignInSlideExpiration()
+        public DefaultSignInSlideExpiration(IOptions<SecurityStampValidatorOptions> options)
         {
             _normalizer = new UpperInvariantLookupNormalizer();
-            var systemClock = new ExtSystemClock();
-            var options = new MemoryCacheOptions { Clock = systemClock };
-            _cache = new MemoryCache(options);
+            _cache = new MemoryCache(new MemoryCacheOptions { Clock = new ExtSystemClock() });
+            _options = options.Value;
         }
 
         public void MarkExpired(string userName)
@@ -28,7 +29,7 @@ namespace Microsoft.AspNetCore.Authentication
             _cache.Set(
                 key: "SlideExpiration: " + userName,
                 value: DateTimeOffset.UtcNow,
-                absoluteExpirationRelativeToNow: TimeSpan.FromMinutes(20));
+                absoluteExpirationRelativeToNow: _options.ValidationInterval);
         }
 
         public bool CheckExpired(string userName, DateTimeOffset? issuedUtc)
@@ -74,7 +75,7 @@ namespace Microsoft.AspNetCore.Authentication
                         : serviceProvider.GetRequiredService<ILightweightUserClaimsPrincipalFactory<TUser>>();
 
                     var result = await userClaimsPrincipalFactory.CreateAsync(user);
-                    entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(20);
+                    entry.AbsoluteExpirationRelativeToNow = _options.ValidationInterval;
                     return result;
                 });
         }
