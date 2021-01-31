@@ -88,12 +88,19 @@ namespace Microsoft.AspNetCore.Routing
             var newEndpoints = new List<RouteEndpoint>();
             foreach (var (name, pattern, descriptor) in _discoveredFallbacks)
             {
-                var oldEndpoint = endpoints[descriptor];
+                if (!endpoints.TryGetValue(descriptor, out var oldEndpoint))
+                    throw new InvalidOperationException(
+                        "The endpoint to re-execute is not found in original builder.");
+
+                var metadata = oldEndpoint.Metadata
+                    .Where(a => !(a is ISuppressMatchingMetadata))
+                    .Append(TrackAvailabilityMetadata.ErrorHandler);
+
                 newEndpoints.Add(new RouteEndpoint(
                     oldEndpoint.RequestDelegate,
                     pattern,
                     order: -pattern.PathSegments.Count,
-                    new EndpointMetadataCollection(oldEndpoint.Metadata.Where(a => !(a is ISuppressMatchingMetadata))),
+                    new EndpointMetadataCollection(metadata),
                     displayName: $"Error Handler {name}"));
             }
 

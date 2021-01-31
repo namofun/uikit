@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -66,6 +67,7 @@ namespace Microsoft.AspNetCore.Mvc
             });
 
             services.AddApplicationInsightsTelemetry();
+            services.TryAddSingleton<ITelemetryClient, NullTelemetryClient>();
 
             services.AddMediatR(Modules.Select(a => a.GetType().Assembly).ToArray());
 

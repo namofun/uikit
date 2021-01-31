@@ -15,8 +15,8 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
     /// </summary>
     public class CompositeTempDataProvider : ITempDataProvider
     {
-        private static readonly string TempDataSessionStateKey = "__ControllerTempData";
-        private static readonly string Purpose = "Microsoft.AspNetCore.Mvc.CookieTempDataProviderToken.v1";
+        private readonly string TempDataSessionStateKey = "__ControllerTempData";
+        private readonly string Purpose = "Microsoft.AspNetCore.Mvc.CookieTempDataProviderToken.v1";
 
         private readonly IDataProtector _dataProtector;
         private readonly TempDataSerializer _tempDataSerializer;

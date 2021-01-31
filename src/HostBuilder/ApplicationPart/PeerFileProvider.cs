@@ -9,9 +9,16 @@ using System.Linq;
 namespace Microsoft.Extensions.FileProviders
 {
     /// <summary>
+    /// The file provider for runtime razor compilation.
+    /// </summary>
+    public interface IRazorFileProvider : IFileProvider
+    {
+    }
+
+    /// <summary>
     /// The tree or composite peer file provider.
     /// </summary>
-    public class PeerFileProvider : IFileProvider, IDirectoryContents, IFileInfo
+    public class PeerFileProvider : IRazorFileProvider, IDirectoryContents, IFileInfo
     {
         #region Useless Properties
 

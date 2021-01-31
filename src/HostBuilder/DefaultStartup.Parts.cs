@@ -118,6 +118,11 @@ namespace Microsoft.AspNetCore.Mvc
                 DiscoverPart(module.GetType().Assembly, module.Area);
             }
 
+            if (razorTree != null)
+            {
+                builder.Services.AddSingleton<IRazorFileProvider>(razorTree);
+            }
+
             if (Environment.IsDevelopment() && razorTree != null)
             {
                 builder.AddRazorRuntimeCompilation(options => options.FileProviders.Add(razorTree));

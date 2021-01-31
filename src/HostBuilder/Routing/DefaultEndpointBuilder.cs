@@ -140,6 +140,7 @@ namespace Microsoft.AspNetCore.Routing
         {
             return MapRequestDelegate(pattern, requestDelegate)
                 .WithDisplayName("Fallback " + pattern)
+                .WithMetadata(TrackAvailabilityMetadata.Fallback)
                 .WithDefaults(a => a.Add(b => ((RouteEndpointBuilder)b).Order = int.MaxValue));
         }
 
