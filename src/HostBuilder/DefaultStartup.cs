@@ -79,6 +79,7 @@ namespace Microsoft.AspNetCore.Mvc
             services.AddSingleton<ReExecuteEndpointMatcher>();
             services.ReplaceSingleton<LinkGenerator, OrderLinkGenerator>();
             services.ReplaceSingleton<IUrlHelperFactory, SubstrateUrlHelperFactory>();
+            services.AddSingleton<TelemetryCorrelationMiddleware>();
 
             services.AddControllersWithViews()
                 .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new TimeSpanJsonConverter()))
@@ -133,6 +134,7 @@ namespace Microsoft.AspNetCore.Mvc
             app.UseSession();
 
             app.UseRouting();
+            app.UseMiddleware<TelemetryCorrelationMiddleware>();
             app.UseCors();
 
             if (Modules.Any(m => m.ProvideIdentity))

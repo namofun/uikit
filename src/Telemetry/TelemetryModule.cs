@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using SatelliteSite.Services;
+using SatelliteSite.TelemetryModule.Services;
 
 namespace SatelliteSite.TelemetryModule
 {
@@ -15,9 +17,15 @@ namespace SatelliteSite.TelemetryModule
 
         public override void RegisterServices(IServiceCollection services)
         {
+            services.AddApplicationInsightsTelemetry();
+
             services.EnsureSingleton<ITelemetryClient>();
             services.ReplaceSingleton<ITelemetryClient, ApplicationInsightsTelemetryClient>();
-            services.AddApplicationInsightsTelemetry();
+
+            services.EnsureSingleton<TelemetryCorrelationMiddleware>();
+            services.ReplaceSingleton<TelemetryCorrelationMiddleware, AppInsightsCorrelationMiddleware>();
+
+            services.AddHttpClient<TelemetryDataClient>();
         }
 
         public override void RegisterEndpoints(IEndpointBuilder endpoints)

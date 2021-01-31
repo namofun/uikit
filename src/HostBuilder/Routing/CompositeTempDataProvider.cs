@@ -149,7 +149,11 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
             else
             {
                 session.Remove(TempDataSessionStateKey);
-                _chunkingCookieManager.DeleteCookie(context, _cookieName, cookieOptions);
+
+                if (context.Request.Cookies.ContainsKey(_cookieName))
+                {
+                    _chunkingCookieManager.DeleteCookie(context, _cookieName, cookieOptions);
+                }
             }
         }
 
