@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Microsoft.AspNetCore.Mvc
@@ -118,15 +120,38 @@ namespace Microsoft.AspNetCore.Mvc
                 DiscoverPart(module.GetType().Assembly, module.Area);
             }
 
-            if (razorTree != null)
+            // Use reflection to discover things about runtime compilation
+            //
+            static void DiscoverRuntimeCompilation(IServiceCollection services, IRazorFileProvider? razorTree)
             {
-                builder.Services.AddSingleton<IRazorFileProvider>(razorTree);
+                const string AssemblyName = "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation";
+                const string RuntimeViewCompilerProvider = AssemblyName + "." + nameof(RuntimeViewCompilerProvider);
+                const string MvcRazorRuntimeCompilationOptions = AssemblyName + "." + nameof(MvcRazorRuntimeCompilationOptions);
+
+                var compilerProvider = services.FirstOrDefault(f =>
+                    f.ServiceType == typeof(IViewCompilerProvider) &&
+                    f.ImplementationType?.Assembly?.GetName()?.Name == AssemblyName &&
+                    f.ImplementationType?.FullName == RuntimeViewCompilerProvider);
+
+                if (compilerProvider == null || razorTree == null) return;
+                services.AddSingleton<IRazorFileProvider>(razorTree);
+                var assembly = compilerProvider.ImplementationType.Assembly;
+                var optionsType = assembly.GetType(MvcRazorRuntimeCompilationOptions)!;
+
+                var options = Expression.Parameter(optionsType, "options");
+                var lambda = Expression.Lambda(
+                    Expression.Call(
+                        Expression.Property(options, "FileProviders"),
+                        typeof(ICollection<IFileProvider>).GetMethod(nameof(ICollection<IFileProvider>.Add)),
+                        Expression.Constant(razorTree, typeof(IFileProvider))),
+                    options);
+
+                var action = lambda.Compile();
+                var configureOptions = Activator.CreateInstance(typeof(ConfigureOptions<>).MakeGenericType(optionsType), action);
+                services.ConfigureOptions(configureOptions);
             }
 
-            if (Environment.IsDevelopment() && razorTree != null)
-            {
-                builder.AddRazorRuntimeCompilation(options => options.FileProviders.Add(razorTree));
-            }
+            DiscoverRuntimeCompilation(builder.Services, razorTree);
 
             foreach (var part in partList)
             {

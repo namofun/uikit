@@ -65,6 +65,8 @@ namespace SatelliteSite.Substrate.Dashboards
                 });
             }
 
+            if (HttpContext.RequestServices.GetService(typeof(IRazorFileProvider)) != null)
+                ViewData["RazorRuntimeCompilationEnabled"] = true;
             return View(lst);
         }
 

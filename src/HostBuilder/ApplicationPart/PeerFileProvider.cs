@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.FileProviders.Composite;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileProviders.Composite;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections;
@@ -8,13 +9,6 @@ using System.Linq;
 
 namespace Microsoft.Extensions.FileProviders
 {
-    /// <summary>
-    /// The file provider for runtime razor compilation.
-    /// </summary>
-    public interface IRazorFileProvider : IFileProvider
-    {
-    }
-
     /// <summary>
     /// The tree or composite peer file provider.
     /// </summary>
