@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SatelliteSite.IdentityModule.Entities;
+using SatelliteSite.Services;
 
 namespace SatelliteSite
 {
@@ -23,6 +24,7 @@ namespace SatelliteSite
                 .MarkDomain<Program>()
                 .AddModule<IdentityModule.IdentityModule<User, Role, DefaultContext>>()
                 .AddModule<SampleModule.SampleModule>()
+                .AddModule<TelemetryModule.TelemetryModule>()
                 .AddDatabaseMssql<DefaultContext>("UserDbConnection")
                 .ConfigureSubstrateDefaults<DefaultContext>(builder =>
                 {
@@ -33,6 +35,12 @@ namespace SatelliteSite
                             options.ExternalLogin = true;
                             options.TwoFactorAuthentication = true;
                             options.ShortenedClaimName = true;
+                        });
+
+                        services.Configure<ApplicationInsightsDisplayOptions>(options =>
+                        {
+                            options.ApiKey = "DEMO_KEY";
+                            options.ApplicationId = "DEMO_APP";
                         });
 
                         new AuthenticationBuilder(services)

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using SatelliteSite.Services;
 
 namespace SatelliteSite.Substrate
@@ -69,6 +70,7 @@ namespace SatelliteSite.Substrate
 
         public override void RegisterServices(IServiceCollection services)
         {
+            services.TryAddSingleton<ITelemetryClient, NullTelemetryClient>();
             services.AddScoped<IAuditlogger, Auditlogger<TContext>>();
             services.AddSingleton<ConfigurationRegistryCache>();
             services.AddScoped<IConfigurationRegistry, ConfigurationRegistry<TContext>>();

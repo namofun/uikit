@@ -46,6 +46,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.Host.Tests", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.TestServer", "src\TestServer\SatelliteSite.TestServer.csproj", "{24E21227-ADE9-4786-9C9E-967672B692CA}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.TelemetryModule", "src\Telemetry\SatelliteSite.TelemetryModule.csproj", "{18EE05EB-CC44-4CEF-9E0D-A77392CE3CAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,6 +106,10 @@ Global
 		{24E21227-ADE9-4786-9C9E-967672B692CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24E21227-ADE9-4786-9C9E-967672B692CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24E21227-ADE9-4786-9C9E-967672B692CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18EE05EB-CC44-4CEF-9E0D-A77392CE3CAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18EE05EB-CC44-4CEF-9E0D-A77392CE3CAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18EE05EB-CC44-4CEF-9E0D-A77392CE3CAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18EE05EB-CC44-4CEF-9E0D-A77392CE3CAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -122,6 +128,7 @@ Global
 		{D723E17F-E2F7-4986-8474-2BBDE691D885} = {BEC090CD-1B34-4028-868B-EFE21BFD177F}
 		{F0A2DB72-EACA-44D4-AA8C-59D4F774FC44} = {BEC090CD-1B34-4028-868B-EFE21BFD177F}
 		{24E21227-ADE9-4786-9C9E-967672B692CA} = {65EF0846-B58D-4C79-B254-456B61BC845B}
+		{18EE05EB-CC44-4CEF-9E0D-A77392CE3CAA} = {65EF0846-B58D-4C79-B254-456B61BC845B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D2DCECCB-DCBD-4EC2-A75F-CE8B756096A1}

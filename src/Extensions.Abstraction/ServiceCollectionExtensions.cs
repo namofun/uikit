@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using System;
 using System.Reflection;
 
@@ -177,6 +178,16 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             EnsureRegistered<TService>(services, ServiceLifetime.Singleton);
             return services;
+        }
+
+        /// <summary>
+        /// Gets the options of <typeparamref name="TOptions"/>.
+        /// </summary>
+        /// <param name="services">The service provider.</param>
+        /// <returns>The options of <typeparamref name="TOptions"/>.</returns>
+        public static IOptions<TOptions> GetOptions<TOptions>(this IServiceProvider services) where TOptions : class, new()
+        {
+            return services.GetRequiredService<IOptions<TOptions>>();
         }
 
         /// <summary>
