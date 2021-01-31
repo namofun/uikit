@@ -66,6 +66,9 @@ namespace SatelliteSite.Tests
                 ["[SatelliteSite.SampleModule]::[SatelliteSite.SampleModule.Services.ForecastService]::[Summaries]"] = "Constant Array",
                 ["[SatelliteSite.Substrate]::[System.ComponentModel.DataAnnotations.UserNameAttribute]::[AllowedCharacters]"] = "Constant Array",
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Mvc.TagHelpers.GravatarTagHelper]::[_chars]"] = "Constant Array",
+                ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Routing.TrackAvailabilityMetadata]::[Default]"] = "Constant Object",
+                ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Routing.TrackAvailabilityMetadata]::[ErrorHandler]"] = "Constant Object",
+                ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Routing.TrackAvailabilityMetadata]::[Fallback]"] = "Constant Object",
             };
 
             int errorCount = 0;
