@@ -1,11 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SatelliteSite.TelemetryModule.Model;
 using SatelliteSite.TelemetryModule.Services;
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
 
 namespace SatelliteSite.TelemetryModule.Dashboards
 {
@@ -22,43 +18,46 @@ namespace SatelliteSite.TelemetryModule.Dashboards
         [HttpGet]
         public IActionResult Index()
         {
-            return Ok();
+            return View();
         }
 
 
-        [HttpGet("[action]/{category}/{item}")]
-        public IActionResult Metrics(string category, string item, string timespan = "PT12H", string interval = "PT30M", string aggregation = null)
+        [HttpGet("metrics/{category}/{item}")]
+        public IActionResult Metrics(string category, string item,
+            string timespan = "P1D", string interval = "PT30M",
+            string aggregation = null, string segment = null)
         {
-            var query = QueryString.Create(new[]
-            {
-                new KeyValuePair<string, string>(nameof(timespan), timespan),
-                new KeyValuePair<string, string>(nameof(interval), interval),
-            });
-
-            if (aggregation != null)
-            {
-                query = query.Add(nameof(aggregation), aggregation);
-            }
-
-            return _client.GetRequest($"metrics/{category}/{item}", query);
+            return _client.GetRequest($"metrics/{category}/{item}",
+                MetricQuery.Of(aggregation, segment, timespan, interval));
         }
 
 
         [HttpGet("metrics/metadata")]
         public IActionResult MetricsMetadata()
         {
-            return _client.GetRequest("metrics/metadata", QueryString.Empty);
+            return _client.GetRequest("metrics/metadata");
         }
 
 
-        [HttpGet("[action]")]
+        [HttpGet("custom/general")]
+        public IActionResult CustomMetric1()
+        {
+            return _client.PostRequest("metrics", new[]
+            {
+                new MetricQuery("Failed requests", "requests/failed"),
+                new MetricQuery("Server response time", "requests/duration"),
+                new MetricQuery("Server exceptions", "exceptions/server"),
+                new MetricQuery("Dependency failures", "dependencies/failed"),
+                new MetricQuery("Process CPU utilization", "performanceCounters/processCpuPercentage", "avg,max,min"),
+            });
+        }
+
+
+        [HttpGet("query")]
         public IActionResult Query(string kql, string timespan = "P1D")
         {
             var query = (kql ?? string.Empty).Replace("\n", "").Replace("\r", "");
-            return _client.PostRequest(
-                requestUri: "query",
-                query: QueryString.Create(nameof(timespan), timespan),
-                content: new StringContent(new { query }.ToJson(), Encoding.UTF8, "application/json"));
+            return _client.PostRequest("query", new { query, timespan });
         }
     }
 }
