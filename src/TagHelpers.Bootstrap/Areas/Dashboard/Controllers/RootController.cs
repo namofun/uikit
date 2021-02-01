@@ -12,6 +12,7 @@ namespace SatelliteSite.Substrate.Dashboards
     [Area("Dashboard")]
     [Route("[area]/[action]")]
     [Authorize("HasDashboard")]
+    [SupportStatusCodePage]
     public class RootController : ViewControllerBase
     {
         [HttpGet("/[area]")]

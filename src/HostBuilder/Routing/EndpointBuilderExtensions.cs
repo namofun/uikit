@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Connections;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.Menus;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
@@ -169,10 +169,14 @@ namespace Microsoft.AspNetCore.Builder
         /// <returns>The route builder</returns>
         internal static void MapModules(this IEndpointRouteBuilder builder, IReadOnlyCollection<AbstractModule> modules)
         {
+            var menu = builder.ServiceProvider.GetRequiredService<ConcreteMenuContributor>();
             foreach (var module in modules)
             {
                 module.RegisterEndpoints(ModuleEndpointDataSource.Create(module, builder));
+                module.RegisterMenu(menu);
             }
+
+            menu.Contribute();
         }
 
         /// <summary>

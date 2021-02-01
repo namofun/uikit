@@ -10,9 +10,19 @@ namespace Microsoft.AspNetCore.Mvc
     public interface IMenuContributor
     {
         /// <summary>
+        /// The application service.
+        /// </summary>
+        IServiceProvider ServiceProvider { get; }
+
+        /// <summary>
         /// The stored menu entries.
         /// </summary>
         Dictionary<string, IMenuEntryBuilderBase> Store { get; }
+
+        /// <summary>
+        /// The component builder list.
+        /// </summary>
+        Dictionary<string, IComponentMenuBuilder> Components { get; }
 
         /// <summary>
         /// Configure the submenu.

@@ -83,6 +83,9 @@ namespace SatelliteSite.Substrate
             endpoints.MapFallNotFound("/api/{**slug}");
             endpoints.MapFallNotFound("/lib/{**slug}");
             endpoints.MapFallNotFound("/images/{**slug}");
+
+            endpoints.WithErrorHandler("Dashboard", "Root")
+                .MapStatusCode("/dashboard/{**slug}");
         }
     }
 }

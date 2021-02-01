@@ -31,14 +31,16 @@ namespace SatelliteSite.TelemetryModule
         public override void RegisterEndpoints(IEndpointBuilder endpoints)
         {
             var options = endpoints.ServiceProvider.GetOptions<ApplicationInsightsDisplayOptions>();
-            if (!string.IsNullOrEmpty(options.Value.ApiKey))
-            {
-                endpoints.MapControllers();
-            }
+            if (string.IsNullOrEmpty(options.Value.ApiKey)) return;
+
+            endpoints.MapControllers();
         }
 
         public override void RegisterMenu(IMenuContributor menus)
         {
+            var options = menus.ServiceProvider.GetOptions<ApplicationInsightsDisplayOptions>();
+            if (string.IsNullOrEmpty(options.Value.ApiKey)) return;
+
             menus.Submenu(MenuNameDefaults.DashboardDocuments, menu =>
             {
                 menu.HasEntry(110)

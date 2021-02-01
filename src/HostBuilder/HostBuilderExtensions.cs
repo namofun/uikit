@@ -209,20 +209,14 @@ namespace Microsoft.AspNetCore.Mvc
                 builder.ConfigureServices((context, services) =>
                 {
                     services.AddSingleton(new ReadOnlyCollection<AbstractModule>(modules));
-
-                    // module services
-                    var menuContributor = new ConcreteMenuContributor();
+                    services.AddSingleton<ConcreteMenuContributor>();
+                    services.AddSingletonUpcast<IMenuProvider, ConcreteMenuContributor>();
 
                     foreach (var module in modules)
                     {
-                        var type = typeof(ModuleEndpointDataSource<>).MakeGenericType(module.GetType());
-                        services.AddSingleton(type);
+                        services.AddSingleton(typeof(ModuleEndpointDataSource<>).MakeGenericType(module.GetType()));
                         module.RegisterServices(services, context.Configuration, context.HostingEnvironment);
-                        module.RegisterMenu(menuContributor);
                     }
-
-                    menuContributor.Contribute();
-                    services.AddSingleton<IMenuProvider>(menuContributor);
                 });
 
                 further.Invoke(builder);

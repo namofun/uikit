@@ -7,20 +7,22 @@ namespace Microsoft.AspNetCore.Mvc.Menus
     internal class ConcreteMenuContributor : IMenuContributor, IMenuProvider
     {
         /// <inheritdoc />
+        public IServiceProvider ServiceProvider { get; }
+
+        /// <inheritdoc />
         public Dictionary<string, IMenuEntryBuilderBase> Store { get; }
 
-        /// <summary>
-        /// The component builder list.
-        /// </summary>
+        /// <inheritdoc />
         public Dictionary<string, IComponentMenuBuilder> Components { get; }
 
         /// <summary>
         /// Instantiate the <see cref="IMenuContributor"/>.
         /// </summary>
-        public ConcreteMenuContributor()
+        public ConcreteMenuContributor(IServiceProvider serviceProvider)
         {
             Store = new Dictionary<string, IMenuEntryBuilderBase>();
             Components = new Dictionary<string, IComponentMenuBuilder>();
+            ServiceProvider = serviceProvider;
         }
 
         /// <inheritdoc />
