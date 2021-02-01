@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace SatelliteSite.TelemetryModule.Model
+namespace SatelliteSite.TelemetryModule.Models
 {
     public class MetricQuery
     {

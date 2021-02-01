@@ -39,8 +39,8 @@ namespace SatelliteSite
 
                         services.Configure<ApplicationInsightsDisplayOptions>(options =>
                         {
-                            options.ApiKey = "DEMO_KEY";
-                            options.ApplicationId = "DEMO_APP";
+                            options.ApiKey = ctx.Configuration["AppInsights:Key"] ?? "DEMO_KEY";
+                            options.ApplicationId = ctx.Configuration["AppInsights:App"] ?? "DEMO_APP";
                         });
 
                         new AuthenticationBuilder(services)
