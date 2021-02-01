@@ -44,7 +44,7 @@ namespace SatelliteSite.TelemetryModule.Dashboards
 
 
         [HttpGet("custom/general")]
-        [ResponseCache(Duration = 600)]
+        [ResponseCache(Duration = 300)]
         public async Task<ActionResult<MetricResponse>> CustomMetric1()
         {
             const string timespan = "PT30M";

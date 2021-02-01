@@ -13,6 +13,7 @@
     #insight-container .card-body { padding: 0.8rem; }
     #insight-container svg { height: 265px; }
     .nvd3 .nv-axis.nv-y path.domain { stroke-opacity: 0; }
+    .nv-series-0, .nv-series-1, .nv-series-2 { stroke-width: 2!important; }
 </style>
 
 <div class="row" id="insight-container">
@@ -83,17 +84,17 @@
         window.applicationInsightsData = result_data;
 
         var data = [
-            { values: [], max: 0, metric: 'availabilityResults/availabilityPercentage', agg: 'avg', key: 'Average availability', color: '#54a300' },
-            { values: [], max: 0, metric: 'requests/duration', agg: 'avg', key: 'Server response time', color: '#0078d4' },
+            { values: [], max: 0, metric: 'availabilityResults/availabilityPercentage', agg: 'avg', key: 'Availability', color: '#54a300' },
+            { values: [], max: 0, metric: 'requests/duration', agg: 'avg', key: 'Request duration', color: '#0078d4' },
             { values: [], max: 0, metric: 'requests/failed', agg: 'sum', key: 'Failed requests', color: '#ec008c', area: true },
-            { values: [], max: 0, metric: 'requests/count', agg: 'sum', key: 'Requests', color: '#47bdf5', area: true },
+            { values: [], max: 0, metric: 'requests/count', agg: 'sum', key: 'All Requests', color: '#47bdf5', area: true },
             { values: [], max: 0, metric: 'exceptions/server', agg: 'sum', key: 'Server exceptions', color: '#ec008c' },
-            { values: [], max: 0, metric: 'dependencies/failed', agg: 'sum', key: 'Dependency failures', color: '#7e58ff' },
+            { values: [], max: 0, metric: 'dependencies/failed', agg: 'sum', key: 'Dependency failures', color: '#68217a' },
             { values: [], max: 0, metric: 'performanceCounters/processCpuPercentage', agg: 'min', key: 'Minimum', color: '#54a300' },
             { values: [], max: 0, metric: 'performanceCounters/processCpuPercentage', agg: 'avg', key: 'Average', color: '#00a2ad' },
             { values: [], max: 0, metric: 'performanceCounters/processCpuPercentage', agg: 'max', key: 'Maximum', color: '#ef6950' },
-            { values: [], max: 0, metric: 'sessions/count', agg: 'unique', key: 'Unique sessions', color: '#ec008c' },
-            { values: [], max: 0, metric: 'users/count', agg: 'unique', key: 'Unique users', color: '#0078d4' }
+            { values: [], max: 0, metric: 'sessions/count', agg: 'unique', key: 'Unique sessions', color: '#b10069' },
+            { values: [], max: 0, metric: 'users/count', agg: 'unique', key: 'Unique users', color: '#4668c5' }
         ];
 
         for (var i = 0; i < result_data.segments.length; i++) {
@@ -121,7 +122,7 @@
         });
 
         drawCommon('.b3', [data[2], data[3]], result_data.ticks, function (chart) {
-            chart.yDomain([-0.001, data[3].max * 1.05]);
+            chart.yDomain([-1, data[3].max * 1.05]);
         });
 
         drawCommon('.b4', [data[4], data[5]], result_data.ticks, function (chart) {
@@ -134,7 +135,7 @@
         });
 
         drawCommon('.b6', [data[9], data[10]], result_data.ticks, function (chart) {
-            chart.yDomain([-0.001, Math.max(data[9].max, data[10].max) * 1.05]);
+            chart.yDomain([-0.2, Math.max(data[9].max, data[10].max) * 1.05]);
         });
     }
 
