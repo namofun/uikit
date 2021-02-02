@@ -116,5 +116,32 @@ namespace SatelliteSite.Tests
                 Assert.IsTrue(ctx.Executed);
             }
         }
+
+        [TestMethod]
+        public void CheckBulkRegistered()
+        {
+            static void RegisterAndTest(Action<DbContextOptionsBuilder> action)
+                => Host.CreateDefaultBuilder()
+                    .AddDatabase<Context>(action)
+                    .Build()
+                    .Services
+                    .GetRequiredService<Context>();
+
+            RegisterAndTest(b => b.UseInMemoryDatabase("a", b => b.UseBulk()));
+            RegisterAndTest(b => b.UseSqlServer("a", b => b.UseBulk()));
+            RegisterAndTest(b => b.UseNpgsql("a", b => b.UseBulk()));
+
+            Assert.ThrowsException<InvalidOperationException>(
+                () => RegisterAndTest(b => b.UseInMemoryDatabase("a")),
+                HostBuilderDataAccessExtensions.NoBulkExtRegistered);
+
+            Assert.ThrowsException<InvalidOperationException>(
+                () => RegisterAndTest(b => b.UseSqlServer("a")),
+                HostBuilderDataAccessExtensions.NoBulkExtRegistered);
+
+            Assert.ThrowsException<InvalidOperationException>(
+                () => RegisterAndTest(b => b.UseNpgsql("a")),
+                HostBuilderDataAccessExtensions.NoBulkExtRegistered);
+        }
     }
 }

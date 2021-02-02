@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 
 namespace Microsoft.Extensions.Hosting
 {
@@ -11,6 +12,13 @@ namespace Microsoft.Extensions.Hosting
     /// </summary>
     public static class HostBuilderDataAccessExtensions
     {
+        /// <summary>
+        /// An exception description for checking bulk extensions.
+        /// </summary>
+        public const string NoBulkExtRegistered =
+            "Extensions for Microsoft.EntityFrameworkCore.Bulk hasn't been registered. " +
+            "Please register it with options.UseSqlServer(..., b => b.UseBulk()).";
+
         /// <summary>
         /// Mark the migration assembly.
         /// </summary>
@@ -69,6 +77,9 @@ namespace Microsoft.Extensions.Hosting
             Action<HostBuilderContext, DbContextOptionsBuilder> configures)
             where TContext : DbContext
         {
+            const string batchBulk = "Microsoft.EntityFrameworkCore.Bulk.RelationalBatchDbContextOptionsExtension`3";
+            const string inMemoryBulk = "Microsoft.EntityFrameworkCore.InMemoryBatchExtensions+InMemoryBatchDbContextOptionsExtension";
+
             return builder.ConfigureServices((context, services) =>
             {
                 services.AddSingleton<ModelSupplierService<TContext>>();
@@ -79,6 +90,12 @@ namespace Microsoft.Extensions.Hosting
                         var mss = services.GetRequiredService<ModelSupplierService<TContext>>();
                         ((IDbContextOptionsBuilderInfrastructure)options).AddOrUpdateExtension(mss);
                         configures.Invoke(context, options);
+
+                        if (!options.Options.Extensions
+                            .Select(e => e.GetType().FullName)
+                            .Where(a => a == inMemoryBulk || (a?.StartsWith(batchBulk) ?? false))
+                            .Any())
+                            throw new InvalidOperationException(NoBulkExtRegistered);
                     });
             });
         }

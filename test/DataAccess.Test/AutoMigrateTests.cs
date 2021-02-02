@@ -1,13 +1,9 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatelliteSite.Entities;
-using SatelliteSite.Services;
-using System;
-using System.Threading.Tasks;
 
 namespace SatelliteSite.Tests
 {
@@ -29,54 +25,63 @@ namespace SatelliteSite.Tests
             {
                 var it = new ConfigurationStringAttribute(1, "1", "conf_name", "1", "1");
                 builder.HasData(it.ToEntity());
+                builder.HasKey(e => e.Name);
             }
         }
 
-        private static void Further(Microsoft.AspNetCore.Hosting.IWebHostBuilder builder)
+        [TestMethod]
+        public void EnsureDefaultEntitiesInMemory()
         {
-            builder.ConfigureServices(services =>
-            {
-                services.AddDbModelSupplier<Context, ContextMore>();
-            });
+            using var host = Host.CreateDefaultBuilder()
+                .AddDatabase<Context>(b => b.UseInMemoryDatabase("0x8c", b => b.UseBulk()))
+                .ConfigureServices(services => services.AddDbModelSupplier<Context, ContextMore>())
+                .Build()
+                .EnsureCreated<Context>();
+
+            using var scope = host.Services.CreateScope();
+            using var ctx = scope.ServiceProvider.GetRequiredService<Context>();
+
+            Assert.IsNotNull(ctx.Set<Configuration>().Find("conf_name"));
         }
 
-        private async Task EnsureDefaultEntities(Action<DbContextOptionsBuilder> configureAction)
+        [TestMethod]
+        public void EnsureDefaultEntitiesSqlServer()
         {
-            var host = Host.CreateDefaultBuilder()
-                .MarkTest()
-                .AddDatabase<Context>(configureAction)
-                .ConfigureSubstrateDefaults<Context>(Further)
+            using var host = Host.CreateDefaultBuilder()
+                .AddDatabase<Context>(b => b.UseSqlServer("a", b => b.UseBulk()))
+                .ConfigureServices(services => services.AddDbModelSupplier<Context, ContextMore>())
                 .Build();
 
-            host.EnsureCreated<Context>();
+            using var scope = host.Services.CreateScope();
+            using var ctx = scope.ServiceProvider.GetRequiredService<Context>();
 
-            using (var scope = host.Services.CreateScope())
-            {
-                using var context = scope.ServiceProvider.GetRequiredService<Context>();
-                var cache = scope.ServiceProvider.GetRequiredService<ConfigurationRegistryCache>();
-                IConfigurationRegistry configurationRegistry = new ConfigurationRegistry<Context>(context, cache);
-                Assert.IsNotNull(await configurationRegistry.FindAsync("conf_name"));
-            }
+            var script = ctx.Database.GenerateCreateScript();
 
-            host.EnsureDeleted<Context>();
+            const string shouldHave =
+                "INSERT INTO [Configuration] ([Name], [Category], [Description], [DisplayPriority], [Public], [Type], [Value])\r\n" +
+                "VALUES (N'conf_name', N'1', N'1', 1, CAST(1 AS bit), N'string', N'\"1\"');";
+
+            Assert.IsTrue(script.Contains(shouldHave));
         }
 
         [TestMethod]
-        public async Task EnsureDefaultEntitiesInMemory()
+        public void EnsureDefaultEntitiesNpgsql()
         {
-            await EnsureDefaultEntities(b => b.UseInMemoryDatabase("0x8c", b => b.UseBulk()));
-        }
+            using var host = Host.CreateDefaultBuilder()
+                .AddDatabase<Context>(b => b.UseNpgsql("a", b => b.UseBulk()))
+                .ConfigureServices(services => services.AddDbModelSupplier<Context, ContextMore>())
+                .Build();
 
-        [TestMethod]
-        [TestCategory("SqlServer")]
-        public async Task EnsureDefaultEntitiesSqlServer()
-        {
-            var cns = "Server=(localdb)\\mssqllocaldb;" +
-                      "Database=aspnet-UIKitTest" + Guid.NewGuid().ToString("D")[4] + ";" +
-                      "Trusted_Connection=True;" +
-                      "MultipleActiveResultSets=true";
+            using var scope = host.Services.CreateScope();
+            using var ctx = scope.ServiceProvider.GetRequiredService<Context>();
 
-            await EnsureDefaultEntities(b => b.UseSqlServer(cns, b => b.UseBulk()));
+            var script = ctx.Database.GenerateCreateScript();
+
+            const string shouldHave =
+                "INSERT INTO \"Configuration\" (\"Name\", \"Category\", \"Description\", \"DisplayPriority\", \"Public\", \"Type\", \"Value\")\r\n" +
+                "VALUES ('conf_name', '1', '1', 1, TRUE, 'string', '\"1\"');";
+
+            Assert.IsTrue(script.Contains(shouldHave));
         }
     }
 }

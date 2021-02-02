@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -13,6 +12,7 @@
     <PackageReference Include="coverlet.collector" Version="1.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Bulk.InMemory" Version="$(EFCoreBulkVersion)" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Bulk.SqlServer" Version="$(EFCoreBulkVersion)" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Bulk.PostgreSql" Version="$(EFCoreBulkVersion)" />
   </ItemGroup>
 
   <ItemGroup>
