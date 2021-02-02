@@ -1,3 +1,8 @@
-﻿<a class="navbar-brand hidden-sm-down" aria-label="@(ViewData["BigTitle"] ?? "Satellite Site")" href="@(ViewData["BigUrl"] ?? "/")">
-    <span>@(ViewData["BigTitle"] ?? "Satellite Site")</span>
+﻿@using Microsoft.Extensions.DependencyInjection
+@if (!ViewData.ContainsKey("BigTitle"))
+{
+    ViewData["BigTitle"] = Context.RequestServices.GetOptions<SubstrateOptions>().Value.SiteName;
+}
+<a class="navbar-brand hidden-sm-down" aria-label="@ViewData["BigTitle"]" href="@(ViewData["BigUrl"] ?? "/")">
+    <span>@ViewData["BigTitle"]</span>
 </a>

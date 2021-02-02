@@ -41,7 +41,7 @@ namespace Microsoft.AspNetCore.Identity
         /// </summary>
         public IdentityAdvancedOptions()
         {
-            SiteName = "Satellite Site";
+            SiteName = string.Empty;
             AuthenticatorUriFormat = DefaultFormatter;
         }
 

@@ -73,6 +73,7 @@ namespace SatelliteSite.IdentityModule
             services.AddAuthentication().AddBasic();
             services.AddAuthorization();
             services.ConfigureOptions<ConfigureAuthoraztionPolicy>();
+            services.ConfigureOptions<SubstrateSiteNameConfigurator>();
             services.ConfigureOptions<IdentityAdvancedConfigurator>();
             services.ConfigureOptions<AuthenticateSchemeConfigurator>();
 

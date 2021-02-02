@@ -11,6 +11,11 @@ namespace Microsoft.AspNetCore.Mvc
     public class SubstrateOptions
     {
         /// <summary>
+        /// Gets or sets the site name.
+        /// </summary>
+        public string SiteName { get; set; } = "Satellite Site";
+
+        /// <summary>
         /// Gets or sets the endpoint route builder configure actions.
         /// </summary>
         public List<Action<IEndpointRouteBuilder>> Endpoints { get; } = new List<Action<IEndpointRouteBuilder>>();

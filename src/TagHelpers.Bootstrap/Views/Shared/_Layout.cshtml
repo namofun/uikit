@@ -1,4 +1,9 @@
-﻿<!doctype html>
+﻿@using Microsoft.Extensions.DependencyInjection
+@if (!ViewData.ContainsKey("BigTitle"))
+{
+    ViewData["BigTitle"] = Context.RequestServices.GetOptions<SubstrateOptions>().Value.SiteName;
+}
+<!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
