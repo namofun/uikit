@@ -13,6 +13,7 @@
     <ProjectReference Include="..\..\src\Telemetry\SatelliteSite.TelemetryModule.csproj" />
     <ProjectReference Include="..\SatelliteSite.SampleModule\SatelliteSite.SampleModule.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="$(AspNetCoreVersion)" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Bulk.SqlServer" Version="$(EFCoreBulkVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Condition=" '$(Configuration)' != 'Release' " Version="$(AspNetCoreVersion)" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="$(AspNetCoreVersion)">
       <PrivateAssets>all</PrivateAssets>

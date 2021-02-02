@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SatelliteSite.IdentityModule.Entities;
@@ -25,7 +26,7 @@ namespace SatelliteSite
                 .AddModule<IdentityModule.IdentityModule<User, Role, DefaultContext>>()
                 .AddModule<SampleModule.SampleModule>()
                 .AddModule<TelemetryModule.TelemetryModule>()
-                .AddDatabaseMssql<DefaultContext>("UserDbConnection")
+                .AddDatabase<DefaultContext>((c, b) => b.UseSqlServer(c.GetConnectionString("UserDbConnection"), b => b.UseBulk()))
                 .ConfigureSubstrateDefaults<DefaultContext>(builder =>
                 {
                     builder.ConfigureServices((ctx, services) =>

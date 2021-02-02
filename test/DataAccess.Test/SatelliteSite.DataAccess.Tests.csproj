@@ -11,6 +11,8 @@
     <PackageReference Include="MSTest.TestAdapter" Version="2.1.0" />
     <PackageReference Include="MSTest.TestFramework" Version="2.1.0" />
     <PackageReference Include="coverlet.collector" Version="1.2.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Bulk.InMemory" Version="$(EFCoreBulkVersion)" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Bulk.SqlServer" Version="$(EFCoreBulkVersion)" />
   </ItemGroup>
 
   <ItemGroup>

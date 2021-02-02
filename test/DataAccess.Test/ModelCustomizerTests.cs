@@ -68,7 +68,7 @@ namespace SatelliteSite.Tests
 
             using var host =
             Host.CreateDefaultBuilder()
-                .AddDatabaseInMemory<Context>("0x3f")
+                .AddDatabase<Context>(b => b.UseInMemoryDatabase("0x3f", b => b.UseBulk()))
                 .ConfigureServices(services =>
                 {
                     services.AddDbModelSupplier<Context, GeneralDbModelSupplier>();

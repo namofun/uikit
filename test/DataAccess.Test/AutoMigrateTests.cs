@@ -1,14 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatelliteSite.Entities;
 using SatelliteSite.Services;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SatelliteSite.Tests
@@ -42,20 +40,11 @@ namespace SatelliteSite.Tests
             });
         }
 
-        private async Task EnsureDefaultEntities(
-            Action<Dictionary<string, string>> moreConf,
-            Func<IHostBuilder, IHostBuilder> addDatabase)
+        private async Task EnsureDefaultEntities(Action<DbContextOptionsBuilder> configureAction)
         {
-            var dict = new Dictionary<string, string>
-            {
-            };
-
-            moreConf?.Invoke(dict);
-
-            var builder = Host.CreateDefaultBuilder()
-                .ConfigureHostConfiguration(c => c.AddInMemoryCollection(dict));
-
-            var host = addDatabase(builder.MarkTest())
+            var host = Host.CreateDefaultBuilder()
+                .MarkTest()
+                .AddDatabase<Context>(configureAction)
                 .ConfigureSubstrateDefaults<Context>(Further)
                 .Build();
 
@@ -75,9 +64,7 @@ namespace SatelliteSite.Tests
         [TestMethod]
         public async Task EnsureDefaultEntitiesInMemory()
         {
-            await EnsureDefaultEntities(
-                c => { },
-                b => b.AddDatabaseInMemory<Context>("0x8c"));
+            await EnsureDefaultEntities(b => b.UseInMemoryDatabase("0x8c", b => b.UseBulk()));
         }
 
         [TestMethod]
@@ -89,9 +76,7 @@ namespace SatelliteSite.Tests
                       "Trusted_Connection=True;" +
                       "MultipleActiveResultSets=true";
 
-            await EnsureDefaultEntities(
-                c => c["ConnectionStrings:TestEnv"] = cns,
-                b => b.AddDatabaseMssql<Context>("TestEnv"));
+            await EnsureDefaultEntities(b => b.UseSqlServer(cns, b => b.UseBulk()));
         }
     }
 }

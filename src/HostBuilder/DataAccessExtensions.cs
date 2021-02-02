@@ -66,7 +66,7 @@ namespace Microsoft.Extensions.Hosting
         /// <returns>The <see cref="IHostBuilder"/></returns>
         public static IHostBuilder AddDatabase<TContext>(
             this IHostBuilder builder,
-            Action<IConfiguration, DbContextOptionsBuilder> configures)
+            Action<HostBuilderContext, DbContextOptionsBuilder> configures)
             where TContext : DbContext
         {
             return builder.ConfigureServices((context, services) =>
@@ -78,7 +78,7 @@ namespace Microsoft.Extensions.Hosting
                     {
                         var mss = services.GetRequiredService<ModelSupplierService<TContext>>();
                         ((IDbContextOptionsBuilderInfrastructure)options).AddOrUpdateExtension(mss);
-                        configures.Invoke(context.Configuration, options);
+                        configures.Invoke(context, options);
                     });
             });
         }
@@ -87,66 +87,23 @@ namespace Microsoft.Extensions.Hosting
         /// Add a <see cref="DbContext"/> and configure them in the next constructing pipeline.
         /// </summary>
         /// <typeparam name="TContext">The required <see cref="DbContext"/>.</typeparam>
-        /// <param name="builder">The <see cref="IHostBuilder"/>.</param>
-        /// <param name="connectionStringName">The connection string name.</param>
-        /// <param name="configures1">The dbcontext options builder.</param>
-        /// <param name="configures2">The provider options builder.</param>
-        /// <returns>The <see cref="IHostBuilder"/>.</returns>
-        public static IHostBuilder AddDatabaseMssql<TContext>(
-            this IHostBuilder builder,
-            string connectionStringName,
-            Action<DbContextOptionsBuilder>? configures1 = null,
-            Action<SqlServerDbContextOptionsBuilder>? configures2 = null)
-            where TContext : DbContext
+        /// <param name="builder">The <see cref="IHostBuilder"/></param>
+        /// <param name="configures">The configure delegate</param>
+        /// <returns>The <see cref="IHostBuilder"/></returns>
+        public static IHostBuilder AddDatabase<TContext>(this IHostBuilder builder, Action<DbContextOptionsBuilder> configures) where TContext : DbContext
         {
-            if (!builder.Properties.ContainsKey("ShouldNotUseMigrationAssembly") &&
-                !builder.Properties.ContainsKey("MigrationAssembly"))
-                throw new ArgumentException("The migration assembly is invalid.");
-
-            return builder.AddDatabase<TContext>((conf, opt) =>
-            {
-                opt.UseSqlServer(
-                    conf.GetConnectionString(connectionStringName),
-                    sqlServerOptionsAction: o =>
-                    {
-                        o.UseBulk();
-                        if (!builder.Properties.ContainsKey("ShouldNotUseMigrationAssembly"))
-                            o.MigrationsAssembly((string)builder.Properties["MigrationAssembly"]);
-                        configures2?.Invoke(o);
-                    });
-
-                configures1?.Invoke(opt);
-            });
+            return builder.AddDatabase<TContext>((_, b) => configures(b));
         }
 
         /// <summary>
-        /// Add a <see cref="DbContext"/> and configure them in the next constructing pipeline.
+        /// Shorthand for Configuration.GetSection("ConnectionStrings")[name].
         /// </summary>
-        /// <typeparam name="TContext">The required <see cref="DbContext"/>.</typeparam>
-        /// <param name="builder">The <see cref="IHostBuilder"/>.</param>
-        /// <param name="databaseName">The in-memory database name.</param>
-        /// <param name="configures1">The dbcontext options builder.</param>
-        /// <param name="configures2">The provider options builder.</param>
-        /// <returns>The <see cref="IHostBuilder"/>.</returns>
-        public static IHostBuilder AddDatabaseInMemory<TContext>(
-            this IHostBuilder builder,
-            string databaseName,
-            Action<DbContextOptionsBuilder>? configures1 = null,
-            Action<InMemoryDbContextOptionsBuilder>? configures2 = null)
-            where TContext : DbContext
+        /// <param name="context">The host builder context.</param>
+        /// <param name="name">The connection string key.</param>
+        /// <returns>The connection string.</returns>
+        public static string GetConnectionString(this HostBuilderContext context, string name)
         {
-            return builder.AddDatabase<TContext>((conf, opt) =>
-            {
-                opt.UseInMemoryDatabase(
-                    databaseName,
-                    inMemoryOptionsAction: o =>
-                    {
-                        o.UseBulk();
-                        configures2?.Invoke(o);
-                    });
-
-                configures1?.Invoke(opt);
-            });
+            return context.Configuration.GetConnectionString(name);
         }
     }
 }
