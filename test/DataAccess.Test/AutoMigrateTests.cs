@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SatelliteSite.Entities;
+using System;
 
 namespace SatelliteSite.Tests
 {
@@ -57,8 +58,9 @@ namespace SatelliteSite.Tests
 
             var script = ctx.Database.GenerateCreateScript();
 
-            const string shouldHave =
-                "INSERT INTO [Configuration] ([Name], [Category], [Description], [DisplayPriority], [Public], [Type], [Value])\r\n" +
+            string shouldHave =
+                "INSERT INTO [Configuration] ([Name], [Category], [Description], [DisplayPriority], [Public], [Type], [Value])" +
+                Environment.NewLine +
                 "VALUES (N'conf_name', N'1', N'1', 1, CAST(1 AS bit), N'string', N'\"1\"');";
 
             Assert.IsTrue(script.Contains(shouldHave));
@@ -77,8 +79,9 @@ namespace SatelliteSite.Tests
 
             var script = ctx.Database.GenerateCreateScript();
 
-            const string shouldHave =
-                "INSERT INTO \"Configuration\" (\"Name\", \"Category\", \"Description\", \"DisplayPriority\", \"Public\", \"Type\", \"Value\")\r\n" +
+            string shouldHave =
+                "INSERT INTO \"Configuration\" (\"Name\", \"Category\", \"Description\", \"DisplayPriority\", \"Public\", \"Type\", \"Value\")" +
+                Environment.NewLine +
                 "VALUES ('conf_name', '1', '1', 1, TRUE, 'string', '\"1\"');";
 
             Assert.IsTrue(script.Contains(shouldHave));
