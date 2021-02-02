@@ -10,7 +10,7 @@
         if (!menu.Satisfy(ViewContext)) { continue; }
         if (menu is ISubmenu submenu)
         {
-    <li class="nav-item dropdown">
+    <li class="nav-item dropdown" data-order="@menu.Priority">
         <a class="nav-link dropdown-toggle @menu.Active(ViewContext)" href="#" id="@submenu.Id" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <i class="@menu.Icon"></i> @menu.Title
             @foreach (var badge in menu.Badges)
@@ -21,7 +21,8 @@
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             @foreach (var subentry in submenu)
             {
-            <a class="dropdown-item" href="@subentry.GetLink(Url, ViewContext)" id="@subentry.Id">
+                if (!subentry.Satisfy(ViewContext)) { continue; }
+            <a class="dropdown-item" href="@subentry.GetLink(Url, ViewContext)" id="@subentry.Id" data-order="@subentry.Priority">
                 <i class="@subentry.Icon fa-fw"></i> @subentry.Title
                 @foreach (var badge in subentry.Badges)
                 {
@@ -35,7 +36,7 @@
         else
         {
             var entry = (IMenuEntry)menu;
-    <li class="nav-item">
+    <li class="nav-item" data-order="@menu.Priority">
         <a class="nav-link @menu.Active(ViewContext)" href="@entry.GetLink(Url, ViewContext)" id="@entry.Id">
             <i class="@entry.Icon"></i> @entry.Title
             @foreach (var badge in menu.Badges)

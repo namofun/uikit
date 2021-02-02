@@ -28,7 +28,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         /// <summary>
         /// The internal activity function.
         /// </summary>
-        private Func<ViewContext, bool>? Activity { get; set; }
+        private Func<ViewContext, bool>? Active { get; set; }
 
         /// <inheritdoc />
         public Dictionary<string, object> Metadata { get; } = new Dictionary<string, object>();
@@ -61,8 +61,8 @@ namespace Microsoft.AspNetCore.Mvc.Menus
                 if (!Metadata.ContainsKey(section))
                     throw new ArgumentException(section + " should be set.");
             if (Metadata.ContainsKey("Id")) Id = (string)Metadata["Id"];
-            Require = Requirements.CombineAndAlso().Compile();
-            Activity = Activities.CombineOrElse().Compile();
+            Require = Requirements.Count == 0 ? null : Requirements.CombineAndAlso().Compile();
+            Active = Activities.Count == 0 ? null : Activities.CombineOrElse().Compile();
         }
 
         /// <inheritdoc />
@@ -80,13 +80,13 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         /// <inheritdoc />
         bool IMenuEntryBase.Satisfy(ViewContext actionContext)
         {
-            return Require!.Invoke(actionContext);
+            return Require?.Invoke(actionContext) ?? true;
         }
 
         /// <inheritdoc />
         public bool IsActive(ViewContext actionContext)
         {
-            return Activity!.Invoke(actionContext);
+            return Active?.Invoke(actionContext) ?? false;
         }
     }
 }

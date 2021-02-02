@@ -41,13 +41,15 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         {
             model ??= param;
             Contribute();
-            if (Components.Count == 0)
-                return HtmlString.Empty;
-            else if (Components.Count == 1)
-                return await helper.InvokeAsync(Components.First().Item2, model);
-            var builder = new HtmlContentBuilder(Components.Count);
-            foreach (var (_, item) in Components)
+            if (Components.Count == 0) return HtmlString.Empty;
+
+            var builder = new HtmlContentBuilder(Components.Count * 2);
+            foreach (var (order, item) in Components)
+            {
+                builder.AppendHtml($"<!--#component order={order}-->\r\n");
                 builder.AppendHtml(await helper.InvokeAsync(item, model));
+            }
+
             return builder;
         }
     }

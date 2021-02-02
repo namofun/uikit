@@ -68,28 +68,28 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
             DataTableViewModel model,
             TagHelperContent content)
         {
-            content.AppendHtml("<script>$().ready(function(){$('#");
+            content.AppendHtml("\r\n<script>$().ready(function(){$('#");
             content.Append(uniqueId);
-            content.AppendHtmlLine("').DataTable({");
-            content.AppendHtml("\"searching\":" + (model.Searchable ? "true" : "false") + ",");
+            content.AppendHtml("').DataTable({ ");
+            content.AppendHtml("'searching': " + (model.Searchable ? "true" : "false") + ", ");
 
             if (model.Sortable)
-                content.AppendHtml("\"ordering\":true,\"order\":[" + model.Sort + "],");
+                content.AppendHtml("'ordering': true, 'order': [" + model.Sort + "], ");
             else
-                content.AppendHtml("\"ordering\":false,");
+                content.AppendHtml("'ordering': false, ");
 
             if (Paging.HasValue)
-                content.AppendHtml("\"paging\":true,\"pageLength\":" + Paging.Value + ",\"lengthChange\":false,");
+                content.AppendHtml("'paging': true, 'pageLength': " + Paging.Value + ", 'lengthChange': false, ");
             else
-                content.AppendHtml("\"paging\": false,");
+                content.AppendHtml("'paging': false, ");
 
-            content.AppendHtml("\"info\":false,\"autoWidth\":" + (AutoWidth ? "true" : "false") + ",");
-            content.AppendHtml("'language': { 'searchPlaceholder': 'filter table', 'search': '_INPUT_', 'oPaginate': {'sPrevious': '&laquo;', 'sNext': '&raquo;'} },");
-            content.AppendHtml("'aoColumnDefs': [{ aTargets: ['sortable'], bSortable: true }, { aTargets: ['searchable'], bSearchable: true }, { aTargets: ['_all'], bSortable: false, bSearchable: false }],");
+            content.AppendHtml("'info': false, 'autoWidth': " + (AutoWidth ? "true" : "false") + ", ");
+            content.AppendHtml("'language': { 'searchPlaceholder': 'filter table', 'search': '_INPUT_', 'oPaginate': {'sPrevious': '&laquo;', 'sNext': '&raquo;'} }, ");
+            content.AppendHtml("'aoColumnDefs': [{ aTargets: ['sortable'], bSortable: true }, { aTargets: ['searchable'], bSearchable: true }, { aTargets: ['_all'], bSortable: false, bSearchable: false }], ");
 
             if (UpdateUrl != null)
             {
-                content.AppendHtml("\"serverSide\":true,\"ajax\":{\"url\":\"" + UpdateUrl + "\"},");
+                content.AppendHtml("'serverSide': true, 'ajax': { 'url': '" + UpdateUrl + "' }, ");
                 content.AppendHtml(model.Scripts);
             }
 
@@ -126,7 +126,7 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
 
             var thead = new TagBuilder("thead").WithBody(viewModel.THead);
             if (TableHeaderClass != null) thead.AddCssClass(TableHeaderClass);
-            output.Content.AppendHtml(thead);
+            output.Content.AppendHtml("\r\n").AppendHtml(thead);
 
             if (Data != null)
             {
@@ -143,7 +143,7 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
                     {
                         var tr = viewModel.TRow(item);
                         tr.MergeAttribute("role", "row");
-                        tbody.InnerHtml.AppendHtml(tr);
+                        tbody.InnerHtml.AppendHtml("\r\n").AppendHtml(tr);
                     }
                 }
 

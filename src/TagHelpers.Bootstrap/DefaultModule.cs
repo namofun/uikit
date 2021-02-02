@@ -35,7 +35,7 @@ namespace SatelliteSite.Substrate
                     conf.HasTitle(string.Empty, "Infrastructure")
                         .HasLink("javascript:;");
 
-                    conf.HasEntry(0)
+                    conf.HasEntry(-100)
                         .HasLink("Dashboard", "Root", "Config")
                         .HasTitle(string.Empty, "Configuration settings")
                         .RequireRoles("Administrator");

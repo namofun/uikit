@@ -14,7 +14,7 @@
     <div class="col-lg-4 col-md-5 col-sm-6 mt-3">
         @foreach (var item in submenus.Take(t))
         {
-        <div class="card mb-3">
+        <div class="card mb-3" data-order="@item.Priority">
             <div class="card-header">
                 @item.Title
             </div>
@@ -22,7 +22,8 @@
                 <ul>
                     @foreach (var entry in item)
                     {
-                    <li asp-show-if="entry.Satisfy(ViewContext)"><a href="@entry.GetLink(Url, ViewContext)">@entry.Title</a></li>
+                        if (!entry.Satisfy(ViewContext)) { continue; }
+                    <li data-order="@entry.Priority"><a href="@entry.GetLink(Url, ViewContext)">@entry.Title</a></li>
                     }
                 </ul>
             </div>
@@ -32,7 +33,7 @@
     <div class="col-lg-4 col-md-5 col-sm-6 mt-3">
         @foreach (var item in submenus.Skip(t))
         {
-        <div class="card mb-3">
+        <div class="card mb-3" data-order="@item.Priority">
             <div class="card-header">
                 @item.Title
             </div>
@@ -40,7 +41,8 @@
                 <ul>
                     @foreach (var entry in item)
                     {
-                    <li asp-show-if="entry.Satisfy(ViewContext)"><a href="@entry.GetLink(Url, ViewContext)">@entry.Title</a></li>
+                        if (!entry.Satisfy(ViewContext)) { continue; }
+                    <li data-order="@entry.Priority"><a href="@entry.GetLink(Url, ViewContext)">@entry.Title</a></li>
                     }
                 </ul>
             </div>
