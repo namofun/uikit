@@ -208,6 +208,47 @@ function initXylabFunctions() {
 	}
 }
 
+function initEditormdKatex() {
+    if (editormd === undefined) return;
+    let rawFactory = editormd.markedRenderer;
+
+    editormd.markedRenderer = function (markdownToC, options) {
+        let markedRenderer = rawFactory(markdownToC, options);
+        let settings = $.extend({ tocm: false }, options || {});
+
+        // Fix katex scan
+        markedRenderer.paragraph = function (text) {
+            var isTeXInline = /\$(.*)\$/g.test(text);
+            var isTeXLine = /^\$\$(.*)\$\$$/.test(text);
+            var isTeXAddClass = isTeXLine ? " class=\"" + editormd.classNames.tex + "\"" : "";
+            var isToC = (settings.tocm) ? /^(\[TOC\]|\[TOCM\])$/.test(text) : /^\[TOC\]$/.test(text);
+            var isToCMenu = /^\[TOCM\]$/.test(text);
+
+            if (!isTeXLine && isTeXInline) {
+                text = text.replace(/\\<br>+/g, "\\\\<br>");
+                text = text.replace(/(\$+([^\$]*)\$+)+/g, function ($1, $2) {
+                    return (
+                        "<span class=\"" + editormd.classNames.tex + "\">" +
+                        $2.replace(/\$/g, "").replace("<em>", "_").replace("</em>", "_") +
+                        "</span>"
+                    )
+                })
+            } else {
+                text = text.replace(/\\<br>+/g, "\\\\<br>");
+                text = isTeXLine ? text.replace(/\$/g, "").replace("<em>", "_").replace("</em>", "_") : text;
+            }
+
+            var tocHTML = "<div class=\"markdown-toc editormd-markdown-toc\">" + text + "</div>";
+
+            return (isToC) ? ((isToCMenu) ? "<div class=\"editormd-toc-menu\">" + tocHTML + "</div><br/>" : tocHTML)
+                : ((editormd.regexs.pageBreak.test(text)) ? this.pageBreak(text) : "<p" + isTeXAddClass + ">" + this.atLink(this.emoji(text)) + "</p>\n");
+        };
+
+        return markedRenderer;
+    }
+}
+
 $(function () {
-	initXylabFunctions();
+    initXylabFunctions();
+    initEditormdKatex();
 });
