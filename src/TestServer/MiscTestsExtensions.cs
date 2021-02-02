@@ -27,14 +27,13 @@ namespace SatelliteSite.Tests
         }
 
         /// <summary>
-        /// Disable the MigrationAssembly because we are in tests.
+        /// Add the application accessor for tests.
         /// </summary>
         /// <param name="builder">The <see cref="IHostBuilder"/></param>
         /// <param name="base">The substrate application to test</param>
         /// <returns>The <see cref="IHostBuilder"/></returns>
         public static IHostBuilder MarkTest(this IHostBuilder builder, SubstrateApplicationBase @base)
         {
-            builder.Properties["ShouldNotUseMigrationAssembly"] = true;
             builder.ConfigureServices(svcs => svcs.AddSingleton<IApplicationAccessor>(new DefaultAccessor(@base)));
             return builder;
         }

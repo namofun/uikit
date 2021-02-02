@@ -189,7 +189,7 @@ namespace Microsoft.AspNetCore.Mvc
             Action<IWebHostBuilder>? further = null)
             where TContext : DbContext
         {
-            bool shouldUseMigrationAssembly = builder.MigrationAssembly(out var migrationAssembly);
+            bool hasDomainSpecified = builder.GetDomain(out var domainName);
             further ??= _ => { };
 
             var modules = builder.Modules();
@@ -202,9 +202,8 @@ namespace Microsoft.AspNetCore.Mvc
                 builder.ConfigureEnvironment(modules);
                 builder.UseStartup<Startup>();
 
-                // REVIEW: why should we specify the application key?
-                if (shouldUseMigrationAssembly)
-                    builder.UseSetting(WebHostDefaults.ApplicationKey, migrationAssembly);
+                if (hasDomainSpecified)
+                    builder.UseSetting(WebHostDefaults.ApplicationKey, domainName);
 
                 builder.ConfigureServices((context, services) =>
                 {

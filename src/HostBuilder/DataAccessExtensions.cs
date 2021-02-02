@@ -13,6 +13,11 @@ namespace Microsoft.Extensions.Hosting
     public static class HostBuilderDataAccessExtensions
     {
         /// <summary>
+        /// The key for application domain indicating.
+        /// </summary>
+        public const string ApplicationDomain = "Substrate.ApplicationDomain";
+
+        /// <summary>
         /// An exception description for checking bulk extensions.
         /// </summary>
         public const string NoBulkExtRegistered =
@@ -20,49 +25,40 @@ namespace Microsoft.Extensions.Hosting
             "Please register it with options.UseSqlServer(..., b => b.UseBulk()).";
 
         /// <summary>
-        /// Mark the migration assembly.
+        /// Mark the application domain to prevent problems.
         /// </summary>
         /// <typeparam name="T">The program class.</typeparam>
         /// <param name="builder">The <see cref="IHostBuilder"/></param>
         /// <returns>The <see cref="IHostBuilder"/></returns>
         public static IHostBuilder MarkDomain<T>(this IHostBuilder builder)
         {
-            builder.Properties["MigrationAssembly"]
+            builder.Properties[ApplicationDomain]
                 =  typeof(T).Assembly.GetName().Name
                 ?? throw new ArgumentNullException("The migration assembly is invalid.");
             return builder;
         }
 
         /// <summary>
-        /// Disable the MigrationAssembly because we are in tests.
-        /// </summary>
-        /// <param name="builder">The <see cref="IHostBuilder"/></param>
-        /// <returns>The <see cref="IHostBuilder"/></returns>
-        public static IHostBuilder MarkTest(this IHostBuilder builder)
-        {
-            builder.Properties["ShouldNotUseMigrationAssembly"] = true;
-            return builder;
-        }
-
-        /// <summary>
-        /// Get the migration assembly information.
+        /// Get the application domain information.
         /// </summary>
         /// <param name="builder">The host builder.</param>
         /// <param name="assemblyName">The assembly name.</param>
-        /// <returns>Whether migration assembly is used.</returns>
-        internal static bool MigrationAssembly(this IHostBuilder builder, out string? assemblyName)
+        /// <returns>Whether application domain is used.</returns>
+        internal static bool GetDomain(this IHostBuilder builder, out string? assemblyName)
         {
-            if (builder.Properties.ContainsKey("ShouldNotUseMigrationAssembly"))
+            if (!builder.Properties.TryGetValue(ApplicationDomain, out var ma))
             {
                 assemblyName = null;
                 return false;
             }
 
-            if (!builder.Properties.TryGetValue("MigrationAssembly", out var ma) || !(ma is string maa))
-                throw new ArgumentException("The migration assembly is invalid.");
+            if (ma is string a && !string.IsNullOrWhiteSpace(a))
+            {
+                assemblyName = a;
+                return true;
+            }
 
-            assemblyName = maa;
-            return true;
+            throw new ArgumentException("The application domain is invalid.");
         }
 
         /// <summary>
