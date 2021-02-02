@@ -10,6 +10,7 @@ This is a project for ASP.NET Core module design standard,  designed as Satellit
 - [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.StaticWebAssets%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.StaticWebAssets): Static web assets to use in /wwwroot/lib
 - [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.IdentityCore%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.IdentityCore): Identity abstractions based on Microsoft.Extensions.Identity.Store
 - [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.IdentityModule%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.IdentityModule): Default User Identity Module based on IdentityEFCore
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.TelemetryModule%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.TelemetryModule): Azure Application Insights Integration
 - [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.HostBuilder%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.HostBuilder): Host Builder Extensions for Host projects
 - [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.TestServer%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.TestServer): Utilities and tools for integrated tests
 
