@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.AspNetCore;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Extensions.Logging;
 using System;
@@ -11,14 +12,17 @@ namespace SatelliteSite.Services
     public class ApplicationInsightsTelemetryClient : ITelemetryClient
     {
         private readonly TelemetryClient _appInsights;
+        private readonly JavaScriptSnippet _javascript;
 
         /// <summary>
         /// Initialize the <see cref="ApplicationInsightsTelemetryClient"/>.
         /// </summary>
         /// <param name="telemetryClient">The inner telemetry client.</param>
-        public ApplicationInsightsTelemetryClient(TelemetryClient telemetryClient)
+        /// <param name="snippet">The javascript snippet.</param>
+        public ApplicationInsightsTelemetryClient(TelemetryClient telemetryClient, JavaScriptSnippet snippet)
         {
             _appInsights = telemetryClient;
+            _javascript = snippet;
         }
 
         /// <inheritdoc />
@@ -84,6 +88,12 @@ namespace SatelliteSite.Services
                 LogLevel.Information => SeverityLevel.Information,
                 _ => SeverityLevel.Verbose,
             };
+        }
+
+        /// <inheritdoc />
+        public string GetHeadJavascript()
+        {
+            return _javascript.FullScript;
         }
     }
 }

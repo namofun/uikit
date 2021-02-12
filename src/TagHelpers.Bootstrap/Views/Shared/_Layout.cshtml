@@ -1,4 +1,5 @@
 ﻿@using Microsoft.Extensions.DependencyInjection
+@inject SatelliteSite.Services.ITelemetryClient TelemetryClient
 @if (!ViewData.ContainsKey("BigTitle"))
 {
     ViewData["BigTitle"] = Context.RequestServices.GetOptions<SubstrateOptions>().Value.SiteName;
@@ -9,6 +10,7 @@
     <meta charset="utf-8">
     <title>@ViewData["Title"] - @ViewData["BigTitle"]</title>
     <meta name="viewport" content="initial-scale=1, user-scalable=no">
+    <!-- telemetry -->@Html.Raw(TelemetryClient.GetHeadJavascript())
     <!-- jquery --><script src="~/lib/jquery/jquery.min.js"></script>
     <!-- twitter-bootstrap --><link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" /><script src="~/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- font-awesome --><link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />

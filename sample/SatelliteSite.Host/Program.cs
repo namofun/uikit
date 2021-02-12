@@ -44,6 +44,14 @@ namespace SatelliteSite
                             options.ApplicationId = ctx.Configuration["AppInsights:App"] ?? "DEMO_APP";
                         });
 
+                        services.Configure<Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions>(options =>
+                        {
+                            if (string.IsNullOrEmpty(options.InstrumentationKey))
+                            {
+                                options.InstrumentationKey = ctx.Configuration["AppInsights:App"] ?? string.Empty;
+                            }
+                        });
+
                         new AuthenticationBuilder(services)
                             .AddAzureAd(options =>
                             {

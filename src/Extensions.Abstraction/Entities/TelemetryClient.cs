@@ -85,6 +85,12 @@ namespace SatelliteSite.Services
         /// <param name="severityLevel">Trace severity level.</param>
         /// <param name="properties">Named string values you can use to search and classify events.</param>
         void TrackTrace(string message, LogLevel severityLevel, IDictionary<string, string>? properties = null);
+
+        /// <summary>
+        /// Gets the javascript segment for rendering in head.
+        /// </summary>
+        /// <returns>The head javascript.</returns>
+        string GetHeadJavascript();
     }
 
     /// <inheritdoc cref="ITelemetryClient" />
@@ -128,6 +134,12 @@ namespace SatelliteSite.Services
         /// <inheritdoc />
         public void TrackTrace(string message, LogLevel severityLevel, IDictionary<string, string>? properties = null)
         {
+        }
+
+        /// <inheritdoc />
+        public string GetHeadJavascript()
+        {
+            return string.Empty;
         }
     }
 }
