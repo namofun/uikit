@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
+using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
@@ -9,20 +11,31 @@ namespace SatelliteSite.Services
 {
     public class SmtpSender : IEmailSender
     {
-        private ILogger<SmtpSender> Logger { get; }
-        public AuthMessageSenderOptions ApiKey { get; set; }
+        private readonly Action<ILogger, string, Exception> _emailSending;
+        private readonly ILogger<SmtpSender> _logger;
+        private readonly ITelemetryClient _telemetry;
+        private readonly AuthMessageSenderOptions _apikey;
 
-        public SmtpSender(ILogger<SmtpSender> logger, IOptions<AuthMessageSenderOptions> options)
+        public SmtpSender(
+            ILogger<SmtpSender> logger,
+            ITelemetryClient telemetry,
+            IOptions<AuthMessageSenderOptions> options)
         {
-            Logger = logger;
-            ApiKey = options.Value;
+            _logger = logger;
+            _telemetry = telemetry;
+            _apikey = options.Value;
+
+            _emailSending = LoggerMessage.Define<string>(
+                logLevel: LogLevel.Information,
+                eventId: new EventId(17362),
+                formatString: "An email will be sent to {email}");
         }
 
         public Task SendEmailAsync(string email, string subject, string message)
         {
             var msg = new MailMessage();
             msg.To.Add(email);
-            msg.From = new MailAddress(ApiKey.User, ApiKey.Sender);
+            msg.From = new MailAddress(_apikey.User, _apikey.Sender);
 
             msg.Subject = subject;
             msg.SubjectEncoding = Encoding.UTF8;
@@ -33,14 +46,40 @@ namespace SatelliteSite.Services
 
             var client = new SmtpClient
             {
-                Host = ApiKey.Server,
-                Port = ApiKey.Port,
+                Host = _apikey.Server,
+                Port = _apikey.Port,
                 EnableSsl = true,
-                Credentials = new NetworkCredential(ApiKey.User, ApiKey.Key)
+                Credentials = new NetworkCredential(_apikey.User, _apikey.Key)
             };
 
-            Logger.LogInformation("An email will be sent to {Email}", email);
-            Task.Run(async () => await client.SendMailAsync(msg));
+            _emailSending(_logger, email, null);
+            var telemetry = _telemetry;
+
+            Task.Run(async () =>
+            {
+                var startTime = DateTimeOffset.Now;
+                Exception exception = null;
+
+                try
+                {
+                    await client.SendMailAsync(msg);
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                }
+
+                telemetry.TrackDependency(
+                    dependencyTypeName: "Smtp",
+                    dependencyName: $"{client.Host}:{client.Port}",
+                    target: msg.From.Address,
+                    data: string.Join(';', msg.To.Select(a => a.Address)),
+                    startTime: startTime,
+                    duration: DateTimeOffset.Now - startTime,
+                    resultCode: exception == null ? "OK" : exception.Message,
+                    success: exception == null);
+            });
+
             return Task.CompletedTask;
         }
     }
