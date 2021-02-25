@@ -15,7 +15,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
 namespace Microsoft.AspNetCore.Routing
 {
@@ -31,6 +30,8 @@ namespace Microsoft.AspNetCore.Routing
         private readonly object _actionEndpointFactory;
         private readonly IActionDescriptorCollectionProvider _actions;
         private readonly Assembly _moduleAssembly;
+        private readonly Type _moduleType;
+        private readonly Type _moduleAbstractType;
         private readonly List<DefaultEndpointConventionBuilder> _modelEndpoints;
 
         static ModuleEndpointDataSource()
@@ -76,6 +77,8 @@ namespace Microsoft.AspNetCore.Routing
             _actionEndpointFactory = serviceProvider.GetRequiredService(_actionEndpointFactoryType)!;
             _actions = serviceProvider.GetRequiredService<IActionDescriptorCollectionProvider>();
             _moduleAssembly = parentType.Assembly;
+            _moduleType = parentType;
+            _moduleAbstractType = parentType.IsConstructedGenericType ? parentType.GetGenericTypeDefinition() : parentType;
             _modelEndpoints = new List<DefaultEndpointConventionBuilder>();
         }
 
@@ -85,8 +88,6 @@ namespace Microsoft.AspNetCore.Routing
 
         public bool EnableController { get; set; }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [DebuggerStepThrough]
         public IEndpointConventionBuilder AddRequestDelegate(RoutePattern routePattern, RequestDelegate requestDelegate)
         {
             var builder = new DefaultEndpointConventionBuilder(routePattern, requestDelegate);
@@ -94,8 +95,6 @@ namespace Microsoft.AspNetCore.Routing
             return builder;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [DebuggerStepThrough]
         public static IEndpointBuilder Create(AbstractModule module, IEndpointRouteBuilder builder)
         {
             return (IEndpointBuilder)
@@ -103,11 +102,23 @@ namespace Microsoft.AspNetCore.Routing
                 .Invoke(null, new object[] { module, builder })!;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [DebuggerStepThrough]
         private static DefaultEndpointBuilder<TModule> CreateCore<TModule>(TModule module, IEndpointRouteBuilder builder) where TModule : AbstractModule
         {
             return new DefaultEndpointBuilder<TModule>(builder, module.Area, module.Conventions);
+        }
+
+        private bool CheckEligibility(ActionDescriptor descriptor, out ControllerActionDescriptor? action)
+        {
+            action = descriptor as ControllerActionDescriptor;
+            if (action == null) return false;
+            if (action.ControllerTypeInfo.Assembly == _moduleAssembly) return true;
+
+            // when a controller is affiliated to this module
+            var aff = action.ControllerTypeInfo.GetCustomAttribute<AffiliateToAttribute>()?.ModuleType;
+            if (aff == _moduleAbstractType || aff == _moduleType) return true;
+
+            // not belong to this module, bye
+            return false;
         }
 
         private void Initialize()
@@ -124,7 +135,7 @@ namespace Microsoft.AspNetCore.Routing
 
                     for (var i = 0; i < actions.Count; i++)
                     {
-                        if (actions[i] is ControllerActionDescriptor action && action.ControllerTypeInfo.Assembly == _moduleAssembly)
+                        if (CheckEligibility(actions[i], out var action) && action != null)
                         {
                             AddEndpoints(_actionEndpointFactory, endpoints, routeNames, action, conventions, false);
                         }
