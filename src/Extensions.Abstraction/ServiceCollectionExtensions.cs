@@ -213,7 +213,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// The lazy support by <see cref="IServiceProvider"/>.
         /// </summary>
         /// <typeparam name="T">The service type.</typeparam>
-        private class ServiceProviderLazyService<T> : Lazy<T>
+        private class ServiceProviderLazyService<T> : Lazy<T> where T : notnull
         {
             public ServiceProviderLazyService(IServiceProvider sp) : base(sp.GetRequiredService<T>)
             {

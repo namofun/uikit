@@ -1,9 +1,20 @@
 ﻿<Project>
+
   <PropertyGroup>
     <GitRepositoryDirectory>$(MSBuildThisFileDirectory).git</GitRepositoryDirectory>
     <AspNetCoreVersion>3.1.10</AspNetCoreVersion>
     <EFCoreBulkVersion>3.1.21</EFCoreBulkVersion>
+    <MSExtVersion>$(AspNetCoreVersion)</MSExtVersion>
+    <EFCoreVersion>$(AspNetCoreVersion)</EFCoreVersion>
+    <MediatRVersion>8.1.0</MediatRVersion>
+    <SystemTextJsonVersion>4.7.2</SystemTextJsonVersion>
+
+    <TestSdkVersion>16.5.0</TestSdkVersion>
+    <XunitVersion>2.4.0</XunitVersion>
+    <CoverletVersion>1.2.0</CoverletVersion>
+    <MSTestVersion>2.1.0</MSTestVersion>
   </PropertyGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)build\Microsoft.AspNetCore.Hosting.GitVersions.props" />
+
 </Project>

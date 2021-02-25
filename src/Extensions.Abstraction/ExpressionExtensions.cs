@@ -1,12 +1,14 @@
 ﻿#nullable enable
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using CA = System.Diagnostics.CodeAnalysis;
 
 namespace System.Linq.Expressions
 {
     /// <summary>
     /// The extensions for expressions.
     /// </summary>
+    [CA.SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Object Template")]
     public static class ExpressionExtensions
     {
         /// <summary>
@@ -39,7 +41,8 @@ namespace System.Linq.Expressions
             }
 
             /// <inheritdoc />
-            public override Expression Visit(Expression node)
+            [return: CA.NotNullIfNotNull("node")]
+            public override Expression? Visit(Expression? node)
             {
                 return node != null
                     ? Changes.TryGetValue(node, out var exp) ? exp : base.Visit(node) // original expression or new expression
