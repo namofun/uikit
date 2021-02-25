@@ -81,8 +81,8 @@ namespace Microsoft.AspNetCore.Routing
 
             var endpoints = _compositeEndpointDataSource.Endpoints
                 .Select(a => (ep: a, ad: a.Metadata.GetMetadata<ActionDescriptor>()))
-                .Where(a => actionDescriptiors.Contains(a.ad))
-                .GroupBy(a => a.ad, a => a.ep)
+                .Where(a => a.ad != null && actionDescriptiors.Contains(a.ad))
+                .GroupBy(a => a.ad!, a => a.ep)
                 .ToDictionary(a => a.Key, a => a.First());
 
             var newEndpoints = new List<RouteEndpoint>();

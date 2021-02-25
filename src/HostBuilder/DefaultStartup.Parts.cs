@@ -109,14 +109,14 @@ namespace Microsoft.AspNetCore.Mvc
 
                 if (compilerProvider == null || razorTree == null) return;
                 services.AddSingleton<IRazorFileProvider>(razorTree);
-                var assembly = compilerProvider.ImplementationType.Assembly;
+                var assembly = compilerProvider.ImplementationType!.Assembly;
                 var optionsType = assembly.GetType(MvcRazorRuntimeCompilationOptions)!;
 
                 var options = Expression.Parameter(optionsType, "options");
                 var lambda = Expression.Lambda(
                     Expression.Call(
                         Expression.Property(options, "FileProviders"),
-                        typeof(ICollection<IFileProvider>).GetMethod(nameof(ICollection<IFileProvider>.Add)),
+                        typeof(ICollection<IFileProvider>).GetMethod(nameof(ICollection<IFileProvider>.Add))!,
                         Expression.Constant(razorTree, typeof(IFileProvider))),
                     options);
 

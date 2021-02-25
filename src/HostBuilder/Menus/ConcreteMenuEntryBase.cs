@@ -66,7 +66,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         }
 
         /// <inheritdoc />
-        string IMenuEntryBase.GetLink(IUrlHelper urlHelper, ViewContext actionContext)
+        string? IMenuEntryBase.GetLink(IUrlHelper urlHelper, ViewContext actionContext)
         {
             return Metadata["Link"] switch
             {

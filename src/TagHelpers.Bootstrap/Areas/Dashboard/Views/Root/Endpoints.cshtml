@@ -39,7 +39,7 @@
             {
                 var methods = re.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods ?? Array.Empty<string>();
         <tags list="GET" color="primary" asp-show-if="@methods.Contains("GET")" /> <tags list="POST" color="success" asp-show-if="@methods.Contains("POST")" /> <tags list="PUT" color="warning" asp-show-if="@methods.Contains("PUT")" /> <tags list="DELETE" color="danger" asp-show-if="@methods.Contains("DELETE")" /> <tags list="PATCH" color="info" asp-show-if="@methods.Contains("PATCH")" /> <tags list="OPTIONS" color="dark" asp-show-if="@methods.Contains("OPTIONS")" /> <tags list="HEAD" color="dark" asp-show-if="@methods.Contains("HEAD")" /> <tags list="TRACE" color="dark" asp-show-if="@methods.Contains("TRACE")" /> <tags list="CONNECT" color="dark" asp-show-if="@methods.Contains("CONNECT")" />
-        <code>/@re.RoutePattern.RawText.TrimStart('/')</code>
+        <code>/@re.RoutePattern.RawText?.TrimStart('/')</code>
             }
             else
             {

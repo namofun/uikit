@@ -177,7 +177,7 @@ namespace Microsoft.AspNetCore.Mvc
 
             if (!that.Metadata.TryGetValue("Badges", out var ee))
                 ee = that.Metadata["Badges"] = new List<(string, BootstrapColor)>();
-            if (!(ee is List<(string, BootstrapColor)> badges))
+            if (ee is not List<(string, BootstrapColor)> badges)
                 throw new InvalidOperationException(EverConfigured);
 
             badges.Add((id, color));

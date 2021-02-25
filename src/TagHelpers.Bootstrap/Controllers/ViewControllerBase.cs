@@ -57,8 +57,8 @@ namespace Microsoft.AspNetCore.Mvc
                 var feature = HttpContext.Features.Get<IUrlRewritingFeature>();
                 var path = feature?.Path ?? Request.Path;
                 var query = feature?.Query ?? Request.QueryString;
-                ViewData["RefreshUrl"] = path.Value + query.Add("_", "1").Value.Replace("&amp;", "&");
-                ViewData["RefreshUrl2"] = path.Value + query.Value.Replace("&amp;", "&");
+                ViewData["RefreshUrl"] = path.Value + query.Add("_", "1").Value!.Replace("&amp;", "&");
+                ViewData["RefreshUrl2"] = path.Value + query.Value?.Replace("&amp;", "&");
             }
 
             if (IsWindowAjax)
@@ -122,7 +122,7 @@ namespace Microsoft.AspNetCore.Mvc
         [NonAction]
         public AskPostResult AskPost(string title, string message, string area, string controller, string action, object? routeValues = null, BootstrapColor type = BootstrapColor.primary)
         {
-            if (!(routeValues is Dictionary<string, string> rvd))
+            if (routeValues is not Dictionary<string, string> rvd)
             {
                 if (routeValues == null)
                 {
@@ -132,7 +132,7 @@ namespace Microsoft.AspNetCore.Mvc
                 {
                     var vtype = routeValues.GetType();
                     if ((!vtype.FullName?.StartsWith("<>f__AnonymousType")) ?? true)
-                        throw new System.ArgumentException(nameof(routeValues));
+                        throw new System.ArgumentException(null, nameof(routeValues));
 
                     rvd = vtype.GetProperties().ToDictionary(
                         keySelector: p => p.Name,
@@ -168,9 +168,9 @@ namespace Microsoft.AspNetCore.Mvc
         public AskPostResult AskPost(string title, string message, object? routeValues = null, BootstrapColor type = BootstrapColor.primary)
         {
             string area, controller, action;
-            area = (string)RouteData.Values[nameof(area)];
-            controller = (string)RouteData.Values[nameof(controller)];
-            action = (string)RouteData.Values[nameof(action)];
+            area = (string)RouteData.Values[nameof(area)]!;
+            controller = (string)RouteData.Values[nameof(controller)]!;
+            action = (string)RouteData.Values[nameof(action)]!;
             return AskPost(title, message, area, controller, action, routeValues, type);
         }
 

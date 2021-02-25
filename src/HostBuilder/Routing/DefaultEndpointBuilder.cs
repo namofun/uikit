@@ -112,7 +112,7 @@ namespace Microsoft.AspNetCore.Routing
 
                 static string TransformDisplayName(EndpointBuilder builder)
                 {
-                    var original = builder.DisplayName;
+                    var original = builder.DisplayName ?? string.Empty;
                     var segments = original.Split(' ');
                     if (segments.Length != 2) return original;
                     if (!segments[1].StartsWith('(') || !segments[1].EndsWith(')')) return original;

@@ -148,7 +148,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
                     ActionContext.HttpContext,
                     routeName: null,
                     values,
-                    fragment: new FragmentString(urlActionContext.Fragment == null ? null : "#" + urlActionContext.Fragment));
+                    fragment: urlActionContext.Fragment == null ? FragmentString.Empty : new FragmentString("#" + urlActionContext.Fragment));
                 return GenerateUrl2(urlActionContext.Protocol, urlActionContext.Host, path);
             }
 
@@ -163,11 +163,11 @@ namespace Microsoft.AspNetCore.Mvc.Routing
                     ActionContext.HttpContext,
                     routeContext.RouteName,
                     routeContext.Values,
-                    fragment: new FragmentString(routeContext.Fragment == null ? null : "#" + routeContext.Fragment));
+                    fragment: routeContext.Fragment == null ? FragmentString.Empty : new FragmentString("#" + routeContext.Fragment));
                 return GenerateUrl2(routeContext.Protocol, routeContext.Host, path);
             }
 
-            private string GenerateUrl2(string protocol, string host, string path)
+            private string GenerateUrl2(string? protocol, string? host, string? path)
             {
                 for (int i = 0; path != null && i < _rewriteRules.Count; i++)
                 {

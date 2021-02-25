@@ -8,7 +8,8 @@
         /// <inheritdoc />
         public override TimeSpan Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return TimeSpan.Parse(reader.GetString());
+            // explicitly suppress the null because it will throws
+            return TimeSpan.Parse(reader.GetString()!);
         }
 
         /// <inheritdoc />

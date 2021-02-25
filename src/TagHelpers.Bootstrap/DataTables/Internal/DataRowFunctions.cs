@@ -80,7 +80,7 @@ namespace Microsoft.AspNetCore.Mvc.DataTables.Internal
             var cur = expression;
             foreach (var nav in navigation.Split('.'))
             {
-                var prop = cur.Type.GetProperty(nav, FindFlag);
+                var prop = cur.Type.GetProperty(nav, FindFlag)!;
                 cur = Expression.Property(cur, prop);
             }
 

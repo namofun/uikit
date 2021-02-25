@@ -6,10 +6,10 @@
     public sealed class DateTimeAttribute : ValidationAttribute
     {
         /// <inheritdoc />
-        public override bool IsValid(object value)
+        public override bool IsValid(object? value)
         {
             if (value == null) return true;
-            if (!(value is string realValue)) return false;
+            if (value is not string realValue) return false;
             if (string.IsNullOrWhiteSpace(realValue)) return true;
             return DateTimeOffset.TryParse(realValue, out _);
         }

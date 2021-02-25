@@ -33,7 +33,7 @@ namespace Microsoft.AspNetCore.Routing
 
         public RuleResult ApplyUrl(ActionContext context, ref string path)
         {
-            if (path.StartsWith(_lib.Value) || path.StartsWith(_images.Value))
+            if (path.StartsWith(_lib.Value!) || path.StartsWith(_images.Value!))
                 return RuleResult.SkipRemainingRules;
             return RuleResult.ContinueRules;
         }

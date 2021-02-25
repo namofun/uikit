@@ -98,6 +98,11 @@ namespace Microsoft.AspNetCore.Mvc
             services.AddApiExplorer(o => o.DocInclusionPredicate((a, b) => b.GroupName == a))
                 .AddSecurityScheme("basic", Microsoft.OpenApi.Models.SecuritySchemeType.Http);
             services.AddSingleton<IApiDocumentProvider, ApiDocumentProvider>();
+
+            if (Environment.IsDevelopment())
+            {
+                services.AddDatabaseDeveloperPageExceptionFilter();
+            }
         }
 
         /// <summary>
@@ -113,7 +118,7 @@ namespace Microsoft.AspNetCore.Mvc
             {
                 app.UseDeveloperExceptionPage();
                 app.UseMiddleware<AjaxExceptionMiddleware>();
-                app.UseDatabaseErrorPage();
+                app.UseMigrationsEndPoint();
                 app.UseStatusCodePage();
             }
             else

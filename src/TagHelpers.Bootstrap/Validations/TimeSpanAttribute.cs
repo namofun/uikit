@@ -6,10 +6,10 @@
     public sealed class TimeSpanAttribute : ValidationAttribute
     {
         /// <inheritdoc />
-        public override bool IsValid(object value)
+        public override bool IsValid(object? value)
         {
             if (value == null) return true;
-            if (!(value is string realValue)) return false;
+            if (value is not string realValue) return false;
             if (string.IsNullOrEmpty(realValue)) return true;
             return realValue.TryParseAsTimeSpan(out _);
         }
@@ -40,7 +40,7 @@ namespace System
             value = default;
             if (string.IsNullOrEmpty(s)) return true;
             if (!s.StartsWith('+') && !s.StartsWith('-')) return false;
-            var ts = s.Substring(1).Split(':', 3, StringSplitOptions.None);
+            var ts = s[1..].Split(':', 3, StringSplitOptions.None);
             if (ts.Length != 3) return false;
             if (!int.TryParse(ts[0], out int hour)) return false;
             if (hour < 0) return false;

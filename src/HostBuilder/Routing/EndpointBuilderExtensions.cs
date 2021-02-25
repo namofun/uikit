@@ -65,7 +65,7 @@ namespace Microsoft.AspNetCore.Builder
             Action<HttpConnectionDispatcherOptions>? configureOptions = null)
         {
             return InternalCast(builder)
-                .MapBlazorHub(configureOptions)
+                .MapBlazorHub(configureOptions!)
                 .WithDefaults(builder.DefaultConvention);
         }
 

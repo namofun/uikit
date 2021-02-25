@@ -23,7 +23,7 @@ namespace Microsoft.AspNetCore.Mvc
         public static Task AuditAsync(this HttpContext context,
             string action, string? target, string? extra = null)
         {
-            if (!context.Items.TryGetValue(AuditPointAttribute.AuditlogTypeName, out object? typer))
+            if (!context.Items.TryGetValue(AuditPointAttribute.AuditlogTypeName, out object? typer) || typer == null)
                 return Task.FromException(new InvalidOperationException("No audit point specified."));
             int? cid = null;
             if (context.Items.TryGetValue(nameof(cid), out object? cidd))
