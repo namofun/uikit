@@ -61,5 +61,45 @@ namespace System.Linq
             if (takeCount.Value >= 0) return enumerable.Take(takeCount.Value);
             throw new InvalidOperationException("Take count cannot be negative!");
         }
+
+        /// <summary>
+        /// Sorts the elements of a sequence in ascending order according to a key.
+        /// </summary>
+        /// <typeparam name="TElemenet">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by the function represented by <paramref name="keySelector"/>.</typeparam>
+        /// <param name="source">An <see cref="IEnumerable{TSource}"/> that contains elements to sort.</param>
+        /// <param name="keySelector">A function to extract a key from each element.</param>
+        /// <param name="ascending">True if ascending, false if descending.</param>
+        /// <returns>An <see cref="IOrderedEnumerable{TSource}"/> whose elements are sorted according to a key.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="keySelector"/> is null.</exception>
+        public static IOrderedEnumerable<TElemenet> OrderByBoolean<TElemenet, TKey>(
+            this IEnumerable<TElemenet> source,
+            Func<TElemenet, TKey> keySelector,
+            bool ascending)
+        {
+            return ascending
+                ? source.OrderBy(keySelector)
+                : source.OrderByDescending(keySelector);
+        }
+
+        /// <summary>
+        /// Performs a subsequent ordering of the elements in a sequence in ascending or descending order according to a key.
+        /// </summary>
+        /// <typeparam name="TElemenet">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by the function represented by <paramref name="keySelector"/>.</typeparam>
+        /// <param name="source">An <see cref="IOrderedEnumerable{TElemenet}"/> that contains elements to sort.</param>
+        /// <param name="keySelector">A function to extract a key from each element.</param>
+        /// <param name="ascending">True if ascending, false if descending.</param>
+        /// <returns>An <see cref="IOrderedEnumerable{TElemenet}"/> whose elements are sorted according to a key.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="keySelector"/> is null.</exception>
+        public static IOrderedEnumerable<TElemenet> ThenByBoolean<TElemenet, TKey>(
+            this IOrderedEnumerable<TElemenet> source,
+            Func<TElemenet, TKey> keySelector,
+            bool ascending)
+        {
+            return ascending
+                ? source.ThenBy(keySelector)
+                : source.ThenByDescending(keySelector);
+        }
     }
 }

@@ -15,6 +15,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// with an implementation type specified in <typeparamref name="TImplementation"/>
         /// to the specified <see cref="IServiceCollection"/>.
         /// </summary>
+        /// <remarks>
+        /// Only the first service descriptor is replaced.
+        /// The original service lifetime will be ignored.
+        /// </remarks>
         /// <typeparam name="TService">The type of the service to replace.</typeparam>
         /// <typeparam name="TImplementation">The type of the implementation to use.</typeparam>
         /// <param name="services">The <see cref="IServiceCollection"/> to replace the service at.</param>
@@ -31,6 +35,10 @@ namespace Microsoft.Extensions.DependencyInjection
         /// with an implementation type specified in <typeparamref name="TImplementation"/>
         /// to the specified <see cref="IServiceCollection"/>.
         /// </summary>
+        /// <remarks>
+        /// Only the first service descriptor is replaced.
+        /// The original service lifetime will be ignored.
+        /// </remarks>
         /// <typeparam name="TService">The type of the service to replace.</typeparam>
         /// <typeparam name="TImplementation">The type of the implementation to use.</typeparam>
         /// <param name="services">The <see cref="IServiceCollection"/> to replace the service at.</param>
@@ -124,14 +132,14 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <typeparam name="TService">The service type.</typeparam>
         /// <param name="services">The service collection.</param>
         /// <param name="serviceLifetime">The service lifetime.</param>
-        private static void EnsureRegistered<TService>(IServiceCollection services, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+        public static void EnsureRegistered<TService>(this IServiceCollection services, ServiceLifetime? serviceLifetime = default)
         {
             var serviceType = typeof(TService);
 
             for (int i = 0; i < services.Count; i++)
             {
                 if (services[i].ServiceType != serviceType) continue;
-                if (services[i].Lifetime != serviceLifetime)
+                if (serviceLifetime.HasValue && services[i].Lifetime != serviceLifetime)
                     throw new InvalidOperationException(
                         $"The service lifetime for {serviceType} is not correct.");
                 return;

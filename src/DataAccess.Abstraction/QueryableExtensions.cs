@@ -95,6 +95,46 @@ namespace System.Linq
         }
 
         /// <summary>
+        /// Sorts the elements of a sequence in ascending order according to a key.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by the function represented by <paramref name="keySelector"/>.</typeparam>
+        /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains elements to sort.</param>
+        /// <param name="keySelector">A function to extract a key from each element.</param>
+        /// <param name="ascending">True if ascending, false if descending.</param>
+        /// <returns>An <see cref="IOrderedQueryable{TSource}"/> whose elements are sorted according to a key.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="keySelector"/> is null.</exception>
+        public static IOrderedQueryable<TSource> OrderByBoolean<TSource, TKey>(
+            this IQueryable<TSource> source,
+            Expression<Func<TSource, TKey>> keySelector,
+            bool ascending)
+        {
+            return ascending
+                ? source.OrderBy(keySelector)
+                : source.OrderByDescending(keySelector);
+        }
+
+        /// <summary>
+        /// Performs a subsequent ordering of the elements in a sequence in ascending or descending order according to a key.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+        /// <typeparam name="TKey">The type of the key returned by the function represented by <paramref name="keySelector"/>.</typeparam>
+        /// <param name="source">An <see cref="IOrderedQueryable{TSource}"/> that contains elements to sort.</param>
+        /// <param name="keySelector">A function to extract a key from each element.</param>
+        /// <param name="ascending">True if ascending, false if descending.</param>
+        /// <returns>An <see cref="IOrderedQueryable{TSource}"/> whose elements are sorted according to a key.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="keySelector"/> is null.</exception>
+        public static IOrderedQueryable<TSource> ThenByBoolean<TSource, TKey>(
+            this IOrderedQueryable<TSource> source,
+            Expression<Func<TSource, TKey>> keySelector,
+            bool ascending)
+        {
+            return ascending
+                ? source.ThenBy(keySelector)
+                : source.ThenByDescending(keySelector);
+        }
+
+        /// <summary>
         /// Asynchronously creates an <see cref="IPagedList{T}"/> from the query source.
         /// </summary>
         /// <remarks>
