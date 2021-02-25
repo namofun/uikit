@@ -15,32 +15,6 @@ namespace Microsoft.AspNetCore.Mvc
     public partial class Startup
     {
         /// <summary>
-        /// AssemblyLoadFileDelegate for <see cref="ApplicationParts.RelatedAssemblyAttribute"/>.
-        /// </summary>
-        /// <param name="fileName">The file name.</param>
-        /// <returns>The loaded assembly.</returns>
-        private static Assembly AssemblyLoadFileDelegate(string fileName)
-        {
-            bool AreSameAssembly(Assembly a) => !a.IsDynamic && string.Equals(a.Location, fileName, StringComparison.OrdinalIgnoreCase);
-
-            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(AreSameAssembly);
-            if (assembly != null) return assembly;
-            return Assembly.LoadFile(fileName);
-        }
-
-        /// <summary>
-        /// Setup the <see cref="AssemblyLoadFileDelegate"/>.
-        /// </summary>
-        static Startup()
-        {
-            // For ASP.NET Core 3.1
-            typeof(ApplicationParts.RelatedAssemblyAttribute)
-                .GetFields(BindingFlags.Static | BindingFlags.NonPublic)
-                .Single(f => f.Name == nameof(AssemblyLoadFileDelegate))
-                .SetValue(null, new Func<string, Assembly>(AssemblyLoadFileDelegate));
-        }
-
-        /// <summary>
         /// Batch add the application parts and razor files into the <see cref="ApplicationPartManager"/>.
         /// </summary>
         /// <param name="builder">The <see cref="IMvcBuilder"/> to configure more.</param>

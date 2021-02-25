@@ -48,7 +48,7 @@ namespace Microsoft.AspNetCore.Mvc.DataTables.Internal
             = Expression.New(typeof(TableCell).GetConstructors().Single());
 
         private static readonly Expression FactoryTableRow
-            = Expression.New(typeof(TagBuilder).GetConstructors().Single(), Expression.Constant("tr"));
+            = Expression.New(typeof(TagBuilder).GetConstructor(new[] { typeof(string) })!, Expression.Constant("tr"));
 
         public static readonly ParameterExpression ExpTableCell
             = Expression.Variable(typeof(TableCell), "cell");
