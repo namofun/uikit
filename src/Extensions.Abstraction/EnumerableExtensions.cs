@@ -101,5 +101,22 @@ namespace System.Linq
                 ? source.ThenBy(keySelector)
                 : source.ThenByDescending(keySelector);
         }
+
+        /// <summary>
+        /// Concatenates two sequences.
+        /// </summary>
+        /// <typeparam name="TSource">The type of the elements of the input sequences.</typeparam>
+        /// <param name="first">The first sequence to concatenate.</param>
+        /// <param name="condition"></param>
+        /// <param name="second">The sequence to concatenate to the first sequence.</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> that contains the concatenated elements of the two input sequences.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="first"/> or <paramref name="second"/> is null.</exception>
+        public static IEnumerable<TSource> ConcatIf<TSource>(
+            this IEnumerable<TSource> first,
+            bool condition,
+            IEnumerable<TSource> second)
+        {
+            return condition ? first.Concat(second) : first;
+        }
     }
 }

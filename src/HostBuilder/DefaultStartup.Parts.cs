@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
@@ -47,7 +48,7 @@ namespace Microsoft.AspNetCore.Mvc
         public void ConfigureParts(IMvcBuilder builder)
         {
             var partList = new List<ApplicationPart>();
-            PeerFileProvider? razorTree = null;
+            IRazorFileProvider? razorTree = null;
 
             static Assembly TryLoad(string assemblyName)
             {
