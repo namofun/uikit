@@ -29,5 +29,6 @@
         Sync = 19,
         Attachment = 20,
         Printing = 21,
+        PlagSet = 22,
     }
 }
