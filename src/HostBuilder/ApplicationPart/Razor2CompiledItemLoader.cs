@@ -23,7 +23,10 @@ namespace Microsoft.AspNetCore.Razor.Hosting
         protected override RazorCompiledItem CreateItem(RazorCompiledItemAttribute attribute)
         {
             if (attribute == null)
+            {
                 throw new ArgumentNullException(nameof(attribute));
+            }
+
             return new Razor2CompiledItem(attribute, AreaName);
         }
     }
