@@ -11,6 +11,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Microsoft.AspNetCore.Builder
 {
@@ -165,15 +166,23 @@ namespace Microsoft.AspNetCore.Builder
         /// Apply the endpoint modules into the route builder.
         /// </summary>
         /// <param name="builder">The route builder</param>
-        /// <param name="modules">The endpoint configuration list</param>
         /// <returns>The route builder</returns>
-        internal static void MapModules(this IEndpointRouteBuilder builder, IReadOnlyCollection<AbstractModule> modules)
+        internal static void MapModules(this IEndpointRouteBuilder builder)
         {
             var menu = builder.ServiceProvider.GetRequiredService<ConcreteMenuContributor>();
+            var modules = builder.ServiceProvider.GetRequiredService<ReadOnlyCollection<AbstractModule>>();
+            var connectors = builder.ServiceProvider.GetRequiredService<ReadOnlyCollection<AbstractConnector>>();
+
             foreach (var module in modules)
             {
-                module.RegisterEndpoints(ModuleEndpointDataSource.Create(module, builder));
+                module.RegisterEndpoints(ModuleEndpointDataSource.CreateBuilder(module, builder));
                 module.RegisterMenu(menu);
+            }
+
+            foreach (var connector in connectors)
+            {
+                connector.RegisterEndpoints(new ConnectorEndpointBuilder(builder, connector.Area, connector));
+                connector.RegisterMenu(menu);
             }
 
             menu.Contribute();

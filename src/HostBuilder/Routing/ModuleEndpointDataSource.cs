@@ -95,7 +95,7 @@ namespace Microsoft.AspNetCore.Routing
             return builder;
         }
 
-        public static IEndpointBuilder Create(AbstractModule module, IEndpointRouteBuilder builder)
+        public static IEndpointBuilder CreateBuilder(AbstractModule module, IEndpointRouteBuilder builder)
         {
             return (IEndpointBuilder)
                 _createCoreMethod.MakeGenericMethod(module.GetType())
@@ -114,7 +114,7 @@ namespace Microsoft.AspNetCore.Routing
             if (action.ControllerTypeInfo.Assembly == _moduleAssembly) return true;
 
             // when a controller is affiliated to this module
-            var aff = action.ControllerTypeInfo.GetCustomAttribute<AffiliateToAttribute>()?.ModuleType;
+            var aff = action.ControllerTypeInfo.Assembly.GetCustomAttribute<AffiliateToAttribute>()?.BelongingModuleType;
             if (aff == _moduleAbstractType || aff == _moduleType) return true;
 
             // not belong to this module, bye

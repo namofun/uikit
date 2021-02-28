@@ -151,7 +151,7 @@ namespace Microsoft.AspNetCore.Mvc
             app.UseExtensions(options.Value.PointBeforeEndpoint);
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapModules(Modules);
+                endpoints.MapModules();
                 endpoints.MapReExecute();
                 endpoints.MapExtensions(options.Value.Endpoints);
             });

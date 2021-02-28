@@ -6,6 +6,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -116,10 +117,65 @@ namespace Microsoft.AspNetCore.Mvc
                 }
             }
 
+            var moduleTypes = new Dictionary<Type, AbstractModule>();
+            var connectors = new List<AbstractConnector>();
+            var withConnectors = builder.PartManager.ApplicationParts
+                .OfType<AssemblyPart>()
+                .SelectMany(a => a.Assembly.GetCustomAttributes<AffiliateToAttribute>())
+                .Where(a => a.ConnectorType != null)
+                .ToList();
+
             foreach (var module in Modules)
             {
-                DiscoverPart(module.GetType().Assembly, module.Area);
+                var moduleType = module.GetType();
+                DiscoverPart(moduleType.Assembly, module.Area);
+                bool duplicate = !moduleTypes.TryAdd(moduleType, module);
+
+                if (!duplicate && moduleType.IsConstructedGenericType)
+                {
+                    duplicate = !moduleTypes.TryAdd(moduleType.GetGenericTypeDefinition(), module);
+                }
+
+                if (duplicate)
+                {
+                    throw new InvalidOperationException(
+                        $"The module {moduleType} duplicated.");
+                }
             }
+
+            foreach (var connectorType in withConnectors)
+            {
+                if (connectorType.ModuleTypes.Any(t => !moduleTypes.ContainsKey(t)))
+                {
+                    continue;
+                }
+
+                if (connectorType.ConnectorType!.IsGenericTypeDefinition)
+                {
+                    throw new InvalidOperationException(
+                        $"The connector of \"{connectorType.ConnectorType.AssemblyQualifiedName}\" " +
+                        $"should be generic constructed.");
+                }
+
+                var constructors = connectorType.ConnectorType.GetConstructors();
+                if (constructors.Length != 1
+                    || constructors[0].GetParameters().Length != 0
+                    || !constructors[0].IsPublic)
+                {
+                    throw new InvalidOperationException(
+                        $"The connector of \"{connectorType.ConnectorType.AssemblyQualifiedName}\" " +
+                        $"violated constructor requirements.");
+                }
+
+                var connector = (AbstractConnector)constructors[0].Invoke(null);
+                connectors.Add(connector);
+                connector.RegisterServices(builder.Services);
+                connector.Module = moduleTypes[connectorType.BelongingModuleType];
+                connector.AffiliateToAttribute = connectorType;
+                DiscoverPart(connectorType.ConnectorType.Assembly, connector.Area);
+            }
+
+            builder.Services.AddSingleton(new ReadOnlyCollection<AbstractConnector>(connectors));
 
             // Use reflection to discover things about runtime compilation
             //

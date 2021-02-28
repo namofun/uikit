@@ -1,40 +1,28 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Microsoft.AspNetCore.Routing
 {
-    internal class DefaultEndpointBuilder<TModule> : IEndpointBuilder, IEndpointRouteBuilder
+    internal sealed class DefaultEndpointBuilder<TModule> : BaseEndpointBuilder
         where TModule : AbstractModule
     {
-        private readonly IEndpointRouteBuilder _innerBuilder;
-
-        public ICollection<EndpointDataSource> DataSources => _innerBuilder.DataSources;
-
-        public IServiceProvider ServiceProvider => _innerBuilder.ServiceProvider;
-
-        public Action<IEndpointConventionBuilder> DefaultConvention { get; }
-
-        public string AreaName { get; }
-
-        public DefaultEndpointBuilder(IEndpointRouteBuilder builder, string areaName, Action<IEndpointConventionBuilder> convention)
+        public DefaultEndpointBuilder(
+            IEndpointRouteBuilder builder,
+            string areaName,
+            Action<IEndpointConventionBuilder> convention)
+            : base(builder, areaName, convention)
         {
-            AreaName = areaName;
-            _innerBuilder = builder;
-            DefaultConvention = convention;
         }
 
-        private ModuleEndpointDataSource<TModule> GetOrCreateDataSource()
+        protected override ModuleEndpointDataSource GetOrCreateDataSource()
         {
             var dataSource = DataSources.OfType<ModuleEndpointDataSource<TModule>>().FirstOrDefault();
             if (dataSource == null)
@@ -46,7 +34,7 @@ namespace Microsoft.AspNetCore.Routing
             return dataSource;
         }
 
-        public IEndpointConventionBuilder MapApiDocument(string name, string title, string description, string version)
+        public override IEndpointConventionBuilder MapApiDocument(string name, string title, string description, string version)
         {
             var assembly = typeof(TModule).Assembly;
             ServiceProvider
@@ -96,7 +84,7 @@ namespace Microsoft.AspNetCore.Routing
                 .WithMetadata(new HttpMethodMetadata(new[] { "GET" }));
         }
 
-        public ControllerActionEndpointConventionBuilder MapControllers()
+        public override ControllerActionEndpointConventionBuilder MapControllers()
         {
             var endpointDataSorce = GetOrCreateDataSource();
             if (endpointDataSorce.EnableController)
@@ -121,51 +109,6 @@ namespace Microsoft.AspNetCore.Routing
                     return original;
                 }
             }
-        }
-
-        public IErrorHandlerBuilder WithErrorHandler(string area, string controller, string action)
-        {
-            var ad = new ControllerActionDescriptorWrapper(area, controller, action);
-            return new DefaultErrorHandlerBuilder(ad, this);
-        }
-
-        public IEndpointConventionBuilder MapFallback(string pattern, RequestDelegate requestDelegate)
-        {
-            if (pattern == null)
-                throw new ArgumentNullException(nameof(pattern));
-            return MapFallback(RoutePatternFactory.Parse(pattern), requestDelegate);
-        }
-
-        public IEndpointConventionBuilder MapFallback(RoutePattern pattern, RequestDelegate requestDelegate)
-        {
-            return MapRequestDelegate(pattern, requestDelegate)
-                .WithDisplayName("Fallback " + pattern)
-                .WithMetadata(TrackAvailabilityMetadata.Fallback)
-                .WithDefaults(a => a.Add(b => ((RouteEndpointBuilder)b).Order = int.MaxValue));
-        }
-
-        public IEndpointConventionBuilder MapRequestDelegate(string pattern, RequestDelegate requestDelegate)
-        {
-            if (pattern == null)
-                throw new ArgumentNullException(nameof(pattern));
-            return MapRequestDelegate(RoutePatternFactory.Parse(pattern), requestDelegate);
-        }
-
-        public IEndpointConventionBuilder MapRequestDelegate(RoutePattern routePattern, RequestDelegate requestDelegate)
-        {
-            if (routePattern == null)
-                throw new ArgumentNullException(nameof(routePattern));
-            if (requestDelegate == null)
-                throw new ArgumentNullException(nameof(requestDelegate));
-
-            return GetOrCreateDataSource()
-                .AddRequestDelegate(routePattern, requestDelegate)
-                .WithDefaults(DefaultConvention);
-        }
-
-        public IApplicationBuilder CreateApplicationBuilder()
-        {
-            return _innerBuilder.CreateApplicationBuilder();
         }
     }
 }
