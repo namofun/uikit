@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 
 namespace Microsoft.AspNetCore.Mvc.Razor
 {
@@ -20,5 +21,11 @@ namespace Microsoft.AspNetCore.Mvc.Razor
         /// <param name="name">The folder name.</param>
         /// <returns>The file provider.</returns>
         IRazorFileProvider this[string name] { get; }
+
+        /// <summary>
+        /// Injects the logger into file provider.
+        /// </summary>
+        /// <param name="logger">The logger instance.</param>
+        void InjectLogger(ILogger? logger);
     }
 }

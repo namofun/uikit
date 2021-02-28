@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Microsoft.AspNetCore.Mvc
@@ -195,17 +195,9 @@ namespace Microsoft.AspNetCore.Mvc
                 var assembly = compilerProvider.ImplementationType.Assembly;
                 var optionsType = assembly.GetType(MvcRazorRuntimeCompilationOptions)!;
 
-                var options = Expression.Parameter(optionsType, "options");
-                var lambda = Expression.Lambda(
-                    Expression.Call(
-                        Expression.Property(options, "FileProviders"),
-                        typeof(ICollection<IFileProvider>).GetMethod(nameof(ICollection<IFileProvider>.Add)),
-                        Expression.Constant(razorTree, typeof(IFileProvider))),
-                    options);
-
-                var action = lambda.Compile();
-                var configureOptions = Activator.CreateInstance(typeof(ConfigureOptions<>).MakeGenericType(optionsType), action);
-                services.ConfigureOptions(configureOptions);
+                services.AddTransient(
+                    typeof(IConfigureOptions<>).MakeGenericType(optionsType),
+                    typeof(ConfigureRRCOptions<>).MakeGenericType(optionsType));
             }
 
             DiscoverRuntimeCompilation(builder.Services, razorTree);
@@ -239,6 +231,35 @@ namespace Microsoft.AspNetCore.Mvc
                     default:
                         throw new NotImplementedException("Seems that HostBuilder-discovered shouldn't contain this one.");
                 }
+            }
+        }
+
+        private class ConfigureRRCOptions<TOptions> :
+            IConfigureOptions<TOptions>
+            where TOptions : class, new()
+        {
+            private readonly IRazorFileProvider _fileProvider;
+            private readonly ILoggerFactory _loggerFactory;
+
+            public ConfigureRRCOptions(
+                IRazorFileProvider fileProvider,
+                ILoggerFactory loggerFactory)
+            {
+                _fileProvider = fileProvider;
+                _loggerFactory = loggerFactory;
+            }
+
+            public void Configure(TOptions options)
+            {
+                var logger = _loggerFactory.CreateLogger<TOptions>();
+                _fileProvider.InjectLogger(logger);
+
+                var fps = (ICollection<IFileProvider>)
+                    options.GetType()
+                        .GetProperty("FileProviders")!
+                        .GetValue(options)!;
+
+                fps.Add(_fileProvider);
             }
         }
     }
