@@ -11,7 +11,7 @@
     <PackageReleaseNotes>Support moduling in ASP.NET Core</PackageReleaseNotes>
     <RepositoryUrl>https://github.com/namofun/uikit</RepositoryUrl>
     <Version>1.0.0</Version>
-    <PackageVersion>1.0.32</PackageVersion>
+    <PackageVersion>1.0.33</PackageVersion>
     <AssemblyVersion>$(AspNetCoreVersion).0</AssemblyVersion>
     <FileVersion>$(AspNetCoreVersion).0</FileVersion>
 
