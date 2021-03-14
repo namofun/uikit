@@ -2,12 +2,13 @@
 
   <PropertyGroup>
     <GitRepositoryDirectory>$(MSBuildThisFileDirectory).git</GitRepositoryDirectory>
-    <AspNetCoreVersion>3.1.10</AspNetCoreVersion>
+    <AspNetCoreVersion>3.1.13</AspNetCoreVersion>
     <EFCoreBulkVersion>3.1.25</EFCoreBulkVersion>
     <MSExtVersion>$(AspNetCoreVersion)</MSExtVersion>
     <EFCoreVersion>$(AspNetCoreVersion)</EFCoreVersion>
     <MediatRVersion>8.1.0</MediatRVersion>
     <SystemTextJsonVersion>4.7.2</SystemTextJsonVersion>
+    <SystemNetHttpJsonVersion>3.2.1</SystemNetHttpJsonVersion>
 
     <TestSdkVersion>16.5.0</TestSdkVersion>
     <XunitVersion>2.4.0</XunitVersion>

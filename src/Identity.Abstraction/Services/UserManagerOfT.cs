@@ -243,6 +243,14 @@ namespace Microsoft.AspNetCore.Identity
             return GetListStore().ListUserRoleClaimsAsync(user, CancellationToken);
         }
 
+        /// <inheritdoc />
+        public override async Task<IdentityResult> ChangePasswordAsync(TUser user, string currentPassword, string newPassword)
+        {
+            var result = await base.ChangePasswordAsync(user, currentPassword, newPassword);
+            if (result.Succeeded) await SlideExpirationAsync(user);
+            return result;
+        }
+
         #endregion
 
         #region Relay with IUserListStore<TUser, TRole>
