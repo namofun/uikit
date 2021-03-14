@@ -7,8 +7,7 @@ using SatelliteSite.Services;
 
 namespace SatelliteSite.Substrate
 {
-    internal class DefaultModule<TContext> : AbstractModule
-        where TContext : DbContext
+    internal class DefaultModule : AbstractModule
     {
         public override string Area => string.Empty;
 
@@ -34,11 +33,6 @@ namespace SatelliteSite.Substrate
                 {
                     conf.HasTitle(string.Empty, "Infrastructure")
                         .HasLink("javascript:;");
-
-                    conf.HasEntry(-100)
-                        .HasLink("Dashboard", "Root", "Config")
-                        .HasTitle(string.Empty, "Configuration settings")
-                        .RequireRoles("Administrator");
                 });
 
                 menu.HasSubmenu(MenuNameDefaults.DashboardUsers, 100, user =>
@@ -59,22 +53,20 @@ namespace SatelliteSite.Substrate
                     docs.HasEntry(101)
                         .HasTitle(string.Empty, "Component Versions")
                         .HasLink("Dashboard", "Root", "Versions");
-
-                    docs.HasEntry(102)
-                        .HasTitle(string.Empty, "Auditlogs")
-                        .HasLink("Dashboard", "Root", "Auditlog")
-                        .RequireRoles("Administrator");
                 });
             });
+        }
+
+        protected virtual void RegisterSubstrateBase(IServiceCollection services)
+        {
+            services.AddScoped<IAuditlogger, NullAuditlogger>();
+            services.AddScoped<IConfigurationRegistry, NullConfigurationRegistry>();
         }
 
         public override void RegisterServices(IServiceCollection services)
         {
             services.TryAddSingleton<ITelemetryClient, NullTelemetryClient>();
-            services.AddScoped<IAuditlogger, Auditlogger<TContext>>();
-            services.AddSingleton<ConfigurationRegistryCache>();
-            services.AddScoped<IConfigurationRegistry, ConfigurationRegistry<TContext>>();
-            services.AddDbModelSupplier<TContext, CoreEntityConfiguration<TContext>>();
+            RegisterSubstrateBase(services);
         }
 
         public override void RegisterEndpoints(IEndpointBuilder endpoints)
@@ -86,6 +78,38 @@ namespace SatelliteSite.Substrate
 
             endpoints.WithErrorHandler("Dashboard", "Root")
                 .MapStatusCode("/dashboard/{**slug}");
+        }
+    }
+
+    internal class DefaultModule<TContext> : DefaultModule where TContext : DbContext
+    {
+        public override void RegisterMenu(IMenuContributor menus)
+        {
+            base.RegisterMenu(menus);
+
+            menus.Submenu(MenuNameDefaults.DashboardConfigurations, menu =>
+            {
+                menu.HasEntry(-100)
+                    .HasLink("Dashboard", "Root", "Config")
+                    .HasTitle(string.Empty, "Configuration settings")
+                    .RequireRoles("Administrator");
+            });
+
+            menus.Submenu(MenuNameDefaults.DashboardDocuments, menu =>
+            {
+                menu.HasEntry(102)
+                    .HasTitle(string.Empty, "Auditlogs")
+                    .HasLink("Dashboard", "Root", "Auditlog")
+                    .RequireRoles("Administrator");
+            });
+        }
+
+        protected override void RegisterSubstrateBase(IServiceCollection services)
+        {
+            services.AddScoped<IAuditlogger, Auditlogger<TContext>>();
+            services.AddSingleton<ConfigurationRegistryCache>();
+            services.AddScoped<IConfigurationRegistry, ConfigurationRegistry<TContext>>();
+            services.AddDbModelSupplier<TContext, CoreEntityConfiguration<TContext>>();
         }
     }
 }
