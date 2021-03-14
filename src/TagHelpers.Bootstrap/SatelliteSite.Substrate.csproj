@@ -18,7 +18,6 @@
   <ItemGroup>
     <ProjectReference Include="..\DataAccess.Abstraction\SatelliteSite.DataAccess.csproj" />
     <ProjectReference Include="..\Extensions.Abstraction\SatelliteSite.Abstraction.csproj" />
-    <ProjectReference Include="..\StaticWebAssets\SatelliteSite.StaticWebAssets.csproj" />
   </ItemGroup>
 
 </Project>

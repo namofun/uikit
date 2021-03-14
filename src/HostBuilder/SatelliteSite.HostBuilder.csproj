@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TagHelpers.Bootstrap\SatelliteSite.Substrate.csproj" />
+    <ProjectReference Include="..\StaticWebAssets\SatelliteSite.StaticWebAssets.csproj" />
   </ItemGroup>
 
 </Project>
