@@ -3,7 +3,7 @@
   <PropertyGroup>
     <GitRepositoryDirectory>$(MSBuildThisFileDirectory).git</GitRepositoryDirectory>
     <AspNetCoreVersion>3.1.10</AspNetCoreVersion>
-    <EFCoreBulkVersion>3.1.21</EFCoreBulkVersion>
+    <EFCoreBulkVersion>3.1.25</EFCoreBulkVersion>
     <MSExtVersion>$(AspNetCoreVersion)</MSExtVersion>
     <EFCoreVersion>$(AspNetCoreVersion)</EFCoreVersion>
     <MediatRVersion>8.1.0</MediatRVersion>

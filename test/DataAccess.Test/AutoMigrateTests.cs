@@ -49,7 +49,7 @@ namespace SatelliteSite.Tests
         public void EnsureDefaultEntitiesSqlServer()
         {
             using var host = Host.CreateDefaultBuilder()
-                .AddDatabase<Context>(b => b.UseSqlServer("a", b => b.UseBulk()))
+                .AddDatabase<Context>(b => b.UseSqlServer("Host=localhost", b => b.UseBulk()))
                 .ConfigureServices(services => services.AddDbModelSupplier<Context, ContextMore>())
                 .Build();
 
@@ -70,7 +70,7 @@ namespace SatelliteSite.Tests
         public void EnsureDefaultEntitiesNpgsql()
         {
             using var host = Host.CreateDefaultBuilder()
-                .AddDatabase<Context>(b => b.UseNpgsql("a", b => b.UseBulk()))
+                .AddDatabase<Context>(b => b.UseNpgsql("Host=localhost", b => b.UseBulk()))
                 .ConfigureServices(services => services.AddDbModelSupplier<Context, ContextMore>())
                 .Build();
 
@@ -83,6 +83,48 @@ namespace SatelliteSite.Tests
                 "INSERT INTO \"Configuration\" (\"Name\", \"Category\", \"Description\", \"DisplayPriority\", \"Public\", \"Type\", \"Value\")" +
                 Environment.NewLine +
                 "VALUES ('conf_name', '1', '1', 1, TRUE, 'string', '\"1\"');";
+
+            Assert.IsTrue(script.Contains(shouldHave));
+        }
+
+        [TestMethod]
+        public void EnsureDefaultEntitiesMySql()
+        {
+            using var host = Host.CreateDefaultBuilder()
+                .AddDatabase<Context>(b => b.UseMySql("Host=localhost", b => b.UseBulk()))
+                .ConfigureServices(services => services.AddDbModelSupplier<Context, ContextMore>())
+                .Build();
+
+            using var scope = host.Services.CreateScope();
+            using var ctx = scope.ServiceProvider.GetRequiredService<Context>();
+
+            var script = ctx.Database.GenerateCreateScript();
+
+            string shouldHave =
+                "INSERT INTO `Configuration` (`Name`, `Category`, `Description`, `DisplayPriority`, `Public`, `Type`, `Value`)" +
+                Environment.NewLine +
+                "VALUES ('conf_name', '1', '1', 1, TRUE, 'string', '\"1\"');";
+
+            Assert.IsTrue(script.Contains(shouldHave));
+        }
+
+        [TestMethod]
+        public void EnsureDefaultEntitiesSqlite()
+        {
+            using var host = Host.CreateDefaultBuilder()
+                .AddDatabase<Context>(b => b.UseSqlite("Host=localhost", b => b.UseBulk()))
+                .ConfigureServices(services => services.AddDbModelSupplier<Context, ContextMore>())
+                .Build();
+
+            using var scope = host.Services.CreateScope();
+            using var ctx = scope.ServiceProvider.GetRequiredService<Context>();
+
+            var script = ctx.Database.GenerateCreateScript();
+
+            string shouldHave =
+                "INSERT INTO \"Configuration\" (\"Name\", \"Category\", \"Description\", \"DisplayPriority\", \"Public\", \"Type\", \"Value\")" +
+                Environment.NewLine +
+                "VALUES ('conf_name', '1', '1', 1, 1, 'string', '\"1\"');";
 
             Assert.IsTrue(script.Contains(shouldHave));
         }

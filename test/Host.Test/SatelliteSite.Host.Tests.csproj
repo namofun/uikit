@@ -11,7 +11,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVersion)" />
     <PackageReference Include="coverlet.collector" Version="$(CoverletVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(AspNetCoreVersion)" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Bulk.InMemory" Version="$(EFCoreBulkVersion)" />
+    <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.InMemory" Version="$(EFCoreBulkVersion)" />
   </ItemGroup>
 
   <ItemGroup>

@@ -73,9 +73,6 @@ namespace Microsoft.Extensions.Hosting
             Action<HostBuilderContext, DbContextOptionsBuilder> configures)
             where TContext : DbContext
         {
-            const string batchBulk = "Microsoft.EntityFrameworkCore.Bulk.RelationalBatchDbContextOptionsExtension`3";
-            const string inMemoryBulk = "Microsoft.EntityFrameworkCore.InMemoryBatchExtensions+InMemoryBatchDbContextOptionsExtension";
-
             return builder.ConfigureServices((context, services) =>
             {
                 services.AddSingleton<ModelSupplierService<TContext>>();
@@ -88,8 +85,7 @@ namespace Microsoft.Extensions.Hosting
                         configures.Invoke(context, options);
 
                         if (!options.Options.Extensions
-                            .Select(e => e.GetType().FullName)
-                            .Where(a => a == inMemoryBulk || (a?.StartsWith(batchBulk) ?? false))
+                            .OfType<Microsoft.EntityFrameworkCore.Bulk.BatchOptionsExtension>()
                             .Any())
                             throw new InvalidOperationException(NoBulkExtRegistered);
                     });

@@ -52,8 +52,9 @@ namespace SatelliteSite
                             }
                         });
 
-                        new AuthenticationBuilder(services)
-                            .AddAzureAd(options =>
+                        if (ctx.Configuration["AzureAD:ClientId"] != null)
+                        {
+                            AzureAdAuthentication.AddAzureAd(new AuthenticationBuilder(services), options =>
                             {
                                 options.Instance = ctx.Configuration["AzureAD:Instance"];
                                 options.Domain = ctx.Configuration["AzureAD:Domain"];
@@ -61,6 +62,7 @@ namespace SatelliteSite
                                 options.ClientSecret = ctx.Configuration["AzureAD:ClientSecret"];
                                 options.TenantId = ctx.Configuration["AzureAD:TenantId"];
                             });
+                        }
                     });
                 });
     }

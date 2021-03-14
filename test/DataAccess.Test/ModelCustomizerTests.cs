@@ -127,20 +127,33 @@ namespace SatelliteSite.Tests
                     .Services
                     .GetRequiredService<Context>();
 
-            RegisterAndTest(b => b.UseInMemoryDatabase("a", b => b.UseBulk()));
-            RegisterAndTest(b => b.UseSqlServer("a", b => b.UseBulk()));
-            RegisterAndTest(b => b.UseNpgsql("a", b => b.UseBulk()));
+            const string ConnectionString = "Host=localhost";
+
+            RegisterAndTest(b => b.UseInMemoryDatabase(ConnectionString, b => b.UseBulk()));
+            RegisterAndTest(b => b.UseSqlServer(ConnectionString, b => b.UseBulk()));
+            RegisterAndTest(b => b.UseNpgsql(ConnectionString, b => b.UseBulk()));
+            RegisterAndTest(b => b.UseSqlite(ConnectionString, b => b.UseBulk()));
+            RegisterAndTest(b => b.UseSqlite(ConnectionString, b => b.UseBulk()));
+            RegisterAndTest(b => b.UseMySql(ConnectionString, b => b.UseBulk()));
 
             Assert.ThrowsException<InvalidOperationException>(
-                () => RegisterAndTest(b => b.UseInMemoryDatabase("a")),
+                () => RegisterAndTest(b => b.UseInMemoryDatabase(ConnectionString)),
                 HostBuilderDataAccessExtensions.NoBulkExtRegistered);
 
             Assert.ThrowsException<InvalidOperationException>(
-                () => RegisterAndTest(b => b.UseSqlServer("a")),
+                () => RegisterAndTest(b => b.UseSqlServer(ConnectionString)),
                 HostBuilderDataAccessExtensions.NoBulkExtRegistered);
 
             Assert.ThrowsException<InvalidOperationException>(
-                () => RegisterAndTest(b => b.UseNpgsql("a")),
+                () => RegisterAndTest(b => b.UseNpgsql(ConnectionString)),
+                HostBuilderDataAccessExtensions.NoBulkExtRegistered);
+
+            Assert.ThrowsException<InvalidOperationException>(
+                () => RegisterAndTest(b => b.UseSqlite(ConnectionString)),
+                HostBuilderDataAccessExtensions.NoBulkExtRegistered);
+
+            Assert.ThrowsException<InvalidOperationException>(
+                () => RegisterAndTest(b => b.UseMySql(ConnectionString)),
                 HostBuilderDataAccessExtensions.NoBulkExtRegistered);
         }
     }
