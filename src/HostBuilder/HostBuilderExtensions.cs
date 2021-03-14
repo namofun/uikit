@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SatelliteSite.Substrate;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -82,7 +83,10 @@ namespace Microsoft.AspNetCore.Mvc
                     urlHelperFactory.Enabled = true;
                     var options = new RewriteOptions();
                     foreach (var rule in urlHelperFactory.RewriteRules)
+                    {
                         options.Add(rule);
+                    }
+
                     app.UseRewriter(options);
                 }
 
@@ -151,7 +155,10 @@ namespace Microsoft.AspNetCore.Mvc
         private static List<AbstractModule> Modules(this IHostBuilder builder)
         {
             if (!builder.Properties.ContainsKey("Substrate.Modules"))
+            {
                 builder.Properties.Add("Substrate.Modules", new List<AbstractModule>());
+            }
+
             return (List<AbstractModule>)builder.Properties["Substrate.Modules"];
         }
 
@@ -180,20 +187,20 @@ namespace Microsoft.AspNetCore.Mvc
         /// <list type="bullet">Enable IIS integration.</list>
         /// <list type="bullet">Use the moduled built-in <see cref="Startup"/> configurations.</list>
         /// </remarks>
-        /// <typeparam name="TContext">The default core service <see cref="DbContext"/>.</typeparam>
+        /// <typeparam name="TModule">The default core module <see cref="SatelliteSite.Substrate.DefaultModule"/>.</typeparam>
         /// <param name="builder">The <see cref="IHostBuilder"/> instance to configure.</param>
         /// <param name="further">The configure callback.</param>
         /// <returns>The <see cref="IHostBuilder"/> for chaining.</returns>
-        public static IHostBuilder ConfigureSubstrateDefaults<TContext>(
+        private static IHostBuilder ConfigureSubstrateWithDefaultModule<TModule>(
             this IHostBuilder builder,
             Action<IWebHostBuilder>? further = null)
-            where TContext : DbContext
+            where TModule : DefaultModule, new()
         {
             bool hasDomainSpecified = builder.GetDomain(out var domainName);
             further ??= _ => { };
 
             var modules = builder.Modules();
-            modules.Insert(0, new SatelliteSite.Substrate.DefaultModule<TContext>());
+            modules.Insert(0, new TModule());
 
             // register webservices
             return builder.ConfigureWebHostDefaults(builder =>
@@ -203,7 +210,9 @@ namespace Microsoft.AspNetCore.Mvc
                 builder.UseStartup<Startup>();
 
                 if (hasDomainSpecified)
+                {
                     builder.UseSetting(WebHostDefaults.ApplicationKey, domainName);
+                }
 
                 builder.ConfigureServices((context, services) =>
                 {
@@ -221,5 +230,23 @@ namespace Microsoft.AspNetCore.Mvc
                 further.Invoke(builder);
             });
         }
+
+        /// <inheritdoc cref="ConfigureSubstrateWithDefaultModule{TModule}(IHostBuilder, Action{IWebHostBuilder}?)"/>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IWebHostBuilder"/> class with pre-configured defaults,
+        /// but without auditlogger and configuration registry.
+        /// </summary>
+        public static IHostBuilder ConfigureSubstrateDefaultsCore(
+            this IHostBuilder builder,
+            Action<IWebHostBuilder>? further = null)
+            => ConfigureSubstrateWithDefaultModule<DefaultModule>(builder, further);
+
+        /// <inheritdoc cref="ConfigureSubstrateWithDefaultModule{TModule}(IHostBuilder, Action{IWebHostBuilder}?)"/>
+        /// <typeparam name="TContext">The default core service <see cref="DbContext"/>.</typeparam>
+        public static IHostBuilder ConfigureSubstrateDefaults<TContext>(
+            this IHostBuilder builder,
+            Action<IWebHostBuilder>? further = null)
+            where TContext : DbContext
+            => ConfigureSubstrateWithDefaultModule<DefaultModule<TContext>>(builder, further);
     }
 }
