@@ -174,10 +174,17 @@ namespace Microsoft.AspNetCore.Identity
         {
             cancellationToken.ThrowIfCancellationRequested();
             ThrowIfDisposed();
+            var concurrencyStamp = Guid.NewGuid().ToString();
 
             return Users
                 .Where(u => userIds.Contains(u.Id))
-                .BatchUpdateAsync(u => new TUser { LockoutEnd = DateTimeOffset.MaxValue, SecurityStamp = newSecurityStamp }, cancellationToken);
+                .BatchUpdateAsync(u => new TUser
+                {
+                    LockoutEnd = DateTimeOffset.MaxValue,
+                    SecurityStamp = newSecurityStamp,
+                    ConcurrencyStamp = concurrencyStamp,
+                },
+                cancellationToken);
         }
 
         /// <inheritdoc />
