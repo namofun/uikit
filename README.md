@@ -1,6 +1,6 @@
 # Project Substrate
 
-![](https://img.shields.io/travis/com/namofun/uikit/master) ![](https://img.shields.io/github/license/namofun/uikit) ![](https://img.shields.io/github/languages/code-size/namofun/uikit)
+![](https://img.shields.io/azure-devops/build/tlylz/5f8d36de-7004-4c36-a8b5-8a4bda9eb598/2) ![](https://img.shields.io/github/license/namofun/uikit) ![](https://img.shields.io/github/languages/code-size/namofun/uikit)
 
 This is a project for ASP.NET Core module design standard,  designed as Satellite Site first. With this module, you can build your module application faster.
 

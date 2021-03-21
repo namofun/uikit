@@ -4,7 +4,12 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-- master
+  branches:
+    include:
+    - '*'
+  tags:
+    include:
+    - '*'
 
 jobs:
 - job: Build
@@ -14,15 +19,28 @@ jobs:
     vmImage: ubuntu-latest
 
   steps:
-  - script: dotnet build
-    displayName: 'Build'
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'build'
+    displayName: 'Build the Core'
 
-  - script: dotnet test
-    displayName: 'Test'
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'test'
+      testRunTitle: 'Run unit tests'
+    displayName: 'Run Unit Tests'
 
-  - script: dotnet pack -c Release -o $(Build.ArtifactStagingDirectory)
-    displayName: 'Package'
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'custom'
+      custom: 'pack'
+      arguments: '-c Release -o $(Build.ArtifactStagingDirectory)'
+    displayName: 'Package for NuGet'
 
-  - script: dotnet nuget push -s https://nuget.xylab.fun/v3/index.json -k $(NUGET_KEY) "$(Build.ArtifactStagingDirectory)/**/*.nupkg"
-    displayName: 'Publish'
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'custom'
+      custom: 'nuget'
+      arguments: 'push --skip-duplicate -s https://nuget.xylab.fun/v3/index.json -k $(NUGET_KEY) "$(Build.ArtifactStagingDirectory)/**/*.nupkg"'
+    displayName: 'Push to NuGet Feed'
     condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
