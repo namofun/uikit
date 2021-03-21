@@ -9,15 +9,20 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
-variables:
-  buildConfiguration: 'Release'
-
 steps:
 - script: dotnet build
-  displayName: 'dotnet build'
+  displayName: 'Build'
 
 - script: dotnet test
-  displayName: 'dotnet test'
+  displayName: 'Test'
 
-- script: dotnet pack -c Release -o packages
-  displayName: 'dotnet pack'
+- script: dotnet pack -c Release -o $(Build.ArtifactStagingDirectory)
+  displayName: 'Package'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Publish'
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    nuGetFeedType: 'external'
+    publishFeedCredentials: 'xylab-nuget'
