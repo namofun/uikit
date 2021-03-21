@@ -19,10 +19,5 @@ steps:
 - script: dotnet pack -c Release -o $(Build.ArtifactStagingDirectory)
   displayName: 'Package'
 
-- task: DotNetCoreCLI@2
+- script: dotnet nuget push -s https://nuget.xylab.fun/v3/index.json -k $(NUGET_KEY) "$(Build.ArtifactStagingDirectory)\**\*.nupkg"
   displayName: 'Publish'
-  inputs:
-    command: 'push'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
-    nuGetFeedType: 'external'
-    publishFeedCredentials: 'xylab-nuget'
