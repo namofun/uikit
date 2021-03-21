@@ -8,7 +8,7 @@ trigger:
 
 jobs:
 - job: Build
-  displayName: "Build and Test"
+  displayName: "Build, Test and Publish"
 
   pool:
     vmImage: ubuntu-latest
@@ -23,13 +23,6 @@ jobs:
   - script: dotnet pack -c Release -o $(Build.ArtifactStagingDirectory)
     displayName: 'Package'
 
-- job: Deploy
-  displayName: "Deploy to NuGet"
-  dependsOn: Build
-
-  pool:
-    vmImage: ubuntu-latest
-
-  steps:
   - script: dotnet nuget push -s https://nuget.xylab.fun/v3/index.json -k $(NUGET_KEY) "$(Build.ArtifactStagingDirectory)/**/*.nupkg"
     displayName: 'Publish'
+    condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
