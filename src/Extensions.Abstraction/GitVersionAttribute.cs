@@ -62,9 +62,14 @@ namespace System
                     var lines = File.ReadAllText(head).Trim();
                     var line = lines.Split('\n').FirstOrDefault()?.Trim() ?? "";
                     const string starts = "ref: refs/heads/";
+                    const string startTags = "ref: refs/tags/";
                     if (line.StartsWith(starts))
                     {
                         Branch = line.Substring(starts.Length);
+                    }
+                    else if (line.StartsWith(startTags))
+                    {
+                        Branch = line.Substring(startTags.Length);
                     }
                     else if (line.Length == 40 && File.Exists(packed_ref))
                     {
