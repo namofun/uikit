@@ -14,7 +14,7 @@ namespace SatelliteSite.Services
 
         public Task<IPagedList<Auditlog>> ViewLogsAsync(int? cid, int page, int pageCount)
         {
-            return Task.FromResult<IPagedList<Auditlog>>(new PagedViewList<Auditlog>(Array.Empty<Auditlog>(), 0, 0, 0));
+            return Task.FromResult<IPagedList<Auditlog>>(new PagedViewList<Auditlog>(Array.Empty<Auditlog>(), page, 0, pageCount));
         }
     }
 }
