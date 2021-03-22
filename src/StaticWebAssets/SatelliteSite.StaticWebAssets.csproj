@@ -8,7 +8,7 @@
   <Import Project="..\..\build\NugetPackage.props" />
 
   <PropertyGroup>
-    <PackageVersion>1.0.10</PackageVersion>
+    <PackageVersion>1.0.11</PackageVersion>
 
     <ResolveCurrentProjectStaticWebAssetsInputsDependsOn>
       SetStaticWebAssetsBasePath;
@@ -24,7 +24,10 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.76" PrivateAssets="All" />
-    <PackageReference Include="SatelliteSite.Abstraction" Version="1.0.30" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Extensions.Abstraction\SatelliteSite.Abstraction.csproj" />
   </ItemGroup>
 
   <ItemGroup>
