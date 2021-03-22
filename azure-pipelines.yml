@@ -19,6 +19,15 @@ jobs:
     vmImage: ubuntu-latest
 
   steps:
+  - task: Bash@3
+    inputs:
+    targetType: 'inline'
+    script: |
+      echo "ref: $BUILD_SOURCEBRANCH" > .git/HEAD
+    env:
+      BUILD_SOURCEBRANCH: $(Build.SourceBranch)
+    displayName: 'Set Source Branch'
+
   - task: DotNetCoreCLI@2
     inputs:
       command: 'build'
