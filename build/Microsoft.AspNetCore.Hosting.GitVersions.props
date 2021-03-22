@@ -27,7 +27,8 @@
                     }
                 }
 
-                head = Path.Combine(Folder, "HEAD");
+                head = Path.Combine(Folder, "ADO_OVERRIDE_HEAD");
+                if (!File.Exists(head)) head = Path.Combine(Folder, "HEAD");
                 var packed_ref = Path.Combine(Folder, "packed-refs");
                 if (File.Exists(head))
                 {

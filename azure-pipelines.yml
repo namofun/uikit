@@ -22,7 +22,7 @@ jobs:
   - task: Bash@3
     inputs:
       targetType: 'inline'
-      script: 'echo "ref: $BUILD_SOURCEBRANCH" > .git/HEAD'
+      script: 'echo "ref: $BUILD_SOURCEBRANCH" > .git/ADO_OVERRIDE_HEAD'
     env:
       BUILD_SOURCEBRANCH: $(Build.SourceBranch)
     displayName: 'Set Source Branch'
