@@ -209,7 +209,7 @@ function initXylabFunctions() {
 }
 
 function initEditormdKatex() {
-    if (editormd === undefined) return;
+    if (window.editormd === undefined) return;
     let rawFactory = editormd.markedRenderer;
 
     editormd.markedRenderer = function (markdownToC, options) {
