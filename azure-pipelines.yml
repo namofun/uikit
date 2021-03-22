@@ -22,9 +22,7 @@ jobs:
   - task: Bash@3
     inputs:
       targetType: 'inline'
-      script: 'echo "ref: $BUILD_SOURCEBRANCH" > .git/ADO_OVERRIDE_HEAD'
-    env:
-      BUILD_SOURCEBRANCH: $(Build.SourceBranch)
+      script: 'echo "ref: $(Build.SourceBranch)" > $(Build.SourcesDirectory)/.git/ADO_OVERRIDE_HEAD'
     displayName: 'Set Source Branch'
 
   - task: DotNetCoreCLI@2
