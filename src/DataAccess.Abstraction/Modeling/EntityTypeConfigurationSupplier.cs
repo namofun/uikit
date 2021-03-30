@@ -8,8 +8,7 @@ namespace Microsoft.EntityFrameworkCore
     /// The model configuration supplier for a <see cref="DbContext"/> by reading all <see cref="IEntityTypeConfiguration{TEntity}"/> methods.
     /// </summary>
     /// <typeparam name="TContext">The <see cref="DbContext"/> to configure.</typeparam>
-    public abstract class EntityTypeConfigurationSupplier<TContext>
-        : IDbModelSupplier<TContext>
+    public abstract class EntityTypeConfigurationSupplier<TContext> : IDbModelSupplier<TContext>
         where TContext : DbContext
     {
         /// <summary>
@@ -38,7 +37,7 @@ namespace Microsoft.EntityFrameworkCore
         }
 
         /// <inheritdoc />
-        public void Configure(ModelBuilder builder)
+        public virtual void Configure(ModelBuilder builder, TContext context)
         {
             var interfaces = GetType().GetInterfaces();
             foreach (var entityConfig in interfaces.Where(IsEntityTypeConfiguration))

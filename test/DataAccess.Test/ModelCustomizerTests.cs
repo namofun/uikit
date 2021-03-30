@@ -50,7 +50,7 @@ namespace SatelliteSite.Tests
         {
             public bool Executed { get; private set; }
 
-            public void Configure(ModelBuilder builder)
+            public void Configure(ModelBuilder builder, Context context)
             {
                 Executed = true;
             }

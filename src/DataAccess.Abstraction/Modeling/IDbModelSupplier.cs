@@ -10,6 +10,7 @@
         /// Configure the <see cref="ModelBuilder"/>.
         /// </summary>
         /// <param name="builder">The model builder.</param>
-        void Configure(ModelBuilder builder);
+        /// <param name="context">The <typeparamref name="TContext"/> instance being configured.</param>
+        void Configure(ModelBuilder builder, TContext context);
     }
 }
