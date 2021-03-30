@@ -1,8 +1,8 @@
 ﻿@{
-    ViewData["Title"] = "Access denied";
+    ViewData["Title"] = Localizer["Access denied"];
     Layout = "_WindowLayout";
 }
 
-<p class="text-danger">You do not have access to this resource.</p>
-<p class="text-danger" asp-show-if="@User.IsSignedIn()" asp-not-meet-policy="EmailVerified">Your email is not verified for restricted pages. <a asp-action="Edit" asp-controller="Profile" asp-route-username="@User.GetUserName()">Click to verify &raquo;</a></p>
-<p class="text-danger" asp-show-if="@(!User.IsSignedIn())">You are required to login to view this page. <a asp-action="Login" asp-controller="Sign">Click to login &raquo;</a></p>
+<p class="text-danger">@Localizer["You do not have access to this resource."]</p>
+<p class="text-danger" asp-show-if="@User.IsSignedIn()" asp-not-meet-policy="EmailVerified">@Localizer["Your email is not verified for restricted pages."] <a asp-action="Edit" asp-controller="Profile" asp-route-username="@User.GetUserName()">@Localizer["Click to verify"] &raquo;</a></p>
+<p class="text-danger" asp-show-if="@(!User.IsSignedIn())">@Localizer["You are required to login to view this page."] <a asp-action="Login" asp-controller="Sign">@Localizer["Click to login"] &raquo;</a></p>

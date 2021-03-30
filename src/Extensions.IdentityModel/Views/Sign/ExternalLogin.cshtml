@@ -1,29 +1,28 @@
 ﻿@model ExternalLoginModel
 @{
-    ViewData["Title"] = "Associate account";
+    ViewData["Title"] = Localizer["Associate account"];
     Layout = "_WindowLayout";
 }
 
 <div class="alert alert-info">
-    You've successfully authenticated with <strong>@ViewData["LoginProvider"]</strong>.
-    Please enter an email address for this site below and click the Register button to finish
-    logging in.
+    @HtmlLocalizer["You've successfully authenticated with <strong>{0}</strong>.", ViewData["LoginProvider"]]
+    @Localizer["Please enter an email address for this site below and click the Register button to finish logging in."]
 </div>
 
 <div asp-validation-summary="All" class="text-danger"></div>
 <div class="form-group">
-    <label asp-for="Username"></label>
+    <label asp-for="Username">@Localizer["Username"]</label>
     <input asp-for="Username" class="form-control" />
     <span asp-validation-for="Username" class="text-danger"></span>
 </div>
 <div class="form-group">
-    <label asp-for="Email"></label>
+    <label asp-for="Email">@Localizer["Email"]</label>
     <input asp-for="Email" class="form-control" />
     <span asp-validation-for="Email" class="text-danger"></span>
 </div>
 
 @section Footer {
-    <button asp-action="ExternalLoginConfirmation" asp-route-returnurl="@ViewData["ReturnUrl"]" type="submit" class="btn btn-primary">Register</button>
+    <button asp-action="ExternalLoginConfirmation" asp-route-returnurl="@ViewData["ReturnUrl"]" type="submit" class="btn btn-primary">@Localizer["Register"]</button>
 }
 
 @section Scripts {
