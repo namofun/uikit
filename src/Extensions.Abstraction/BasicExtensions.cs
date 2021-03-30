@@ -134,6 +134,7 @@ namespace System
         /// <param name="source">The source to calculate.</param>
         /// <param name="encoding">The encoding, defaults UTF-8.</param>
         /// <returns>The calculated MD5 string.</returns>
+        [Obsolete]
         public static string ToMD5(this string source, Encoding? encoding = null)
         {
             encoding ??= Encoding.UTF8;

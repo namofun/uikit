@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
@@ -84,7 +85,18 @@ namespace Microsoft.AspNetCore.Mvc
             services.AddControllersWithViews()
                 .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new TimeSpanJsonConverter()))
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
+                .AddDataAnnotationsLocalization()
+                .AddMvcLocalization()
                 .ContinueWith(ConfigureParts);
+
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                options.AddSupportedCultures("zh-CN", "en-US");
+                options.AddSupportedUICultures("zh-CN", "en-US");
+                options.SetDefaultCulture("en-US");
+                options.RequestCultureProviders.Clear();
+                options.RequestCultureProviders.Add(new CookieRequestCultureProvider());
+            });
 
             services.AddSingleton<SubstrateApiVisibilityConvention>();
             services.ConfigureOptions<SubstrateMvcOptionsConfigurator>();
@@ -132,6 +144,7 @@ namespace Microsoft.AspNetCore.Mvc
             app.UseExtensions(options.Value.PointBeforeRouting);
             app.UseCookiePolicy();
             app.UseSession();
+            app.UseRequestLocalization();
 
             app.UseRouting();
             app.UseMiddleware<TelemetryCorrelationMiddleware>();
