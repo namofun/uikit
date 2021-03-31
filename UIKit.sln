@@ -10,8 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ahead", "ahead", "{9B64D1B5-349B-4AB5-9598-F4146E1E95B0}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
-		.travis.yml = .travis.yml
-		deploy.sh = deploy.sh
+		azure-pipelines.yml = azure-pipelines.yml
 		LICENSE = LICENSE
 		NuGet.config = NuGet.config
 		README.md = README.md
