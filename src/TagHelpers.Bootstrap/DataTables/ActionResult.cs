@@ -18,6 +18,8 @@ namespace Microsoft.AspNetCore.Mvc.DataTables
         {
         }
 
+
+#pragma warning disable CS1574
         /// <summary>
         /// Creates a new <see cref="DataTableAjaxResult{T}"/> with given value.
         /// </summary>
@@ -30,6 +32,7 @@ namespace Microsoft.AspNetCore.Mvc.DataTables
         /// <list type="bullet">When using <see cref="Newtonsoft.Json"/>, this should be an instance of <see cref="Newtonsoft.Json.JsonSerializerSettings"/>.</list>
         /// </param>
         public DataTableAjaxResult(IEnumerable<T> data, int draw, int count, object serializerSettings) : base(new { draw, recordsTotal = count, recordsFiltered = count, data }, serializerSettings)
+#pragma warning restore CS1574
         {
         }
     }
