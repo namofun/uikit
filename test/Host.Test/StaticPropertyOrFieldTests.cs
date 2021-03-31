@@ -1,4 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,6 +59,11 @@ namespace SatelliteSite.Tests
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Routing.OrderLinkGenerator]::[typeInner]"] = "Fast Reflect",
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Mvc.Routing.SubstrateUrlHelperFactory]::[_nRewriteUrlHelper]"] = "Fast Reflect",
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Mvc.Routing.SubstrateUrlHelperFactory]::[_nEndpointRoutingUrlHelper]"] = "Fast Reflect",
+                ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Builder.ConnectionEndpointBuilderExtensions]::[_httpConnectionDispatcherType]"] = "Fast Reflect",
+                ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Builder.SignalREndpointBuilderExtensions]::[_signalRMarkerServiceType]"] = "Fast Reflect",
+                ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Builder.BlazorEndpointBuilderExtensions]::[_componentHubType]"] = "Fast Reflect",
+                ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Builder.BlazorEndpointBuilderExtensions]::[_circuitDisconnectMiddlewareType]"] = "Fast Reflect",
+                ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Builder.BlazorEndpointBuilderExtensions]::[_mapComponentHubDelegate]"] = "Fast Reflect",
 
                 ["[SatelliteSite.Host]::[SatelliteSite.Program]::[Current]"] = "Global Entry Point",
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Mvc.Rendering.HtmlHelperExtensions]::[EnglishCulture]"] = "Global Entry Point",
@@ -111,6 +120,43 @@ namespace SatelliteSite.Tests
             }
 
             Assert.Equal(0, errorCount);
+        }
+
+        [Fact]
+        public void BlazorMapWorksRight()
+        {
+            var app = new BlazorApplication();
+            app.CreateClient();
+        }
+
+        private class BlazorModule : AbstractModule
+        {
+            public override string Area => "Blazor";
+
+            public override void Initialize()
+            {
+            }
+
+            public override void RegisterServices(IServiceCollection services)
+            {
+                services.AddServerSideBlazor();
+            }
+
+            public override void RegisterEndpoints(IEndpointBuilder endpoints)
+            {
+                endpoints.MapBlazorHub();
+            }
+        }
+
+        private class BlazorApplication : SubstrateApplicationBase
+        {
+            protected override Assembly EntryPointAssembly => typeof(DefaultContext).Assembly;
+
+            protected override IHostBuilder CreateHostBuilder() =>
+                Host.CreateDefaultBuilder()
+                    .MarkTest(this)
+                    .AddModule<BlazorModule>()
+                    .ConfigureSubstrateDefaultsCore();
         }
     }
 }
