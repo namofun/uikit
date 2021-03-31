@@ -49,6 +49,11 @@ namespace Microsoft.AspNetCore.Mvc.Menus
     public interface IMenuEntryBuilderBase
     {
         /// <summary>
+        /// The menu contributor
+        /// </summary>
+        IMenuContributor Contributor { get; }
+
+        /// <summary>
         /// Provide metadata for this menu entry.
         /// </summary>
         Dictionary<string, object> Metadata { get; }

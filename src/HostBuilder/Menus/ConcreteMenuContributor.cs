@@ -81,7 +81,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         {
             if (Components.ContainsKey(name))
                 return Components[name];
-            var builder = new ConcreteComponentBuilder();
+            var builder = new ConcreteComponentBuilder(this);
             Components.Add(name, builder);
             return builder;
         }

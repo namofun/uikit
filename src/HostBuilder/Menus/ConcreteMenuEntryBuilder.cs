@@ -23,5 +23,12 @@ namespace Microsoft.AspNetCore.Mvc.Menus
 
         /// <inheritdoc />
         public override bool Finalized => finalized;
+
+        /// <summary>
+        /// Instantiate the <see cref="IMenuEntryBuilder"/>.
+        /// </summary>
+        public ConcreteMenuEntryBuilder(IMenuContributor contributor) : base(contributor)
+        {
+        }
     }
 }

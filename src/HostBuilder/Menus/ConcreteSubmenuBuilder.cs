@@ -19,7 +19,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         /// <summary>
         /// Instantiate the <see cref="ISubmenuBuilder"/>.
         /// </summary>
-        public ConcreteSubmenuBuilder()
+        public ConcreteSubmenuBuilder(IMenuContributor contributor) : base(contributor)
         {
             entries = new List<ConcreteMenuEntryBuilder>();
         }
@@ -53,7 +53,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         public IMenuEntryBuilder HasEntry(int priority)
         {
             if (finalized) throw new InvalidOperationException();
-            var entry = new ConcreteMenuEntryBuilder { Priority = priority };
+            var entry = new ConcreteMenuEntryBuilder(Contributor) { Priority = priority };
             entries.Add(entry);
             return entry;
         }
