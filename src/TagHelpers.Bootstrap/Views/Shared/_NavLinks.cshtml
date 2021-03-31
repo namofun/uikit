@@ -79,15 +79,18 @@
                 </span>
                 <span class="small text-muted">(@ViewData["RefreshSpan"]s)</span>
             </a>
-            <a class="dropdown-item" asp-area="Account" asp-controller="Profile" asp-action="Show" asp-route-username="@User.GetUserName()">
-                <i class="fas fa-address-card fa-fw"></i> Profile
+        @foreach (var subentry in Menu.UserDropdown())
+        {
+            if (!subentry.Satisfy(ViewContext)) { continue; }
+            if (subentry.GetMetadata("ExcludeMenuNameAt") is string excludeAt && menuName == excludeAt) { continue; }
+            <a class="dropdown-item" href="@subentry.GetLink(Url, ViewContext)" asp-meet-policy="@(subentry.GetMetadata("RequiredPolicy") as string)" id="@subentry.Id" data-order="@subentry.Priority">
+                <i class="@subentry.Icon fa-fw"></i> @subentry.Title
+                @foreach (var badge in subentry.Badges)
+                {
+                    <span class="badge badge-@badge.Item2" id="num-alerts-@badge.Item1-sub"></span>
+                }
             </a>
-            <a asp-show-if="menuName != MenuNameDefaults.DashboardNavbar" asp-meet-policy="HasDashboard" class="dropdown-item" asp-area="Dashboard" asp-controller="Root" asp-action="Index">
-                <i class="fas fa-compass fa-fw"></i> Dashboard
-            </a>
-            <a asp-show-if="menuName != MenuNameDefaults.MainNavbar" class="dropdown-item" href="/">
-                <i class="fas fa-home fa-fw"></i> Back to main site
-            </a>
+        }
             <form asp-area="Account" asp-controller="Sign" asp-action="Logout" method="post" id="logoutForm">
                 <button type="submit" class="dropdown-item">
                     <i class="fas fa-sign-out-alt fa-fw"></i> Logout

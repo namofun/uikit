@@ -57,6 +57,11 @@ namespace Microsoft.AspNetCore.Mvc
         public const string MainNavbar = Menu_ + nameof(MainNavbar);
 
         /// <summary>
+        /// The submenu displayed on the user dropdown bar.
+        /// </summary>
+        public const string UserDropdown = Submenu_ + nameof(UserDropdown);
+
+        /// <summary>
         /// The default error string
         /// </summary>
         internal const string EverConfigured = "This configuration has been set before. Configurations cannot be override.";
@@ -325,6 +330,23 @@ namespace Microsoft.AspNetCore.Mvc
             if (that.Finalized)
                 throw new InvalidOperationException(ModelFinalized);
             that.Requirements.Add(c => c.HttpContext.User.HasClaim(claimKey, claimValue));
+            return that;
+        }
+
+        /// <summary>
+        /// Adds the metadata into the <typeparamref name="TBuilder"/>.
+        /// </summary>
+        /// <param name="that">The menu builder.</param>
+        /// <param name="key">The claim key.</param>
+        /// <param name="value">The claim value.</param>
+        /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
+        public static TBuilder WithMetadata<TBuilder>(this TBuilder that, string key, object value) where TBuilder : IMenuEntryBuilderBase
+        {
+            if (that.Finalized)
+                throw new InvalidOperationException(ModelFinalized);
+            if (key == null || that.Metadata.ContainsKey(key))
+                throw new InvalidOperationException("Key is null or already existed!");
+            that.Metadata.Add(key, value);
             return that;
         }
     }

@@ -402,6 +402,7 @@ namespace Microsoft.AspNetCore.Builder
             var menu = builder.ServiceProvider.GetRequiredService<ConcreteMenuContributor>();
             var modules = builder.ServiceProvider.GetRequiredService<ReadOnlyCollection<AbstractModule>>();
             var connectors = builder.ServiceProvider.GetRequiredService<ReadOnlyCollection<AbstractConnector>>();
+            menu.Store.Add(MenuNameDefaults.UserDropdown, new ConcreteSubmenuBuilder(menu) { Metadata = { ["Link"] = "", ["Icon"] = "", ["Title"] = "" } });
 
             foreach (var module in modules)
             {

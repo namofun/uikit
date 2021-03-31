@@ -96,5 +96,14 @@ namespace Microsoft.AspNetCore.Mvc.Menus
             menu2.Contribute();
             return menu2;
         }
+
+        /// <inheritdoc />
+        public ISubmenu UserDropdown()
+        {
+            if (!Store.TryGetValue(MenuNameDefaults.UserDropdown, out var menu) || !(menu is ConcreteSubmenuBuilder menu2))
+                throw new InvalidOperationException($"\"{MenuNameDefaults.UserDropdown}\" is missing. ");
+            menu2.Contribute();
+            return menu2;
+        }
     }
 }

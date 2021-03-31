@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SatelliteSite.Services;
+using System;
 
 namespace SatelliteSite.Substrate
 {
@@ -54,6 +55,25 @@ namespace SatelliteSite.Substrate
                         .HasTitle(string.Empty, "Component Versions")
                         .HasLink("Dashboard", "Root", "Versions");
                 });
+            });
+
+            // If someone reads this code then he'll know how to customize it.
+            menus.Submenu(MenuNameDefaults.UserDropdown, menu =>
+            {
+                menu.HasEntry(0)
+                    .HasTitle("fas fa-address-card", "Profile")
+                    .HasLink((u, c) => u.Action("Show", "Profile", new { area = "Account", username = c.HttpContext.User.GetUserName() }));
+
+                menu.HasEntry(100)
+                    .HasTitle("fas fa-compass", "Dashboard")
+                    .HasLink("Dashboard", "Root", "Index")
+                    .WithMetadata("ExcludeMenuNameAt", MenuNameDefaults.DashboardNavbar)
+                    .WithMetadata("RequiredPolicy", "HasDashboard");
+
+                menu.HasEntry(200)
+                    .HasTitle("fas fa-home", "Back to main site")
+                    .HasLink("/")
+                    .WithMetadata("ExcludeMenuNameAt", MenuNameDefaults.MainNavbar);
             });
         }
 

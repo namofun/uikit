@@ -99,5 +99,12 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         {
             return Active?.Invoke(actionContext) ?? false;
         }
+
+        /// <inheritdoc />
+        public object? GetMetadata(string key)
+        {
+            if (key == null) return null;
+            return Metadata.GetValueOrDefault(key);
+        }
     }
 }

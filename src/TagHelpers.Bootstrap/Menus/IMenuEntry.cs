@@ -31,12 +31,12 @@ namespace Microsoft.AspNetCore.Mvc
         int Priority { get; }
 
         /// <summary>
-        /// The badges to show.
+        /// The badges to show
         /// </summary>
         IEnumerable<(string, BootstrapColor)> Badges { get; }
 
         /// <summary>
-        /// Get the destination link of menu entry.
+        /// Gets the destination link of menu entry.
         /// </summary>
         /// <param name="urlHelper">The <see cref="IUrlHelper"/> to generate links.</param>
         /// <param name="actionContext">The <see cref="ActionContext"/>.</param>
@@ -44,25 +44,32 @@ namespace Microsoft.AspNetCore.Mvc
         string GetLink(IUrlHelper urlHelper, ViewContext actionContext);
 
         /// <summary>
-        /// Check whether this tag is active for such <see cref="ActionContext"/>.
+        /// Checks whether this tag is active for such <see cref="ActionContext"/>.
         /// </summary>
         /// <param name="actionContext">The <see cref="ActionContext"/>.</param>
         /// <returns>Whether this tag is active.</returns>
         bool IsActive(ViewContext actionContext);
 
         /// <summary>
-        /// Check whether this tag is active for such <see cref="ViewContext"/>.
+        /// Checks whether this tag is active for such <see cref="ViewContext"/>.
         /// </summary>
         /// <param name="viewContext">The <see cref="ViewContext"/>.</param>
         /// <returns>Whether this tag is active.</returns>
         public string Active(ViewContext viewContext) => IsActive(viewContext) ? "active" : "";
 
         /// <summary>
-        /// Check whether to show this menu entry.
+        /// Checks whether to show this menu entry.
         /// </summary>
         /// <param name="httpContext">The <see cref="HttpContext"/>.</param>
         /// <returns>The decision.</returns>
         bool Satisfy(ViewContext httpContext);
+
+        /// <summary>
+        /// Gets the metadata of <paramref name="key"/>.
+        /// </summary>
+        /// <param name="key">The metadata key.</param>
+        /// <returns>The metadata object.</returns>
+        object? GetMetadata(string key);
     }
 
     /// <summary>
