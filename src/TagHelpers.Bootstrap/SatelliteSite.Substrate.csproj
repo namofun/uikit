@@ -19,4 +19,17 @@
     <ProjectReference Include="..\Extensions.Abstraction\SatelliteSite.Abstraction.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <ResolveCurrentProjectStaticWebAssetsInputsDependsOn>
+      SetStaticWebAssetsBasePath;
+      $(ResolveCurrentProjectStaticWebAssetsInputsDependsOn)
+    </ResolveCurrentProjectStaticWebAssetsInputsDependsOn>
+  </PropertyGroup>
+
+  <Target Name="SetStaticWebAssetsBasePath">
+    <PropertyGroup>
+      <StaticWebAssetBasePath>/lib/xylab</StaticWebAssetBasePath>
+    </PropertyGroup>
+  </Target>
+
 </Project>
