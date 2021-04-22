@@ -16,7 +16,7 @@ namespace SatelliteSite.Substrate.Dashboards
     [SupportStatusCodePage]
     public class RootController : ViewControllerBase
     {
-        [HttpGet("/[area]")]
+        [HttpGet("/[area]", Order = 100, Name = "DashboardIndex")]
         public IActionResult Index()
         {
             return View();
