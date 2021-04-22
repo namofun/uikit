@@ -16,6 +16,11 @@ namespace Microsoft.AspNetCore.Mvc
         public string SiteName { get; set; } = "Satellite Site";
 
         /// <summary>
+        /// Gets the substrate version
+        /// </summary>
+        public string Version { get; } = typeof(SubstrateOptions).Assembly?.GetName()?.Version?.ToString() ?? "0.0.0.0";
+
+        /// <summary>
         /// Gets or sets the endpoint route builder configure actions.
         /// </summary>
         public List<Action<IEndpointRouteBuilder>> Endpoints { get; } = new List<Action<IEndpointRouteBuilder>>();

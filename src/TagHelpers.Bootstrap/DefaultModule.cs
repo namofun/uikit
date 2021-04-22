@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using SatelliteSite.Services;
 using System;
 
@@ -85,6 +86,7 @@ namespace SatelliteSite.Substrate
 
         public override void RegisterServices(IServiceCollection services)
         {
+            services.AddSingleton<SubstrateOptions>(sp => sp.GetRequiredService<IOptions<SubstrateOptions>>().Value);
             services.AddSingleton<ITelemetryClient, NullTelemetryClient>();
             services.AddScoped<IUserInformationProvider, NullUserInformationProvider>();
             RegisterSubstrateBase(services);
