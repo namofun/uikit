@@ -36,45 +36,7 @@
 }
 else
 {
-    <style type="text/css">
-        @@media (min-width: 576px) {
-            body {
-                background-color: #f7f8f9;
-            }
-
-            .window-card {
-                margin-top: 3rem;
-                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
-                border-radius: 0.25rem !important;
-            }
-
-                .window-card > .card-body {
-                    padding: 2rem 1.5rem 1.5rem;
-                }
-        }
-
-        .window-card {
-            padding-left: 0;
-            padding-right: 0;
-        }
-
-            .window-card > .card-body .panel-bottom {
-                text-align: right;
-                margin-top: 1.5em;
-            }
-
-        @@media (max-width: 575.9999px) {
-            .window-card {
-                margin-top: 1.5rem;
-                border-color: white;
-            }
-
-                .window-card > .card-body {
-                    padding: 0;
-                }
-        }
-    </style>
-
+    ViewData["UseCardTheme"] = true;
     <div class="card window-card container-fluid" style="@stylePlain">
         <div class="card-body">
             <h2>@ViewData["Title"]</h2>

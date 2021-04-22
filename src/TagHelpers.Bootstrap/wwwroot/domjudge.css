@@ -651,3 +651,57 @@ a.rank-show:hover {
 .input-output-copier:hover {
   background-color: #def;
 }
+
+.btn-text {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: inline;
+}
+
+/* Theme controlling */
+
+.window-card {
+  margin-top: 1.5rem;
+  border-width: 0px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.window-card > .card-body {
+  padding: 0;
+}
+
+.window-card > .card-body .panel-bottom {
+  text-align: right;
+  margin-top: 1.5em;
+}
+
+@media (min-width: 576px) {
+  body.body-card-theme {
+    background-color: #f7f8f9;
+  }
+
+  .window-card {
+    border-width: 1px;
+    margin-top: 3rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+    border-radius: 0.25rem !important;
+  }
+
+  .window-card > .card-body {
+    padding: 2rem 1.5rem 1.5rem;
+  }
+}
+
+body.body-compact-theme {
+  padding-bottom: 0;
+  padding-top: 3.5rem
+}
+
+@media all and (min-width:768px) {
+  body.body-compact-theme {
+    padding-top: 3.5rem
+  }
+}

@@ -17,10 +17,9 @@
     <!-- DOMjudge style and scripts --><link rel="stylesheet" href="~/lib/xylab/domjudge.css?v=@SubstrateOptions.Version" /><script src="~/lib/xylab/domjudge.js?v=@SubstrateOptions.Version"></script><script src="~/lib/xylab/xylab.js?v=@SubstrateOptions.Version"></script>
     <!-- datatables --><link rel="stylesheet" href="~/lib/datatables/css/dataTables.bootstrap4.min.css"><script src="~/lib/datatables/js/jquery.dataTables.min.js"></script><script src="~/lib/datatables/js/dataTables.bootstrap4.min.js"></script>
     <!-- katex --><link rel="stylesheet" href="~/lib/katex/katex.min.css" /><script src="~/lib/katex/katex.min.js"></script>
-    <razor asp-viewdata-key="CompactMode"><!-- compact for old styles --><style type="text/css">body{padding-bottom:0;padding-top:3.5rem}@@media all and (min-width:768px){body{padding-top:3.5rem}}</style></razor>
 </head>
 
-<body>
+<body class="@(ViewData.ContainsKey("CompactMode") ? "body-compact-theme" : "") @(ViewData.ContainsKey("UseCardTheme") ? "body-card-theme" : "")">
     <div id="append-parent"></div>
     <!-- #header start -->
     @{ var theme = ViewData.ContainsKey("UseLightTheme") ? "light" : "dark"; }
