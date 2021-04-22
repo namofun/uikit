@@ -154,7 +154,12 @@ function initXylabFunctions() {
 	$body.on('click', 'tr[data-toggle="gotoUrl"]', function () {
 		window.location = $(this).data("url");
 		return false;
-	});
+    });
+
+    // gotoUrlV2
+    $('tr[data-toggle="gotoUrlV2"]').each(function () {
+        $(this).replaceWith($("<a/>", { href: $(this).data('href'), role: 'row' }).append($(this).html()));
+    });
 
 	// extendable-area
 	$body.on("dblclick", '.extendable-area', function () {
