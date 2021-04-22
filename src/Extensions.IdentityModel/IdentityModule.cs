@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using SatelliteSite;
 using SatelliteSite.Services;
 using System;
+using System.Linq;
 
 [assembly: RoleDefinition(1, "Administrator", "admin", "Administrative User")]
 [assembly: RoleDefinition(2, "Blocked", "blocked", "Blocked User")]
@@ -69,6 +71,7 @@ namespace SatelliteSite.IdentityModule
             services.AddSingleton<BasicAuthenticationValidator>();
             services.AddSingleton<CookieAuthenticationValidator>();
             services.AddSingleton<ISignInSlideExpiration, DefaultSignInSlideExpiration<TUser>>();
+            services.TryAddSingleton(typeof(IUserInformationCache<>), typeof(MemoryUserInformationCache<>));
 
             services.AddAuthentication().AddBasic();
             services.AddAuthorization();
@@ -84,6 +87,13 @@ namespace SatelliteSite.IdentityModule
             services.AddOptions<AuthMessageSenderOptions>();
 
             services.AddDbModelSupplier<TContext, IdentityEntityConfiguration<TUser, TRole, TContext>>();
+
+            if (services
+                .Where(d => d.ServiceType == typeof(IUserInformationProvider) && d.Lifetime == ServiceLifetime.Scoped)
+                .Single().ImplementationType == typeof(NullUserInformationProvider))
+            {
+                services.ReplaceScoped<IUserInformationProvider, DefaultUserInformationProvider>();
+            }
         }
 
         public override void RegisterEndpoints(IEndpointBuilder endpoints)

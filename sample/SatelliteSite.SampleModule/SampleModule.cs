@@ -55,6 +55,8 @@ namespace SatelliteSite.SampleModule
             services.AddScoped<ForecastService>();
             services.AddScoped<IUserClaimsProvider, RandomClaimsProvider>();
             services.AddScoped<IUserClaimsProvider, RandomClaimsProvider>();
+
+            services.ReplaceScoped<IUserInformationProvider, UserInformationProviderV2>();
         }
 
         public override void RegisterMenu(IMenuContributor menus)
