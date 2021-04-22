@@ -52,7 +52,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         }
 
 
-        [HttpGet("{username}")]
+        [HttpGet("{username}", Name = "AccountProfile")]
         [AllowAnonymous]
         public async Task<IActionResult> Show(string username)
         {

@@ -32,7 +32,7 @@ namespace Microsoft.AspNetCore.Identity
 
             output.TagName = "a";
             output.TagMode = TagMode.StartTagAndEndTag;
-            output.Attributes.SetAttribute("href", url.Action("Show", "Profile", new { area = "Account", username }));
+            output.Attributes.SetAttribute("href", url.RouteUrl("AccountProfile", new { username }));
             output.Content.SetContent(username);
             return Task.CompletedTask;
         }
@@ -48,7 +48,6 @@ namespace Microsoft.AspNetCore.Identity
             {
                 output.TagName = "a";
                 output.TagMode = TagMode.StartTagAndEndTag;
-                output.Attributes.SetAttribute("href", "#");
                 output.Content.SetContent("UNKNOWN USER");
                 return Task.CompletedTask;
             }

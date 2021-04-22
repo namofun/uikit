@@ -33,7 +33,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet(Name = "AccountLogin")]
         [AllowAnonymous]
         public async Task<IActionResult> Login(string returnUrl = null)
         {
@@ -297,7 +297,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet(Name = "AccountRegister")]
         [AllowAnonymous]
         public async Task<IActionResult> Register(string returnUrl = null)
         {
