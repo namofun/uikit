@@ -755,6 +755,21 @@ a.rank-show:hover {
   font-size: 1rem;
 }
 
+.card-head {
+  background-color: #f2f2f2;
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+.card-fill {
+  margin-top: 0;
+  margin-bottom: 2rem;
+}
+
+.card-head ~ .card-body {
+  padding: 1.5rem 0 1.5rem;
+}
+
 .card-table > table > thead {
   display: none;
 }
@@ -791,6 +806,18 @@ a.rank-show:hover {
     display: table-header-group;
   }
 
+  .card-fill {
+    margin-top: 3rem;
+    margin-bottom: 4rem;
+  }
+
+  .card-head {
+    border-top-left-radius: 0.23rem !important;
+    border-top-right-radius: 0.23rem !important;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
   .window-card {
     border-width: 1px;
     margin-top: 3rem;
@@ -805,6 +832,10 @@ a.rank-show:hover {
 
   .window-card > .card-body {
     padding: 2rem 1.5rem 1.5rem;
+  }
+
+  .card-head ~ .card-body {
+    padding: 2rem;
   }
 
   .card-table {

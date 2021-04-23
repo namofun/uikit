@@ -1,56 +1,27 @@
 ﻿@{
     Layout = "/Views/Shared/_Layout.cshtml";
     IUser user = ViewBag.User;
+    ViewData["UseCardTheme"] = true;
+    ViewData["CompactMode"] = true;
 }
 
-@section Banner  {
-    <style type="text/css">
-        #jlucpcid {
-            max-width: 768px;
-        }
-
-        #jlucpcid-super-banner {
-            background-color: #f2f2f2;
-        }
-
-        @@media (min-width: 768px) {
-            #jlucpcid {
-                box-shadow: 0px 0.12rem 0.25rem rgba(0,0,0,0.075) !important;
-                background-color: #ffffff;
-                border-radius: 0.25rem !important;
-                border: 1px solid rgba(0, 0, 0, 0.125);
-            }
-
-            #jlucpcid-super-banner {
-                border-top-left-radius: 0.23rem !important;
-                border-top-right-radius: 0.23rem !important;
-            }
-
-            body {
-                background-color: #f7f8f9;
-            }
-        }
-    </style>
-    <div class="container-fluid mt-md-4 mb-4 pl-0 pr-0" id="jlucpcid">
-        <div id="jlucpcid-super-banner">
-            <div class="container-fluid d-flex pt-4 pb-4 pl-md-4 pr-md-4">
-                <div class="avatar">
-                    <img gravatar-email="@user.Email" class="rounded-circle" style="width:100%;max-width:8em" />
-                </div>
-                <div class="plan ml-4 mt-auto mb-auto">
-                    <h1><a asp-action="Show" class="text-reset text-decoration-none">@(string.IsNullOrEmpty(user.NickName) ? user.UserName : user.NickName)</a></h1>
-                    <h5>@(user.Plan ?? "This guy is lazy, left nothing here.")</h5>
-                    <h6 class="text-muted">Registered on @((user.RegisterTime ?? DateTimeOffset.UnixEpoch).ToString("yyyy-MM-dd"))</h6>
-                </div>
-            </div>
+<div class="card window-card container-fluid card-fill" style="max-width:768px">
+<div class="card-head">
+    <div class="container-fluid d-flex pt-4 pb-4 pl-md-4 pr-md-4">
+        <div class="avatar">
+            <img gravatar-email="@user.Email" class="rounded-circle" style="width:100%;max-width:8em" />
         </div>
-        <div class="row ml-0 mr-0 ml-md-4 mr-md-4 mt-4 pb-5">
-            <div class="col-12">
-                @RenderBody()
-            </div>
+        <div class="plan ml-4 mt-auto mb-auto">
+            <h1><a asp-action="Show" class="text-reset text-decoration-none">@(string.IsNullOrEmpty(user.NickName) ? user.UserName : user.NickName)</a></h1>
+            <h5>@(user.Plan ?? "This guy is lazy, left nothing here.")</h5>
+            <h6 class="text-muted">Registered on @((user.RegisterTime ?? DateTimeOffset.UnixEpoch).ToString("yyyy-MM-dd"))</h6>
         </div>
     </div>
-}
+</div>
+<div class="card-body">
+    @RenderBody()
+</div>
+</div>
 
 @section Scripts {
     @RenderSection("Scripts", required: false)

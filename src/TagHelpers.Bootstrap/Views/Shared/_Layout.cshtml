@@ -19,7 +19,7 @@
     <!-- katex --><link rel="stylesheet" href="~/lib/katex/katex.min.css" /><script src="~/lib/katex/katex.min.js"></script>
 </head>
 
-<body class="@(ViewData.ContainsKey("CompactMode") ? "body-compact-theme" : "") @(ViewData.ContainsKey("UseCardTheme") ? "body-card-theme" : "")">
+<body class="@(ViewData.ContainsKey("CompactMode") ? "body-compact-theme" : "") @(ViewData.ContainsKey("UseCardTheme") ? "body-card-theme" : "") @ViewData["CustomBodyClass"]">
     <div id="append-parent"></div>
     <!-- #header start -->
     @{ var theme = ViewData.ContainsKey("UseLightTheme") ? "light" : "dark"; }
