@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Razor.TagHelpers;
+using Microsoft.Extensions.Options;
 using System;
 using System.Security.Cryptography;
 using System.Text;
@@ -11,10 +12,16 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
     [HtmlTargetElement("img", Attributes = "gravatar-email")]
     public class GravatarTagHelper : XysTagHelper
     {
+        private readonly SubstrateOptions _options;
+        private static readonly char[] _chars = "0123456789abcdef".ToCharArray();
+
         [HtmlAttributeName("gravatar-email")]
         public string? GravatarEmail { get; set; }
 
-        private static readonly char[] _chars = "0123456789abcdef".ToCharArray();
+        public GravatarTagHelper(IOptions<SubstrateOptions> options)
+        {
+            _options = options.Value;
+        }
 
         private static string ToMd5(string? source)
         {
@@ -36,7 +43,7 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
             base.Process(context, output);
-            var url = new StringBuilder("//www.gravatar.com/avatar/", 90);
+            var url = new StringBuilder(_options.GravatarMirror, 90);
             url.Append(ToMd5(GravatarEmail?.Trim().ToLower()));
             url.Append("?u=monsterid&s=256");
             output.Attributes.Add("src", url.ToString());

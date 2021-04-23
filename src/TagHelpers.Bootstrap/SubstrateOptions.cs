@@ -21,6 +21,11 @@ namespace Microsoft.AspNetCore.Mvc
         public string Version { get; } = typeof(SubstrateOptions).Assembly?.GetName()?.Version?.ToString() ?? "0.0.0.0";
 
         /// <summary>
+        /// Gets or sets the gravatar mirror. (like <c>//www.gravatar.com/avatar/</c>)
+        /// </summary>
+        public string GravatarMirror { get; set; } = "//www.gravatar.com/avatar/";
+
+        /// <summary>
         /// Gets or sets the endpoint route builder configure actions.
         /// </summary>
         public List<Action<IEndpointRouteBuilder>> Endpoints { get; } = new List<Action<IEndpointRouteBuilder>>();

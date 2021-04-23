@@ -38,6 +38,11 @@ namespace SatelliteSite
                             options.ShortenedClaimName = true;
                         });
 
+                        services.ConfigureApplicationBuilder(options =>
+                        {
+                            options.GravatarMirror = "//gravatar.zeruns.tech/avatar/";
+                        });
+
                         services.Configure<ApplicationInsightsDisplayOptions>(options =>
                         {
                             options.ApiKey = ctx.Configuration["AppInsights:Key"] ?? "DEMO_KEY";
