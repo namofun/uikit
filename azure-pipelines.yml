@@ -45,8 +45,9 @@ jobs:
 
   - task: DotNetCoreCLI@2
     inputs:
-      command: 'custom'
-      custom: 'nuget'
-      arguments: 'push --skip-duplicate -s https://nuget.xylab.fun/v3/index.json -k $(NUGET_KEY) "$(Build.ArtifactStagingDirectory)/**/*.nupkg"'
+      command: 'push'
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
+      nuGetFeedType: 'internal'
+      publishVstsFeed: '5f8d36de-7004-4c36-a8b5-8a4bda9eb598/c2949ad7-bda3-4f23-a41b-3109c9419cb7'
     displayName: 'Push to NuGet Feed'
     condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
