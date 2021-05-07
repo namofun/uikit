@@ -10,9 +10,9 @@ namespace Microsoft.AspNetCore.Authorization
     public class AcceptancePolicyBuilder
     {
         private readonly AuthorizationPolicyBuilder _builder;
-        private readonly Dictionary<string, List<string>> _claims;
+        private readonly Dictionary<string, List<string>?> _claims;
         private readonly List<IAuthorizationRequirement> _requirements;
-        private List<string> _roles;
+        private List<string>? _roles;
 
         /// <summary>
         /// Construct an instance of <see cref="AcceptancePolicyBuilder"/>.
@@ -21,7 +21,7 @@ namespace Microsoft.AspNetCore.Authorization
         {
             _requirements = new List<IAuthorizationRequirement>();
             _builder = new AuthorizationPolicyBuilder();
-            _claims = new Dictionary<string, List<string>>();
+            _claims = new Dictionary<string, List<string>?>();
         }
 
         /// <summary>

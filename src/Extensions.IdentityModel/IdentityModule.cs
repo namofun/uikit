@@ -10,10 +10,14 @@ using SatelliteSite;
 using SatelliteSite.Services;
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 [assembly: RoleDefinition(1, "Administrator", "admin", "Administrative User")]
 [assembly: RoleDefinition(2, "Blocked", "blocked", "Blocked User")]
 [assembly: ConfigurationBoolean(0, "Identity", "enable_register", true, "Whether to allow user self registration.")]
+[assembly: TypeForwardedTo(typeof(Microsoft.AspNetCore.Authorization.AcceptancePolicyBuilder))]
+[assembly: TypeForwardedTo(typeof(Microsoft.AspNetCore.Authorization.IAuthorizationPolicyContainer))]
+[assembly: TypeForwardedTo(typeof(SatelliteSite.IAuthorizationPolicyRegistry))]
 
 namespace SatelliteSite.IdentityModule
 {
@@ -75,7 +79,7 @@ namespace SatelliteSite.IdentityModule
 
             services.AddAuthentication().AddBasic();
             services.AddAuthorization();
-            services.ConfigureOptions<ConfigureAuthoraztionPolicy>();
+            services.ConfigureOptions<AuthorizationPolicyRegistryConfigurator>();
             services.ConfigureOptions<SubstrateSiteNameConfigurator>();
             services.ConfigureOptions<IdentityAdvancedConfigurator>();
             services.ConfigureOptions<AuthenticateSchemeConfigurator>();

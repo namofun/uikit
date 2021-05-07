@@ -1,16 +1,15 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace SatelliteSite.IdentityModule
+namespace Microsoft.AspNetCore.Authorization
 {
-    internal class ConfigureAuthoraztionPolicy : IConfigureOptions<AuthorizationOptions>
+    public class AuthorizationPolicyRegistryConfigurator : IConfigureOptions<AuthorizationOptions>
     {
         private readonly ReadOnlyCollection<AbstractModule> _modules;
 
-        public ConfigureAuthoraztionPolicy(ReadOnlyCollection<AbstractModule> modules)
+        public AuthorizationPolicyRegistryConfigurator(ReadOnlyCollection<AbstractModule> modules)
         {
             _modules = modules;
         }
