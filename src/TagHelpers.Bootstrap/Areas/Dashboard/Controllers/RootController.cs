@@ -6,6 +6,7 @@ using SatelliteSite.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace SatelliteSite.Substrate.Dashboards
@@ -52,9 +53,17 @@ namespace SatelliteSite.Substrate.Dashboards
 
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                var gitVersion = assembly.GetCustomAttributes(false)
-                    .OfType<GitVersionAttribute>()
-                    .SingleOrDefault();
+                GitVersionAttribute? gitVersion;
+
+                try
+                {
+                    gitVersion = assembly.GetCustomAttribute<GitVersionAttribute>();
+                }
+                catch
+                {
+                    gitVersion = null;
+                }
+
                 var asName = assembly.GetName();
 
                 lst.Add(new LoadedModulesModel
