@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
-using SatelliteSite.Jobs.Entities;
+﻿using Jobs.Entities;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
-namespace SatelliteSite.Jobs.Services
+namespace Jobs.Services
 {
     /// <summary>
     /// The executor of job.

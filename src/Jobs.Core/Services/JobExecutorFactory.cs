@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SatelliteSite.Jobs.Services
+namespace Jobs.Services
 {
     /// <summary>
     /// The factory to create <see cref="IJobExecutor"/>.

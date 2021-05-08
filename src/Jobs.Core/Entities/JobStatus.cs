@@ -1,4 +1,4 @@
-﻿namespace SatelliteSite.Jobs.Entities
+﻿namespace Jobs.Entities
 {
     /// <summary>
     /// The enum class for defining job status.

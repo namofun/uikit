@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace SatelliteSite.Jobs.Services
+namespace Jobs.Services
 {
     /// <summary>
     /// The conventional interface for creating an <see cref="IJobExecutor"/>.

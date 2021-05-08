@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SatelliteSite.Jobs.Entities
+namespace Jobs.Entities
 {
     /// <summary>
     /// The entity class for a job.
@@ -11,6 +11,21 @@ namespace SatelliteSite.Jobs.Entities
         /// The ID of job
         /// </summary>
         public int JobId { get; set; }
+
+        /// <summary>
+        /// The user ID of owner
+        /// </summary>
+        public int OwnerId { get; set; }
+
+        /// <summary>
+        /// The creation time
+        /// </summary>
+        public DateTimeOffset CreationTime { get; set; }
+
+        /// <summary>
+        /// The complete time
+        /// </summary>
+        public DateTimeOffset? CompleteTime { get; set; }
 
         /// <summary>
         /// The ID of parent job
