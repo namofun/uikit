@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Jobs.Core\SatelliteSite.JobsCore.csproj" />
     <ProjectReference Include="..\TagHelpers.Bootstrap\SatelliteSite.Substrate.csproj" />
   </ItemGroup>
 

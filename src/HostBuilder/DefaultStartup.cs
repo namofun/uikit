@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Jobs.Services;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -101,6 +102,7 @@ namespace Microsoft.AspNetCore.Mvc
             services.AddSingleton<SubstrateApiVisibilityConvention>();
             services.ConfigureOptions<SubstrateMvcOptionsConfigurator>();
             services.ReplaceSingleton<ITempDataProvider, CompositeTempDataProvider>();
+            services.AddSingleton(typeof(IResettableSignal<>), typeof(SemaphoreSlimResettableSignal<>));
 
             if (!string.IsNullOrWhiteSpace(Environment.WebRootPath))
                 services.AddSingleton<IWwwrootFileProvider, WwwrootFileProvider>();
