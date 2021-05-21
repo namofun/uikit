@@ -76,6 +76,7 @@ namespace Microsoft.AspNetCore.Mvc
                 options.TextEncoderSettings.AllowRange(UnicodeRanges.CjkUnifiedIdeographs);
             });
 
+            services.AddSingleton(typeof(System.SequentialGuidGenerator<>));
             services.AddSingleton<ReExecuteEndpointDataSource>();
             services.AddSingletonDowncast<CompositeEndpointDataSource, EndpointDataSource>();
             services.AddSingleton<ReExecuteEndpointMatcher>();

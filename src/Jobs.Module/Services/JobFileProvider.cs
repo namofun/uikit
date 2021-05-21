@@ -1,6 +1,5 @@
 ﻿using Jobs.Services;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.Extensions.Options;
 
 namespace SatelliteSite.JobsModule.Services
 {
@@ -12,8 +11,8 @@ namespace SatelliteSite.JobsModule.Services
         /// <summary>
         /// Initialize the job file provider.
         /// </summary>
-        /// <param name="options">The job options.</param>
-        public PhysicalJobFileProvider(IOptions<JobOptions> options) : base(options.Value.Directory)
+        /// <param name="path">The job path.</param>
+        public PhysicalJobFileProvider(string path) : base(path)
         {
         }
     }

@@ -1,4 +1,6 @@
-﻿namespace SatelliteSite
+﻿using Jobs.Services;
+
+namespace SatelliteSite
 {
     /// <summary>
     /// The physical storage path options of job files.
@@ -6,8 +8,8 @@
     public class JobOptions
     {
         /// <summary>
-        /// The content directory for job related
+        /// The path of storage directory
         /// </summary>
-        public string Directory { get; set; } = string.Empty;
+        public IJobFileProvider Storage { get; set; }
     }
 }

@@ -1,7 +1,11 @@
 ﻿using Jobs.Services;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using SatelliteSite.JobsModule.Services;
+using System.IO;
 
 namespace SatelliteSite.JobsModule
 {
@@ -15,11 +19,20 @@ namespace SatelliteSite.JobsModule
         {
         }
 
-        public override void RegisterServices(IServiceCollection services)
+        public override void RegisterServices(
+            IServiceCollection services,
+            IConfiguration configuration,
+            IWebHostEnvironment environment)
         {
             services.AddSingleton<JobExecutorFactory>();
-            services.AddSingleton<IJobFileProvider, PhysicalJobFileProvider>();
             services.AddHostedService<JobHostedService>();
+            services.AddSingleton(sp => sp.GetRequiredService<IOptions<JobOptions>>().Value.Storage);
+
+            services.PostConfigure<JobOptions>(options =>
+            {
+                options.Storage ??= new PhysicalJobFileProvider(
+                    Path.Combine(environment.ContentRootPath, "JobBlobs"));
+            });
         }
     }
 }
