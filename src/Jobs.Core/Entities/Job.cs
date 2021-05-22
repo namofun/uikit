@@ -10,7 +10,7 @@ namespace Jobs.Entities
         /// <summary>
         /// The ID of job
         /// </summary>
-        public int JobId { get; set; }
+        public Guid JobId { get; set; }
 
         /// <summary>
         /// The user ID of owner
@@ -31,13 +31,7 @@ namespace Jobs.Entities
         /// The ID of parent job
         /// </summary>
         /// <remarks>Null if this is a root job.</remarks>
-        public int? ParentJobId { get; set; }
-
-        /// <summary>
-        /// The storage unique ID
-        /// </summary>
-        /// <remarks>This field is set only when this job is concret.</remarks>
-        public Guid? StorageId { get; set; }
+        public Guid? ParentJobId { get; set; }
 
         /// <summary>
         /// The status of current job

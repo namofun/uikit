@@ -34,9 +34,10 @@ namespace System
     /// <summary>
     /// This code is from <a href="https://github.com/jhtodd/SequentialGuid/blob/master/SequentialGuid/Classes/SequentialGuid.cs">jhtodd/SequentialGuid</a>.
     /// </summary>
-    public static class SequentialGuidGenerator
+    public class SequentialGuidGenerator : GuidGenerator
     {
-        private static readonly RandomNumberGenerator RandomNumberGenerator = RandomNumberGenerator.Create();
+        private readonly SequentialGuidType _type;
+        private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
 
         /// <summary>
         /// Declares the sequential GUID mapping.
@@ -78,7 +79,7 @@ namespace System
         {
             // We start with 16 bytes of cryptographically strong random data.
             var randomBytes = new byte[10];
-            RandomNumberGenerator.GetBytes(randomBytes);
+            _rng.GetBytes(randomBytes);
 
             // An alternate method: use a normally-created GUID to get our initial
             // random data:
@@ -146,30 +147,44 @@ namespace System
 
             return new Guid(guidBytes);
         }
+
+        /// <summary>
+        /// Creates a sequential GUID.
+        /// </summary>
+        /// <returns>The created GUID.</returns>
+        public override Guid Create() => Create(_type);
+
+        /// <summary>
+        /// Initialize the generator.
+        /// </summary>
+        /// <param name="type">The sequential guid type.</param>
+        public SequentialGuidGenerator(SequentialGuidType type)
+        {
+            _type = type;
+        }
     }
 
     /// <summary>
     /// Generate sequential GUID for a certain DbContext.
     /// </summary>
     /// <typeparam name="TContext">The DbContext type.</typeparam>
-    public class SequentialGuidGenerator<TContext> where TContext : DbContext
+    public class SequentialGuidGenerator<TContext> : SequentialGuidGenerator where TContext : DbContext
     {
-        private readonly SequentialGuidType _type;
-
         /// <summary>
-        /// Initialize the generator.
+        /// Parses the DbContextOptions and get the result.
         /// </summary>
-        /// <param name="options">The DbContextOptions.</param>
-        public SequentialGuidGenerator(DbContextOptions<TContext> options)
+        /// <param name="options">The options.</param>
+        /// <returns>The sequential guid type.</returns>
+        private static SequentialGuidType Parse(DbContextOptions<TContext> options)
         {
             if (options.FindExtension<InMemoryOptionsExtension>() != null)
             {
-                _type = SequentialGuidType.SequentialAsString;
+                return SequentialGuidType.SequentialAsString;
             }
             else if (options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault() is RelationalOptionsExtension relExt
-                && SequentialGuidGenerator.DatabaseMapping.TryGetValue(relExt.GetType().Assembly.GetName().Name ?? "", out var relGuidSeq))
+                && DatabaseMapping.TryGetValue(relExt.GetType().Assembly.GetName().Name ?? "", out var relGuidSeq))
             {
-                _type = relGuidSeq;
+                return relGuidSeq;
             }
             else
             {
@@ -178,12 +193,12 @@ namespace System
         }
 
         /// <summary>
-        /// Creates a sequential GUID.
+        /// Initialize the generator.
         /// </summary>
-        /// <returns>The created GUID.</returns>
-        public Guid Create()
+        /// <param name="options">The DbContextOptions.</param>
+        public SequentialGuidGenerator(DbContextOptions<TContext> options)
+            : base(Parse(options))
         {
-            return SequentialGuidGenerator.Create(_type);
         }
     }
 }

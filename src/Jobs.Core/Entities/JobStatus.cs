@@ -5,6 +5,12 @@
     /// </summary>
     public enum JobStatus
     {
+        /// <summary>The job status is unknown</summary>
+        Unknown,
+
+        /// <summary>The job is composite</summary>
+        Composite,
+
         /// <summary>The job has not been started</summary>
         Pending,
 

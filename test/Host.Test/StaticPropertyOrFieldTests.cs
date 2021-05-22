@@ -72,7 +72,7 @@ namespace SatelliteSite.Tests
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Mvc.TagHelpers.DataTablesTagHelper]::[FactoryCache]"] = "Type Related Singleton",
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Mvc.Menus.ConcreteComponentBuilder]::[param]"] = "Type Related Singleton",
 
-                ["[SatelliteSite.DataAccess]::[System.SequentialGuidGenerator]::[RandomNumberGenerator]"] = "Singleton",
+                ["[SatelliteSite.DataAccess]::[System.SequentialGuidGenerator]::[_rng]"] = "Singleton",
                 ["[SatelliteSite.DataAccess]::[System.SequentialGuidGenerator]::[DatabaseMapping]"] = "Constant Array",
                 ["[SatelliteSite.SampleModule]::[SatelliteSite.SampleModule.Services.ForecastService]::[Summaries]"] = "Constant Array",
                 ["[SatelliteSite.Substrate]::[System.ComponentModel.DataAnnotations.UserNameAttribute]::[AllowedCharacters]"] = "Constant Array",
