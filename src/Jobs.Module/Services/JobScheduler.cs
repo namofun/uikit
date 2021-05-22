@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace SatelliteSite.JobsModule.Services
 {
-    public class RelationalJobScheduler<TContext> : IJobScheduler
+    public partial class RelationalJobStorage<TContext> : IJobScheduler
         where TContext : DbContext
     {
         private readonly TContext _dbContext;
         private readonly SequentialGuidGenerator<TContext> _guid;
 
-        public RelationalJobScheduler(
+        public RelationalJobStorage(
             TContext context,
             SequentialGuidGenerator<TContext> guid)
         {

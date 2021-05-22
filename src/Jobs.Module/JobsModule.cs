@@ -1,4 +1,5 @@
 ﻿using Jobs.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,14 +29,25 @@ namespace SatelliteSite.JobsModule
             services.AddSingleton<JobExecutorFactory>();
             services.AddHostedService<JobHostedService>();
             services.AddDbModelSupplier<TContext, JobsEntityConfiguration<TUser, TContext>>();
-            services.AddScoped<IJobScheduler, RelationalJobScheduler<TContext>>();
+            services.AddScoped<RelationalJobStorage<TContext>>();
+            services.AddScopedUpcast<IJobScheduler, RelationalJobStorage<TContext>>();
+            services.AddScopedUpcast<IJobManager, RelationalJobStorage<TContext>>();
             services.AddSingleton(sp => sp.GetRequiredService<IOptions<JobOptions>>().Value.Storage);
 
             services.PostConfigure<JobOptions>(options =>
             {
-                options.Storage ??= new PhysicalJobFileProvider(
-                    Path.Combine(environment.ContentRootPath, "JobBlobs"));
+                if (options.Storage == null)
+                {
+                    var path = Path.Combine(environment.ContentRootPath, "JobBlobs");
+                    if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                    options.Storage ??= new PhysicalJobFileProvider(path);
+                }
             });
+        }
+
+        public override void RegisterEndpoints(IEndpointBuilder endpoints)
+        {
+            endpoints.MapControllers();
         }
     }
 }

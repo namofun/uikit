@@ -39,6 +39,11 @@ namespace Jobs.Entities
         public JobStatus Status { get; set; }
 
         /// <summary>
+        /// The flag indicating whether this job is composite
+        /// </summary>
+        public bool Composite { get; set; }
+
+        /// <summary>
         /// The suggested download file name
         /// </summary>
         public string? SuggestedFileName { get; set; }
