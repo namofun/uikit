@@ -4,6 +4,7 @@ using Jobs.Services;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,15 +16,18 @@ namespace SatelliteSite.JobsModule.Services
         private readonly TContext _dbContext;
         private readonly SequentialGuidGenerator<TContext> _guid;
         private readonly IJobFileProvider _fileProvider;
+        private readonly IResettableSignal<JobHostedService> _signal;
 
         public RelationalJobStorage(
             TContext context,
             SequentialGuidGenerator<TContext> guid,
+            IResettableSignal<JobHostedService> signal,
             IJobFileProvider fileProvider)
         {
             _dbContext = context;
             _guid = guid;
             _fileProvider = fileProvider;
+            _signal = signal;
         }
 
         public async Task<Job> DequeueAsync()
@@ -45,6 +49,7 @@ namespace SatelliteSite.JobsModule.Services
         public async Task<Job> ScheduleAsync(JobDescription description)
         {
             var toCreate = new List<Job>();
+            var invalidChars = Path.GetInvalidFileNameChars();
 
             void Create(JobDescription description, Guid? parent)
             {
@@ -55,13 +60,18 @@ namespace SatelliteSite.JobsModule.Services
                     throw new InvalidOperationException(
                         "Multiple nested job is not supported yet.");
 
+                if (invalidChars.Any(description.SuggestedFileName.Contains))
+                    throw new InvalidOperationException(
+                        "The suggested file name is invalid.");
+
                 var newJob = new Job
                 {
                     JobId = _guid.Create(),
                     OwnerId = description.OwnerId,
                     Status = isLeaf ? JobStatus.Pending : JobStatus.Composite,
+                    Composite = !isLeaf,
                     SuggestedFileName = description.SuggestedFileName,
-                    Arguments = description.Arguments,
+                    Arguments = description.Arguments ?? "{}",
                     CreationTime = DateTimeOffset.Now,
                     JobType = description.JobType,
                     ParentJobId = parent,
@@ -70,7 +80,7 @@ namespace SatelliteSite.JobsModule.Services
                 toCreate.Add(newJob);
                 if (isLeaf) return;
                 foreach (var child in description.Children)
-                    Create(description, newJob.JobId);
+                    Create(child, newJob.JobId);
             }
 
             Create(description, null);
@@ -84,6 +94,7 @@ namespace SatelliteSite.JobsModule.Services
                 await _dbContext.SaveChangesAsync();
             }
 
+            _signal.Notify();
             return toCreate[0];
         }
 

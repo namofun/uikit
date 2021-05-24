@@ -12,15 +12,21 @@ namespace Jobs.Services
             => StringBuilder = new StringBuilder();
 
         public IDisposable BeginScope<TState>(TState state)
-            => new DeferredEndScope<TState>(StringBuilder, state);
+            => new DeferredEndScope<TState>(
+                StringBuilder
+                    .AppendLine($"[{DateTimeOffset.Now:yyyy/M/d HH:mm:ss.ffffff zzz}] BEGIN OF SCOPE \"{state}\" =====>")
+                    .AppendLine(),
+                state);
 
         public bool IsEnabled(LogLevel logLevel)
             => true;
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
             => StringBuilder
-                .AppendLine($"[{DateTimeOffset.Now:yyyy/M/d HH:mm:ss zzz}] {logLevel} ({eventId})")
-                .AppendLine(formatter(state, exception));
+                .AppendLine($"[{DateTimeOffset.Now:yyyy/M/d HH:mm:ss.ffffff zzz}] {logLevel} ({eventId}) =====>")
+                .AppendLine(formatter(state, exception))
+                .Append(exception == null ? "" : exception.ToString() + "\n")
+                .AppendLine();
 
         private class DeferredEndScope<TState> : IDisposable
         {
@@ -31,8 +37,9 @@ namespace Jobs.Services
                 => (_sb, _state) = (sb, state);
 
             public void Dispose()
-                => _sb.AppendLine($"[{DateTimeOffset.Now:yyyy/M/d HH:mm:ss zzz}]")
-                    .AppendLine($"<===== END OF SCOPE \"{_state}\" =====>");
+                => _sb
+                .AppendLine($"[{DateTimeOffset.Now:yyyy/M/d HH:mm:ss.ffffff zzz}] END OF SCOPE \"{_state}\" =====>")
+                .AppendLine();
         }
     }
 }

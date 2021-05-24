@@ -45,6 +45,7 @@ namespace SatelliteSite.JobsModule
             });
 
             services.AddJobExecutor<Jobs.Works.SamplePingPong>();
+            services.AddJobExecutor<Jobs.Works.ComposeArchive>();
         }
 
         public override void RegisterEndpoints(IEndpointBuilder endpoints)

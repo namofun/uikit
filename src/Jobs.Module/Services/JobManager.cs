@@ -48,10 +48,7 @@ namespace SatelliteSite.JobsModule.Services
                 .SingleOrDefaultAsync();
 
             if (e.Composite)
-                e.Children = await _dbContext.Set<Job>()
-                    .Where(j => j.ParentJobId == id && j.OwnerId == ownerId)
-                    .Select(GetSelector())
-                    .ToListAsync();
+                e.Children = await GetChildrenAsync(id);
 
             return e;
         }
@@ -64,6 +61,15 @@ namespace SatelliteSite.JobsModule.Services
         public Task<IFileInfo> GetDownloadAsync(Guid guid)
         {
             return _fileProvider.GetFileInfoAsync(guid + "/main");
+        }
+
+        public Task<List<JobEntry>> GetChildrenAsync(Guid id, int? ownerId = null)
+        {
+            return _dbContext.Set<Job>()
+                .Where(j => j.ParentJobId == id)
+                .WhereIf(ownerId.HasValue, j => j.OwnerId == ownerId)
+                .Select(GetSelector())
+                .ToListAsync();
         }
     }
 }

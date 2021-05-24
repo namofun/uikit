@@ -21,6 +21,14 @@ namespace Jobs.Services
         Task<IPagedList<JobEntry>> GetJobsAsync(int ownerId, int page = 1, int count = 20);
 
         /// <summary>
+        /// Gets children of the job with corresponding ID.
+        /// </summary>
+        /// <param name="id">The job ID.</param>
+        /// <param name="ownerId">The user ID of owner.</param>
+        /// <returns>The children of that job entry.</returns>
+        Task<List<JobEntry>> GetChildrenAsync(Guid id, int? ownerId = null);
+
+        /// <summary>
         /// Finds the job with corresponding ID.
         /// </summary>
         /// <param name="id">The job ID.</param>

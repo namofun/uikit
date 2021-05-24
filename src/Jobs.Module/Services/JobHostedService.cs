@@ -26,7 +26,7 @@ namespace SatelliteSite.JobsModule.Services
                 var job = await scheduler.DequeueAsync();
                 if (job == null) break;
 
-                var executor = _factory.TryCreate(job.JobType);
+                var executor = _factory.TryCreate(job.JobType, scope.ServiceProvider);
                 var logger = new StringBuilderLogger();
                 var result = await executor.ExecuteAsync(job.Arguments, job.JobId, logger);
                 await _fileProvider.WriteStringAsync(job.JobId + "/log", logger.StringBuilder.ToString());

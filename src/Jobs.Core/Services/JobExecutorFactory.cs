@@ -10,33 +10,29 @@ namespace Jobs.Services
     public sealed class JobExecutorFactory
     {
         private readonly IReadOnlyDictionary<string, IJobExecutorProvider> _providers;
-        private readonly IServiceProvider _serviceProvider;
 
         /// <summary>
         /// Initialize the job executor factory.
         /// </summary>
         /// <param name="providers">The job executor providers.</param>
-        /// <param name="serviceProvider">The service provider.</param>
-        public JobExecutorFactory(
-            IEnumerable<IJobExecutorProvider> providers,
-            IServiceProvider serviceProvider)
+        public JobExecutorFactory(IEnumerable<IJobExecutorProvider> providers)
         {
             _providers = providers.ToDictionary(k => k.Type);
-            _serviceProvider = serviceProvider;
         }
 
         /// <summary>
         /// Tries to create an instance of <see cref="IJobExecutor"/>.
         /// </summary>
         /// <param name="type">The job type.</param>
+        /// <param name="serviceProvider">The service provider.</param>
         /// <returns>The job executor.</returns>
-        public IJobExecutor TryCreate(string type)
+        public IJobExecutor TryCreate(string type, IServiceProvider serviceProvider)
         {
             if (_providers.TryGetValue(type, out var provider))
             {
                 try
                 {
-                    return provider.Create(_serviceProvider);
+                    return provider.Create(serviceProvider);
                 }
                 catch (Exception ex)
                 {
