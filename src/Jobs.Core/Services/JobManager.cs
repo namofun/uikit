@@ -18,7 +18,7 @@ namespace Jobs.Services
         /// <param name="page">The current page.</param>
         /// <param name="count">The count to display per page.</param>
         /// <returns>The list of job entries without their children.</returns>
-        Task<IPagedList<JobEntry>> GetJobsAsync(int ownerId, int page = 1, int count = 20);
+        Task<IPagedList<JobEntry>> GetJobsAsync(int? ownerId, int page = 1, int count = 20);
 
         /// <summary>
         /// Gets children of the job with corresponding ID.

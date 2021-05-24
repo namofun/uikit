@@ -49,10 +49,11 @@ namespace SatelliteSite.JobsModule.Services
             }
         }
 
-        public Task<IPagedList<JobEntry>> GetJobsAsync(int ownerId, int page = 1, int count = 20)
+        public Task<IPagedList<JobEntry>> GetJobsAsync(int? ownerId, int page = 1, int count = 20)
         {
             return _dbContext.Set<Job>()
-                .Where(j => j.OwnerId == ownerId && j.ParentJobId == null)
+                .WhereIf(ownerId.HasValue, j => j.OwnerId == ownerId)
+                .Where(j => j.ParentJobId == null)
                 .OrderByDescending(j => j.JobId)
                 .Select(GetSelector())
                 .ToPagedListAsync(page, count);

@@ -1,12 +1,14 @@
 ﻿@model IPagedList<JobEntry>
 @{
     ViewData["Title"] = "Background Jobs";
+    var routeTokens = new Dictionary<string, string>();
+    if (ViewData.ContainsKey("AllItems")) { routeTokens.Add("all", "true"); }
 }
 
 <h2 class="mt-2 mb-3">@ViewData["Title"]</h2>
 
 <div class="d-none" id="paging">
-    <pagination bs-total-page="Model.TotalPage" bs-current-page="Model.CurrentPage" />
+    <pagination asp-all-route-data="routeTokens" bs-total-page="Model.TotalPage" bs-current-page="Model.CurrentPage" />
 </div>
 
 <div class="table-wrapper mb-4">

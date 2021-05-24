@@ -21,10 +21,11 @@ namespace SatelliteSite.JobsModule.Dashboards
 
 
         [HttpGet]
-        public async Task<IActionResult> List(int page = 1)
+        public async Task<IActionResult> List(int page = 1, bool all = false)
         {
             if (page <= 0) return BadRequest();
-            int uid = int.Parse(User.GetUserId());
+            int? uid = all && User.IsInRole("Administrator") ? default(int?) : int.Parse(User.GetUserId());
+            if (all) ViewData["AllItems"] = true;
             return View(await Manager.GetJobsAsync(uid, page));
         }
 
@@ -32,7 +33,7 @@ namespace SatelliteSite.JobsModule.Dashboards
         [HttpGet("{id}")]
         public async Task<IActionResult> Detail(Guid id)
         {
-            int uid = int.Parse(User.GetUserId());
+            int? uid = User.IsInRole("Administrator") ? default(int?) : int.Parse(User.GetUserId());
             var job = await Manager.FindJobAsync(id, uid);
             if (job == null) return NotFound();
             return View(job);
@@ -42,7 +43,7 @@ namespace SatelliteSite.JobsModule.Dashboards
         [HttpGet("{id}/[action]")]
         public async Task<IActionResult> Logs(Guid id)
         {
-            int uid = int.Parse(User.GetUserId());
+            int? uid = User.IsInRole("Administrator") ? default(int?) : int.Parse(User.GetUserId());
             var job = await Manager.FindJobAsync(id, uid);
             if (job == null) return NotFound();
 
@@ -55,7 +56,7 @@ namespace SatelliteSite.JobsModule.Dashboards
         [HttpGet("{id}/[action]")]
         public async Task<IActionResult> Download(Guid id)
         {
-            int uid = int.Parse(User.GetUserId());
+            int? uid = User.IsInRole("Administrator") ? default(int?) : int.Parse(User.GetUserId());
             var job = await Manager.FindJobAsync(id, uid);
             if (job == null) return NotFound();
 
