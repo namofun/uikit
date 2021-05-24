@@ -13,6 +13,8 @@ namespace SatelliteSite.JobsModule
     {
         public void Configure(EntityTypeBuilder<Job> entity)
         {
+            entity.ToTable("Jobs");
+
             entity.HasKey(e => e.JobId);
 
             entity.HasOne<Job>()

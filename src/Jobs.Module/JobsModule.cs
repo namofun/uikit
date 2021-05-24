@@ -43,6 +43,8 @@ namespace SatelliteSite.JobsModule
                     options.Storage ??= new PhysicalJobFileProvider(path);
                 }
             });
+
+            services.AddJobExecutor<Jobs.Works.SamplePingPong>();
         }
 
         public override void RegisterEndpoints(IEndpointBuilder endpoints)

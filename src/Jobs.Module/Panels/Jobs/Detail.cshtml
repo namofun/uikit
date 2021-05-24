@@ -1,0 +1,46 @@
+﻿@model JobEntry
+@inject Microsoft.AspNetCore.Identity.IUserManager UserManager
+@{
+    ViewData["Title"] = "Job " + Model.JobId.ToString().Substring(0, 8);
+    var owner = await UserManager.FindUserNamesAsync(new[] { Model.OwnerId });
+}
+
+<h2 class="mt-2">@ViewData["Title"]</h2>
+
+<div class="row">
+<div class="col-lg-5">
+    <table class="table table-sm table-striped">
+        <tr><th>Full ID</th><td>@Model.JobId</td></tr>
+        <tr><th>Type</th><td>@Model.JobType</td></tr>
+        <tr><th>Status</th><td>@Model.Status</td></tr>
+        <tr><th>File Name</th><td>@Model.SuggestedFileName</td></tr>
+        <tr><th>Owner</th><td><a asp-route="AccountProfile" asp-route-username="@owner[Model.OwnerId]">@owner[Model.OwnerId] (u@(Model.OwnerId))</a></td></tr>
+        <tr><th>Creation Time</th><td>@Model.CreationTime.ToString("yyyy/M/d HH:mm:ss zzz")</td></tr>
+        <tr><th>Complete Time</th><td>@(Model.CompleteTime.HasValue ? Html.CstTime(Model.CompleteTime) : "N/A")</td></tr>
+        <tr><th colspan="2">
+            <details>
+                <summary style="padding-left:3px">Arguments</summary>
+                <div id="json_viewer_css_scope" class="jv-collapsing mt-1" style="background:transparent">
+                    <link href="/lib/jsonviewer/jsonTree.css" rel="stylesheet" />
+                    <script src="/lib/jsonviewer/jsonTree.js"></script>
+                    <link href="/lib/jsonviewer/ptmono.css" rel="stylesheet">
+                    <div class="d-none" id="args_json">@Model.Arguments</div>
+                    <div id="wrapper"></div>
+                    <script>
+                        $(function () {
+                            jsonTree.create(JSON.parse($('#args_json').text()), document.getElementById("wrapper")).expand(function (node) {
+                                return true;
+                            });
+                        });
+                    </script>
+                </div>
+            </details>
+        </th></tr>
+    </table>
+</div>
+</div>
+
+<p>
+    <a class="btn btn-primary"><i class="fas fa-file-download"></i> Download</a>
+    <a class="btn btn-secondary"><i class="fas fa-project-diagram"></i> Logs</a>
+</p>

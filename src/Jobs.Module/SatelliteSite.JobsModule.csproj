@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="SatelliteSite.StaticWebAssets.JsonViewer" Version="18.5.13" />
   </ItemGroup>
 
   <ItemGroup>
