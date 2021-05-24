@@ -2,6 +2,7 @@
 using Jobs.Models;
 using Jobs.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,6 +54,16 @@ namespace SatelliteSite.JobsModule.Services
                     .ToListAsync();
 
             return e;
+        }
+
+        public Task<IFileInfo> GetLogsAsync(Guid guid)
+        {
+            return _fileProvider.GetFileInfoAsync(guid + "/log");
+        }
+
+        public Task<IFileInfo> GetDownloadAsync(Guid guid)
+        {
+            return _fileProvider.GetFileInfoAsync(guid + "/main");
         }
     }
 }

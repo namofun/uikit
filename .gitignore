@@ -341,3 +341,4 @@ healthchecksdb
 
 # Migrations
 /sample/SatelliteSite.Host/Migrations
+/sample/SatelliteSite.Host/JobBlobs

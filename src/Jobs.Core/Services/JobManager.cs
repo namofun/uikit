@@ -1,4 +1,5 @@
 ﻿using Jobs.Models;
+using Microsoft.Extensions.FileProviders;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -26,5 +27,19 @@ namespace Jobs.Services
         /// <param name="ownerId">The user ID of owner.</param>
         /// <returns>The job entry.</returns>
         Task<JobEntry?> FindJobAsync(Guid id, int? ownerId = null);
+
+        /// <summary>
+        /// Gets the logs with corresponding ID.
+        /// </summary>
+        /// <param name="guid">The job ID.</param>
+        /// <returns>The log file info.</returns>
+        Task<IFileInfo?> GetLogsAsync(Guid guid);
+
+        /// <summary>
+        /// Gets the download file with corresponding ID.
+        /// </summary>
+        /// <param name="guid">The job ID.</param>
+        /// <returns>The download file info.</returns>
+        Task<IFileInfo?> GetDownloadAsync(Guid guid);
     }
 }

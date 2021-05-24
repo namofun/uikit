@@ -37,5 +37,31 @@ namespace SatelliteSite.JobsModule.Dashboards
             if (job == null) return NotFound();
             return View(job);
         }
+
+
+        [HttpGet("{id}/[action]")]
+        public async Task<IActionResult> Logs(Guid id)
+        {
+            int uid = int.Parse(User.GetUserId());
+            var job = await Manager.FindJobAsync(id, uid);
+            if (job == null) return NotFound();
+
+            var logs = await Manager.GetLogsAsync(id);
+            if (logs == null || !logs.Exists) return StatusCode(503);
+            return File(logs.CreateReadStream(), "text/plain", job.SuggestedFileName + ".log", false);
+        }
+
+
+        [HttpGet("{id}/[action]")]
+        public async Task<IActionResult> Download(Guid id)
+        {
+            int uid = int.Parse(User.GetUserId());
+            var job = await Manager.FindJobAsync(id, uid);
+            if (job == null) return NotFound();
+
+            var file = await Manager.GetDownloadAsync(id);
+            if (file == null || !file.Exists) return StatusCode(503);
+            return File(file.CreateReadStream(), "application/octet-stream", job.SuggestedFileName, true);
+        }
     }
 }

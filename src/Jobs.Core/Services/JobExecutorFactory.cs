@@ -29,19 +29,23 @@ namespace Jobs.Services
         /// Tries to create an instance of <see cref="IJobExecutor"/>.
         /// </summary>
         /// <param name="type">The job type.</param>
-        /// <param name="executor">The job executor.</param>
-        /// <returns>Whether the creation is succeeded.</returns>
-        public bool TryCreate(string type, out IJobExecutor? executor)
+        /// <returns>The job executor.</returns>
+        public IJobExecutor TryCreate(string type)
         {
             if (_providers.TryGetValue(type, out var provider))
             {
-                executor = provider.Create(_serviceProvider);
-                return true;
+                try
+                {
+                    return provider.Create(_serviceProvider);
+                }
+                catch (Exception ex)
+                {
+                    return new Works.FallbackCreationFailed(ex);
+                }
             }
             else
             {
-                executor = null;
-                return false;
+                return new Works.FallbackUnknown();
             }
         }
     }

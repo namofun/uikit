@@ -14,13 +14,16 @@ namespace SatelliteSite.JobsModule.Services
     {
         private readonly TContext _dbContext;
         private readonly SequentialGuidGenerator<TContext> _guid;
+        private readonly IJobFileProvider _fileProvider;
 
         public RelationalJobStorage(
             TContext context,
-            SequentialGuidGenerator<TContext> guid)
+            SequentialGuidGenerator<TContext> guid,
+            IJobFileProvider fileProvider)
         {
             _dbContext = context;
             _guid = guid;
+            _fileProvider = fileProvider;
         }
 
         public async Task<Job> DequeueAsync()
@@ -84,7 +87,7 @@ namespace SatelliteSite.JobsModule.Services
             return toCreate[0];
         }
 
-        public async Task MarkAsync(Job job, JobStatus status, JobStatus? prevStatus = null)
+        public async Task MarkAsync(Job job, JobStatus status, DateTimeOffset? completeTime = null, JobStatus? prevStatus = null)
         {
             if (prevStatus.HasValue && job.Status != prevStatus)
                 throw new InvalidOperationException("Previous status not match.");
@@ -92,12 +95,18 @@ namespace SatelliteSite.JobsModule.Services
             var affected = await _dbContext.Set<Job>()
                 .Where(j => j.JobId == job.JobId)
                 .WhereIf(prevStatus.HasValue, j => j.Status == prevStatus)
-                .BatchUpdateAsync(j => new Job { Status = status });
+                .BatchUpdateAsync(j => new Job { Status = status, CompleteTime = completeTime });
 
             if (prevStatus.HasValue && affected == 0)
                 throw new DbUpdateConcurrencyException("The previous status do not match.");
 
             job.Status = status;
+
+            if (!job.ParentJobId.HasValue) return;
+            await _dbContext.Set<Job>()
+                .Where(j => j.JobId == job.ParentJobId && j.Status == JobStatus.Composite)
+                .Where(j => _dbContext.Set<Job>().Where(i => i.ParentJobId == j.JobId).All(i => i.Status == JobStatus.Finished))
+                .BatchUpdateAsync(j => new Job { Status = JobStatus.Pending });
         }
     }
 }

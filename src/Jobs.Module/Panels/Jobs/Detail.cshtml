@@ -16,7 +16,7 @@
         <tr><th>File Name</th><td>@Model.SuggestedFileName</td></tr>
         <tr><th>Owner</th><td><a asp-route="AccountProfile" asp-route-username="@owner[Model.OwnerId]">@owner[Model.OwnerId] (u@(Model.OwnerId))</a></td></tr>
         <tr><th>Creation Time</th><td>@Model.CreationTime.ToString("yyyy/M/d HH:mm:ss zzz")</td></tr>
-        <tr><th>Complete Time</th><td>@(Model.CompleteTime.HasValue ? Html.CstTime(Model.CompleteTime) : "N/A")</td></tr>
+        <tr><th>Complete Time</th><td>@(Model.CompleteTime?.ToString("yyyy/M/d HH:mm:ss zzz") ?? "N/A")</td></tr>
         <tr><th colspan="2">
             <details>
                 <summary style="padding-left:3px">Arguments</summary>
@@ -41,6 +41,6 @@
 </div>
 
 <p>
-    <a class="btn btn-primary"><i class="fas fa-file-download"></i> Download</a>
-    <a class="btn btn-secondary"><i class="fas fa-project-diagram"></i> Logs</a>
+    <a class="btn btn-primary" asp-action="Download"><i class="fas fa-file-download"></i> Download</a>
+    <a class="btn btn-secondary" asp-action="Logs"><i class="fas fa-project-diagram"></i> Logs</a>
 </p>
