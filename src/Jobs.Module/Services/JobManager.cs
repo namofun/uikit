@@ -14,27 +14,45 @@ namespace SatelliteSite.JobsModule.Services
     public partial class RelationalJobStorage<TContext> : IJobManager
         where TContext : DbContext
     {
-        private Expression<Func<Job, JobEntry>> GetSelector()
+        private Expression<Func<Job, JobEntry>> GetSelector(bool useArgs = false)
         {
-            return j => new JobEntry
+            if (useArgs)
             {
-                Arguments = j.Arguments,
-                CompleteTime = j.CompleteTime,
-                Composite = j.Composite,
-                SuggestedFileName = j.SuggestedFileName,
-                Status = j.Status,
-                CreationTime = j.CreationTime,
-                JobId = j.JobId,
-                JobType = j.JobType,
-                ParentJobId = j.ParentJobId,
-                OwnerId = j.OwnerId,
-            };
+                return j => new JobEntry
+                {
+                    Arguments = j.Arguments,
+                    CompleteTime = j.CompleteTime,
+                    Composite = j.Composite,
+                    SuggestedFileName = j.SuggestedFileName,
+                    Status = j.Status,
+                    CreationTime = j.CreationTime,
+                    JobId = j.JobId,
+                    JobType = j.JobType,
+                    ParentJobId = j.ParentJobId,
+                    OwnerId = j.OwnerId,
+                };
+            }
+            else
+            {
+                return j => new JobEntry
+                {
+                    CompleteTime = j.CompleteTime,
+                    Composite = j.Composite,
+                    SuggestedFileName = j.SuggestedFileName,
+                    Status = j.Status,
+                    CreationTime = j.CreationTime,
+                    JobId = j.JobId,
+                    JobType = j.JobType,
+                    ParentJobId = j.ParentJobId,
+                    OwnerId = j.OwnerId,
+                };
+            }
         }
 
         public Task<IPagedList<JobEntry>> GetJobsAsync(int ownerId, int page = 1, int count = 20)
         {
             return _dbContext.Set<Job>()
-                .Where(j => j.OwnerId == ownerId && j.Composite)
+                .Where(j => j.OwnerId == ownerId && j.ParentJobId == null)
                 .OrderByDescending(j => j.JobId)
                 .Select(GetSelector())
                 .ToPagedListAsync(page, count);
@@ -44,7 +62,7 @@ namespace SatelliteSite.JobsModule.Services
         {
             var e = await _dbContext.Set<Job>()
                 .Where(j => j.JobId == id && j.OwnerId == ownerId)
-                .Select(GetSelector())
+                .Select(GetSelector(true))
                 .SingleOrDefaultAsync();
 
             if (e.Composite)

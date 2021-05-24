@@ -52,5 +52,15 @@ namespace SatelliteSite.JobsModule
         {
             endpoints.MapControllers();
         }
+
+        public override void RegisterMenu(IMenuContributor menus)
+        {
+            menus.Submenu(MenuNameDefaults.DashboardUsers, menu =>
+            {
+                menu.HasEntry(600)
+                    .HasTitle(string.Empty, "Background Jobs")
+                    .HasLink("Dashboard", "Jobs", "List");
+            });
+        }
     }
 }

@@ -25,7 +25,7 @@ namespace SatelliteSite.JobsModule.Dashboards
         {
             if (page <= 0) return BadRequest();
             int uid = int.Parse(User.GetUserId());
-            return Ok(await Manager.GetJobsAsync(uid, page));
+            return View(await Manager.GetJobsAsync(uid, page));
         }
 
 
