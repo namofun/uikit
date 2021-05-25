@@ -62,9 +62,12 @@ namespace SatelliteSite.JobsModule.Services
         public async Task<JobEntry> FindJobAsync(Guid id, int? ownerId = null)
         {
             var e = await _dbContext.Set<Job>()
-                .Where(j => j.JobId == id && j.OwnerId == ownerId)
+                .Where(j => j.JobId == id)
+                .WhereIf(ownerId.HasValue, j => j.OwnerId == ownerId)
                 .Select(GetSelector(true))
                 .SingleOrDefaultAsync();
+
+            if (e == null) return null;
 
             if (e.Composite)
                 e.Children = await GetChildrenAsync(id);

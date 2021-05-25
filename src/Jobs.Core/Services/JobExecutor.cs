@@ -12,7 +12,6 @@ namespace Jobs.Services
     {
         /// <summary>
         /// Asynchronously execute the targeted job with argument.
-        /// Note that this function shouldn't throw any exceptions.
         /// </summary>
         /// <param name="arguments">The job arguments.</param>
         /// <param name="guid">The storage unique ID.</param>

@@ -20,6 +20,7 @@
                 <th scope="col" class="sortable searchable">time</th>
                 <th scope="col" class="sortable searchable">file name</th>
                 <th scope="col" class="sortable">status</th>
+                <th scope="col" class="sortable searchable" asp-in-roles="Administrator">owner</th>
                 <th></th>
             </tr>
         </thead>
@@ -32,6 +33,7 @@
                 <td use-a>@job.CreationTime.ToString("yyyy/M/dd HH:mm:ss zzz")</td>
                 <td use-a>@job.SuggestedFileName</td>
                 <td title="@(job.CompleteTime.HasValue ? $"complete on {job.CompleteTime:yyyy/M/dd HH:mm:ss zzz}" : "")" use-a>@job.Status</td>
+                <td asp-in-roles="Administrator"><user uid="job.OwnerId" /></td>
                 <td><a asp-show-if="job.Status == Jobs.Entities.JobStatus.Finished" asp-action="Download" asp-route-id="@job.JobId" title="download"><i class="fas fa-file-download"></i></a></td>
             </tr>
             }

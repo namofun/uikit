@@ -56,55 +56,47 @@ namespace Jobs.Works
 
             public async Task<JobStatus> ExecuteAsync(string arguments, Guid guid, ILogger logger)
             {
-                try
+                var children = await _manager.GetChildrenAsync(guid);
+                var toAdd = new List<(string, IFileInfo)>();
+
+                foreach (var j in children)
                 {
-                    var children = await _manager.GetChildrenAsync(guid);
-                    var toAdd = new List<(string, IFileInfo)>();
-
-                    foreach (var j in children)
+                    if (j.Status != JobStatus.Finished || j.SuggestedFileName == null)
                     {
-                        if (j.Status != JobStatus.Finished || j.SuggestedFileName == null)
-                        {
-                            logger.LogError("The job {id} is not finished.", j.JobId);
-                            return JobStatus.Failed;
-                        }
-
-                        var file = await _fileProvider.GetFileInfoAsync(j.JobId + "/main");
-                        if (file == null || !file.Exists || file.PhysicalPath == null)
-                        {
-                            logger.LogError("The file job {id} is not found.", j.JobId);
-                            return JobStatus.Failed;
-                        }
-
-                        toAdd.Add((j.SuggestedFileName, file));
+                        logger.LogError("The job {id} is not finished.", j.JobId);
+                        return JobStatus.Failed;
                     }
 
-                    var tmpFileName = Path.GetTempFileName();
-                    logger.LogInformation("Use tmpfile {fileName}", tmpFileName);
-
-                    using (var zipArchive = new ZipArchive(File.OpenWrite(tmpFileName), ZipArchiveMode.Create, false))
+                    var file = await _fileProvider.GetFileInfoAsync(j.JobId + "/main");
+                    if (file == null || !file.Exists || file.PhysicalPath == null)
                     {
-                        foreach (var item in toAdd)
-                        {
-                            logger.LogInformation("Add {fileName} from {physical}...", item.Item1, item.Item2.PhysicalPath);
-                            zipArchive.CreateEntryFromFile(item.Item2.PhysicalPath, item.Item1);
-                        }
+                        logger.LogError("The file job {id} is not found.", j.JobId);
+                        return JobStatus.Failed;
                     }
 
-                    using (var tmpFile = File.OpenRead(tmpFileName))
-                    {
-                        await _fileProvider.WriteStreamAsync(guid + "/main", tmpFile);
-                    }
-
-                    File.Delete(tmpFileName);
-                    logger.LogInformation("Delete tmpfile {fileName}", tmpFileName);
-                    return JobStatus.Finished;
+                    toAdd.Add((j.SuggestedFileName, file));
                 }
-                catch (Exception ex)
+
+                var tmpFileName = Path.GetTempFileName();
+                logger.LogInformation("Use tmpfile {fileName}", tmpFileName);
+
+                using (var zipArchive = new ZipArchive(File.OpenWrite(tmpFileName), ZipArchiveMode.Create, false))
                 {
-                    logger.LogError(ex, "Unknown exception.");
-                    return JobStatus.Failed;
+                    foreach (var item in toAdd)
+                    {
+                        logger.LogInformation("Add {fileName} from {physical}...", item.Item1, item.Item2.PhysicalPath);
+                        zipArchive.CreateEntryFromFile(item.Item2.PhysicalPath, item.Item1);
+                    }
                 }
+
+                using (var tmpFile = File.OpenRead(tmpFileName))
+                {
+                    await _fileProvider.WriteStreamAsync(guid + "/main", tmpFile);
+                }
+
+                File.Delete(tmpFileName);
+                logger.LogInformation("Delete tmpfile {fileName}", tmpFileName);
+                return JobStatus.Finished;
             }
         }
     }

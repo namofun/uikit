@@ -1,6 +1,7 @@
 ﻿using Jobs.Entities;
 using Jobs.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,7 +29,18 @@ namespace SatelliteSite.JobsModule.Services
 
                 var executor = _factory.TryCreate(job.JobType, scope.ServiceProvider);
                 var logger = new StringBuilderLogger();
-                var result = await executor.ExecuteAsync(job.Arguments, job.JobId, logger);
+                JobStatus result;
+
+                try
+                {
+                    result = await executor.ExecuteAsync(job.Arguments, job.JobId, logger);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Unknown exception.");
+                    result = JobStatus.Failed;
+                }
+
                 await _fileProvider.WriteStringAsync(job.JobId + "/log", logger.StringBuilder.ToString());
                 logger.StringBuilder.Clear();
 

@@ -1,8 +1,6 @@
 ﻿@model JobEntry
-@inject Microsoft.AspNetCore.Identity.IUserManager UserManager
 @{
     ViewData["Title"] = "Job " + Model.JobId.ToString().Substring(0, 8);
-    var owner = await UserManager.FindUserNamesAsync(new[] { Model.OwnerId });
 }
 
 <h2 class="mt-2">@ViewData["Title"]</h2>
@@ -14,7 +12,7 @@
             <tr><th>Type</th><td>@Model.JobType</td></tr>
             <tr><th>Status</th><td>@Model.Status</td></tr>
             <tr><th>File Name</th><td>@Model.SuggestedFileName</td></tr>
-            <tr><th>Owner</th><td><a asp-route="AccountProfile" asp-route-username="@owner[Model.OwnerId]">@owner[Model.OwnerId] (u@(Model.OwnerId))</a></td></tr>
+            <tr><th>Owner</th><td><user uid="Model.OwnerId" /></td></tr>
             <tr><th>Creation Time</th><td>@Model.CreationTime.ToString("yyyy/M/d HH:mm:ss zzz")</td></tr>
             <tr><th>Complete Time</th><td>@(Model.CompleteTime?.ToString("yyyy/M/d HH:mm:ss zzz") ?? "N/A")</td></tr>
             <tr>
