@@ -113,11 +113,27 @@ namespace SatelliteSite.JobsModule.Services
 
             job.Status = status;
 
-            if (!job.ParentJobId.HasValue) return;
-            await _dbContext.Set<Job>()
-                .Where(j => j.JobId == job.ParentJobId && j.Status == JobStatus.Composite)
-                .Where(j => _dbContext.Set<Job>().Where(i => i.ParentJobId == j.JobId).All(i => i.Status == JobStatus.Finished))
-                .BatchUpdateAsync(j => new Job { Status = JobStatus.Pending });
+            if (!job.ParentJobId.HasValue)
+            {
+                return;
+            }
+            else if (status == JobStatus.Failed)
+            {
+                await _dbContext.Set<Job>()
+                    .Where(j => j.JobId == job.ParentJobId && j.Status == JobStatus.Composite)
+                    .BatchUpdateAsync(j => new Job { Status = JobStatus.Failed });
+
+                await _dbContext.Set<Job>()
+                    .Where(j => j.ParentJobId == job.ParentJobId && j.Status == JobStatus.Pending)
+                    .BatchUpdateAsync(j => new Job { Status = JobStatus.Cancelled });
+            }
+            else
+            {
+                await _dbContext.Set<Job>()
+                    .Where(j => j.JobId == job.ParentJobId && j.Status == JobStatus.Composite)
+                    .Where(j => _dbContext.Set<Job>().Where(i => i.ParentJobId == j.JobId).All(i => i.Status == JobStatus.Finished))
+                    .BatchUpdateAsync(j => new Job { Status = JobStatus.Pending });
+            }
         }
     }
 }

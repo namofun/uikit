@@ -22,5 +22,8 @@
 
         /// <summary>The job is failed</summary>
         Failed,
+
+        /// <summary>The job is cancelled</summary>
+        Cancelled,
     }
 }
