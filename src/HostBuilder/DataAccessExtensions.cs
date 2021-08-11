@@ -18,6 +18,11 @@ namespace Microsoft.Extensions.Hosting
         public const string ApplicationDomain = "Substrate.ApplicationDomain";
 
         /// <summary>
+        /// The type to exclude the event injection.
+        /// </summary>
+        private const string SqlServerOptionsExtension = "Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal.SqlServerOptionsExtension";
+
+        /// <summary>
         /// An exception description for checking bulk extensions.
         /// </summary>
         public const string NoBulkExtRegistered =
@@ -84,10 +89,23 @@ namespace Microsoft.Extensions.Hosting
                         ((IDbContextOptionsBuilderInfrastructure)options).AddOrUpdateExtension(mss);
                         configures.Invoke(context, options);
 
-                        if (!options.Options.Extensions
-                            .OfType<Microsoft.EntityFrameworkCore.Bulk.BatchOptionsExtension>()
-                            .Any())
+                        bool bulkRegistered = false;
+                        foreach (var ext in options.Options.Extensions.ToList())
+                        {
+                            if (ext is Microsoft.EntityFrameworkCore.Bulk.BatchOptionsExtension)
+                            {
+                                bulkRegistered = true;
+                            }
+                            else if (ext is RelationalOptionsExtension relExt && ext.GetType().FullName != SqlServerOptionsExtension)
+                            {
+                                options.AddInterceptors(Microsoft.EntityFrameworkCore.Diagnostics.DiagnosticDbInterceptor.Instance);
+                            }
+                        }
+
+                        if (!bulkRegistered)
+                        {
                             throw new InvalidOperationException(NoBulkExtRegistered);
+                        }
                     });
             });
         }
