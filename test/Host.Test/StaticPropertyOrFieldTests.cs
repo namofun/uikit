@@ -71,6 +71,8 @@ namespace SatelliteSite.Tests
                 ["[SatelliteSite.Abstraction]::[System.Linq.Expressions.ExpressionExtensions+ParameterExpressionHolder`1]::[Param]"] = "Type Related Singleton",
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Mvc.TagHelpers.DataTablesTagHelper]::[FactoryCache]"] = "Type Related Singleton",
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Mvc.Menus.ConcreteComponentBuilder]::[param]"] = "Type Related Singleton",
+                ["[SatelliteSite.DataAccess]::[Microsoft.EntityFrameworkCore.Diagnostics.DiagnosticDbInterceptor]::[_diagnosticListener]"] = "Type Related Singleton",
+                ["[SatelliteSite.DataAccess]::[Microsoft.EntityFrameworkCore.Diagnostics.DiagnosticDbInterceptor]::[Instance]"] = "Type Related Singleton",
 
                 ["[SatelliteSite.DataAccess]::[System.SequentialGuidGenerator]::[_rng]"] = "Singleton",
                 ["[SatelliteSite.DataAccess]::[System.SequentialGuidGenerator]::[DatabaseMapping]"] = "Constant Array",
