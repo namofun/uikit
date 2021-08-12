@@ -23,17 +23,7 @@ namespace Microsoft.AspNetCore.Routing
                 }
                 else if (endpoint is RouteEndpoint routeEndpoint)
                 {
-                    switch (routeEndpoint.Metadata.GetMetadata<TrackAvailabilityMetadata>()?.Track ?? default)
-                    {
-                        case TrackAvailability.Default:
-                        case TrackAvailability.Fallback:
-                            Process(context, routeEndpoint);
-                            break;
-
-                        case TrackAvailability.ErrorHandler:
-                        default:
-                            throw new NotImplementedException();
-                    }
+                    Process(context, routeEndpoint);
                 }
                 else
                 {
