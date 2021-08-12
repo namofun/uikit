@@ -4,15 +4,17 @@
 
 This is a project for ASP.NET Core module design standard,  designed as Satellite Site first. With this module, you can build your module application faster.
 
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.Abstraction%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.Abstraction): Commonly used classes and extension methods
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.DataAccess%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.DataAccess): Several abstractions for Entity Framework Core
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.Substrate%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.Substrate): ASP.NET Core Library with modern module design
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.StaticWebAssets%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.StaticWebAssets): Static web assets to use in /wwwroot/lib
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.IdentityCore%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.IdentityCore): Identity abstractions based on Microsoft.Extensions.Identity.Store
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.IdentityModule%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.IdentityModule): Default User Identity Module based on IdentityEFCore
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.TelemetryModule%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.TelemetryModule): Azure Application Insights Integration
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.HostBuilder%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.HostBuilder): Host Builder Extensions for Host projects
-- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fv3%2Fpackage%2FSatelliteSite.TestServer%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.TestServer): Utilities and tools for integrated tests
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FSatelliteSite.Abstraction%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.Abstraction): Commonly used classes and extension methods
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FSatelliteSite.DataAccess%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.DataAccess): Several abstractions for Entity Framework Core
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FSatelliteSite.Substrate%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.Substrate): ASP.NET Core Library with modern module design
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FSatelliteSite.StaticWebAssets%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.StaticWebAssets): Static web assets to use in /wwwroot/lib
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FSatelliteSite.IdentityCore%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.IdentityCore): Identity abstractions based on Microsoft.Extensions.Identity.Store
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FSatelliteSite.IdentityModule%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.IdentityModule): Default User Identity Module based on IdentityEFCore
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FSatelliteSite.TelemetryModule%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.TelemetryModule): Azure Application Insights Integration
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FSatelliteSite.JobsCore%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.JobsCore): Abstractions of workflow runtime
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FSatelliteSite.JobsModule%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.JobsModule): In-app running workflow runtime
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FSatelliteSite.HostBuilder%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.HostBuilder): Host Builder Extensions for Host projects
+- [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fnuget.xylab.fun%2Fapi%2Fpackage%2FSatelliteSite.TestServer%2Fshields-io.json)](https://nuget.xylab.fun/packages/SatelliteSite.TestServer): Utilities and tools for integrated tests
 
 ## UI components
 
