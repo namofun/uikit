@@ -34,6 +34,7 @@ jobs:
     inputs:
       command: 'test'
       testRunTitle: 'Run unit tests'
+      arguments: '--collect "Code coverage"'
     displayName: 'Run Unit Tests'
 
   - task: DotNetCoreCLI@2
