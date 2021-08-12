@@ -16,10 +16,10 @@ jobs:
   displayName: "Build, Test and Publish"
 
   pool:
-    vmImage: ubuntu-latest
+    vmImage: windows-latest
 
   steps:
-  - task: Bash@3
+  - task: PowerShell@2
     inputs:
       targetType: 'inline'
       script: 'echo "ref: $(Build.SourceBranch)" > $(Build.SourcesDirectory)/.git/ADO_OVERRIDE_HEAD'
