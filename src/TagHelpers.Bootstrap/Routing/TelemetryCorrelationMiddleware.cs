@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using System;
 using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Routing
@@ -12,11 +13,32 @@ namespace Microsoft.AspNetCore.Routing
         /// <inheritdoc />
         public Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
-            if (context.Features.Get<IStatusCodeReExecuteFeature>() == null
-                && context.GetEndpoint() is RouteEndpoint endpoint
-                && (endpoint.Metadata.GetMetadata<TrackAvailabilityMetadata>()?.Track ?? default) == TrackAvailability.Default)
+            if (context.Features.Get<IStatusCodeReExecuteFeature>() == null)
             {
-                Process(context, endpoint);
+                var endpoint = context.GetEndpoint();
+
+                if (endpoint == null)
+                {
+                    ProcessNotFound(context, context.Request.Path.Value);
+                }
+                else if (endpoint is RouteEndpoint routeEndpoint)
+                {
+                    switch (routeEndpoint.Metadata.GetMetadata<TrackAvailabilityMetadata>()?.Track ?? default)
+                    {
+                        case TrackAvailability.Default:
+                        case TrackAvailability.Fallback:
+                            Process(context, routeEndpoint);
+                            break;
+
+                        case TrackAvailability.ErrorHandler:
+                        default:
+                            throw new NotImplementedException();
+                    }
+                }
+                else
+                {
+                    // It's another type of endpoint but not route endpoint. So strange.
+                }
             }
 
             return next(context);
@@ -28,6 +50,15 @@ namespace Microsoft.AspNetCore.Routing
         /// <param name="context">The <see cref="HttpContext"/>.</param>
         /// <param name="endpoint">The <see cref="RouteEndpoint"/>.</param>
         protected virtual void Process(HttpContext context, RouteEndpoint endpoint)
+        {
+        }
+
+        /// <summary>
+        /// Process the not found requests with the context.
+        /// </summary>
+        /// <param name="context">The <see cref="HttpContext"/>.</param>
+        /// <param name="url">The request url.</param>
+        protected virtual void ProcessNotFound(HttpContext context, string url)
         {
         }
     }
