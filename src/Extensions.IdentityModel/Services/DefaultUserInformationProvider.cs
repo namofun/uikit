@@ -58,11 +58,11 @@ namespace Microsoft.AspNetCore.Identity
             }
         }
 
-        protected abstract Task<(T, string)?> GetUserAsync(int userId, string? userName);
+        protected abstract Task<(T, string)?> GetUserAsync(int userId, string? userName, IReadOnlyDictionary<string, string> attach);
 
-        protected abstract Task<(T, string)?> GetUserAsync(string userName);
+        protected abstract Task<(T, string)?> GetUserAsync(string userName, IReadOnlyDictionary<string, string> attach);
 
-        public async Task ProcessAsync(
+        public virtual async Task ProcessAsync(
             int userId,
             string? userName,
             IReadOnlyDictionary<string, string> attach,
@@ -70,18 +70,18 @@ namespace Microsoft.AspNetCore.Identity
             TagHelperContext context,
             TagHelperOutput output)
         {
-            var t = await GetUserAsync(userId, userName);
+            var t = await GetUserAsync(userId, userName, attach);
             await ProduceAsync(t, attach, actionContext, context, output);
         }
 
-        public async Task ProcessAsync(
+        public virtual async Task ProcessAsync(
             string userName,
             IReadOnlyDictionary<string, string> attach,
             ViewContext actionContext,
             TagHelperContext context,
             TagHelperOutput output)
         {
-            var t = await GetUserAsync(userName);
+            var t = await GetUserAsync(userName, attach);
             await ProduceAsync(t, attach, actionContext, context, output);
         }
     }
@@ -141,7 +141,7 @@ namespace Microsoft.AspNetCore.Identity
             _userManager = userManager;
         }
 
-        protected override async Task<(MediatR.Unit, string)?> GetUserAsync(int userId, string? userName)
+        protected override async Task<(MediatR.Unit, string)?> GetUserAsync(int userId, string? userName, IReadOnlyDictionary<string, string> attach)
         {
             userName ??= await _cache.GetByUserIdAsync(
                 userId,
@@ -150,7 +150,7 @@ namespace Microsoft.AspNetCore.Identity
             return userName == null ? default((MediatR.Unit, string)?) : (MediatR.Unit.Value, userName);
         }
 
-        protected override Task<(MediatR.Unit, string)?> GetUserAsync(string userName)
+        protected override Task<(MediatR.Unit, string)?> GetUserAsync(string userName, IReadOnlyDictionary<string, string> attach)
         {
             return Task.FromResult<(MediatR.Unit, string)?>((MediatR.Unit.Value, userName));
         }
