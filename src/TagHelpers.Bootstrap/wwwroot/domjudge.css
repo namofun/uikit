@@ -341,7 +341,7 @@ img.affiliation-logo {
   width: 32px;
 }
 
-.scoreheader {
+.scoreboard tr.scoreheader {
   font-variant: small-caps;
   border-bottom: 2px solid black;
   white-space: nowrap;
