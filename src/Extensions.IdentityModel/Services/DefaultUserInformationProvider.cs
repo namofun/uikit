@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.Razor.TagHelpers;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
@@ -20,77 +19,76 @@ namespace Microsoft.AspNetCore.Identity
             _urlHelperFactory = urlHelperFactory;
         }
 
-        protected virtual Task ProduceAsync(
+        protected virtual ValueTask ProduceAsync(
+            TagBuilder tag,
             T evermore,
-            string username,
+            string? username,
             IReadOnlyDictionary<string, string> attach,
-            ViewContext actionContext,
-            TagHelperContext context,
-            TagHelperOutput output)
+            ViewContext actionContext)
         {
             var url = _urlHelperFactory.GetUrlHelper(actionContext);
 
-            output.TagName = "a";
-            output.TagMode = TagMode.StartTagAndEndTag;
-            output.Attributes.SetAttribute("href", url.RouteUrl("AccountProfile", new { username }));
-            output.Content.SetContent(username);
-            return Task.CompletedTask;
+            tag.MergeAttribute("href", url.RouteUrl("AccountProfile", new { username }));
+            tag.InnerHtml.AppendHtml(username);
+            return default;
         }
 
-        protected virtual Task ProduceAsync(
+        protected virtual ValueTask ProduceAsync(
+            TagBuilder tag,
             (T Evermore, string UserName)? information,
             IReadOnlyDictionary<string, string> attach,
-            ViewContext actionContext,
-            TagHelperContext context,
-            TagHelperOutput output)
+            ViewContext actionContext)
         {
             if (!information.HasValue)
             {
-                output.TagName = "a";
-                output.TagMode = TagMode.StartTagAndEndTag;
-                output.Content.SetContent("UNKNOWN USER");
-                return Task.CompletedTask;
+                tag.InnerHtml.AppendHtml("UNKNOWN USER");
+                return default;
             }
             else
             {
                 var (e, u) = information.Value;
-                return ProduceAsync(e, u, attach, actionContext, context, output);
+                return ProduceAsync(tag, e, u, attach, actionContext);
             }
         }
 
-        protected abstract Task<(T, string)?> GetUserAsync(int userId, string? userName, IReadOnlyDictionary<string, string> attach);
+        protected abstract ValueTask<(T, string)?> GetUserAsync(
+            int userId,
+            string? userName,
+            IReadOnlyDictionary<string, string> attach);
 
-        protected abstract Task<(T, string)?> GetUserAsync(string userName, IReadOnlyDictionary<string, string> attach);
+        protected abstract ValueTask<(T, string)?> GetUserAsync(
+            string userName,
+            IReadOnlyDictionary<string, string> attach);
 
-        public virtual async Task ProcessAsync(
+        public virtual async ValueTask<TagBuilder> ProcessAsync(
             int userId,
             string? userName,
             IReadOnlyDictionary<string, string> attach,
-            ViewContext actionContext,
-            TagHelperContext context,
-            TagHelperOutput output)
+            ViewContext actionContext)
         {
-            var t = await GetUserAsync(userId, userName, attach);
-            await ProduceAsync(t, attach, actionContext, context, output);
+            var user = await GetUserAsync(userId, userName, attach);
+            var tag = new TagBuilder("a");
+            await ProduceAsync(tag, user, attach, actionContext);
+            return tag;
         }
 
-        public virtual async Task ProcessAsync(
+        public virtual async ValueTask<TagBuilder> ProcessAsync(
             string userName,
             IReadOnlyDictionary<string, string> attach,
-            ViewContext actionContext,
-            TagHelperContext context,
-            TagHelperOutput output)
+            ViewContext actionContext)
         {
-            var t = await GetUserAsync(userName, attach);
-            await ProduceAsync(t, attach, actionContext, context, output);
+            var user = await GetUserAsync(userName, attach);
+            var tag = new TagBuilder("a");
+            await ProduceAsync(tag, user, attach, actionContext);
+            return tag;
         }
     }
 
     public interface IUserInformationCache<T>
     {
-        Task<T> GetByUserNameAsync(string userName, Func<string, Task<T>> valueFactory);
+        ValueTask<T> GetByUserNameAsync(string userName, Func<string, Task<T>> valueFactory);
 
-        Task<T> GetByUserIdAsync(int userId, Func<int, Task<T>> valueFactory);
+        ValueTask<T> GetByUserIdAsync(int userId, Func<int, Task<T>> valueFactory);
     }
 
     public class MemoryUserInformationCache<T> : MemoryCache, IUserInformationCache<T>
@@ -105,7 +103,7 @@ namespace Microsoft.AspNetCore.Identity
         {
         }
 
-        public Task<T> GetByUserNameAsync(string userName, Func<string, Task<T>> valueFactory)
+        public ValueTask<T> GetByUserNameAsync(string userName, Func<string, Task<T>> valueFactory)
         {
             return this.GetOrCreateAsync("UserName: " + userName, async entry =>
             {
@@ -115,14 +113,27 @@ namespace Microsoft.AspNetCore.Identity
             });
         }
 
-        public Task<T> GetByUserIdAsync(int userId, Func<int, Task<T>> valueFactory)
+        public ValueTask<T> GetByUserIdAsync(int userId, Func<int, Task<T>> valueFactory)
         {
-            return this.GetOrCreateAsync("UserId: " + userId, async entry =>
+            return GetOrCreateAsync("UserId: " + userId, async entry =>
             {
                 var value = await valueFactory(userId);
                 entry.AbsoluteExpirationRelativeToNow = _expireSpan;
                 return value;
             });
+        }
+
+        public async ValueTask<T> GetOrCreateAsync(object key, Func<ICacheEntry, Task<T>> factory)
+        {
+            if (!TryGetValue(key, out object result))
+            {
+                using ICacheEntry entry = CreateEntry(key);
+
+                result = (await factory(entry).ConfigureAwait(false))!;
+                entry.Value = result;
+            }
+
+            return (T)result;
         }
     }
 
@@ -141,7 +152,7 @@ namespace Microsoft.AspNetCore.Identity
             _userManager = userManager;
         }
 
-        protected override async Task<(MediatR.Unit, string)?> GetUserAsync(int userId, string? userName, IReadOnlyDictionary<string, string> attach)
+        protected override async ValueTask<(MediatR.Unit, string)?> GetUserAsync(int userId, string? userName, IReadOnlyDictionary<string, string> attach)
         {
             userName ??= await _cache.GetByUserIdAsync(
                 userId,
@@ -150,9 +161,9 @@ namespace Microsoft.AspNetCore.Identity
             return userName == null ? default((MediatR.Unit, string)?) : (MediatR.Unit.Value, userName);
         }
 
-        protected override Task<(MediatR.Unit, string)?> GetUserAsync(string userName, IReadOnlyDictionary<string, string> attach)
+        protected override ValueTask<(MediatR.Unit, string)?> GetUserAsync(string userName, IReadOnlyDictionary<string, string> attach)
         {
-            return Task.FromResult<(MediatR.Unit, string)?>((MediatR.Unit.Value, userName));
+            return new ValueTask<(MediatR.Unit, string)?>((MediatR.Unit.Value, userName));
         }
     }
 }

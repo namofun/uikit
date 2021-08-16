@@ -58,31 +58,34 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
         }
 
         /// <inheritdoc />
-        public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+        public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
         {
+            TagBuilder tag;
+
             if (UserId.HasValue)
             {
-                return _userInformationProvider.ProcessAsync(
+                tag = await _userInformationProvider.ProcessAsync(
                     UserId.Value,
                     UserName,
                     ((IReadOnlyDictionary<string, string>?)_attachInformation) ?? _emptyInfo,
-                    ViewContext,
-                    context,
-                    output);
+                    ViewContext);
             }
             else if (UserName != null)
             {
-                return _userInformationProvider.ProcessAsync(
+                tag = await _userInformationProvider.ProcessAsync(
                     UserName,
                     ((IReadOnlyDictionary<string, string>?)_attachInformation) ?? _emptyInfo,
-                    ViewContext,
-                    context,
-                    output);
+                    ViewContext);
             }
             else
             {
                 throw new InvalidOperationException("Please specify at least ID or username.");
             }
+
+            output.TagName = tag.TagName;
+            output.TagMode = TagMode.StartTagAndEndTag;
+            output.MergeAttributes(tag);
+            output.Content.SetHtmlContent(tag.InnerHtml);
         }
     }
 }
