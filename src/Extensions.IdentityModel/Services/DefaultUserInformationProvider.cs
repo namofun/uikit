@@ -12,6 +12,7 @@ namespace Microsoft.AspNetCore.Identity
     public abstract class UserInformationProviderBase<T> : IUserInformationProvider
     {
         private readonly IUrlHelperFactory _urlHelperFactory;
+        private static readonly IReadOnlyDictionary<string, string> _emptyDict = new Dictionary<string, string>();
 
         protected UserInformationProviderBase(
             IUrlHelperFactory urlHelperFactory)
@@ -63,9 +64,10 @@ namespace Microsoft.AspNetCore.Identity
         public virtual async ValueTask<TagBuilder> ProcessAsync(
             int userId,
             string? userName,
-            IReadOnlyDictionary<string, string> attach,
+            IReadOnlyDictionary<string, string>? attach,
             ViewContext actionContext)
         {
+            attach ??= _emptyDict;
             var user = await GetUserAsync(userId, userName, attach);
             var tag = new TagBuilder("a");
             await ProduceAsync(tag, user, attach, actionContext);
@@ -74,9 +76,10 @@ namespace Microsoft.AspNetCore.Identity
 
         public virtual async ValueTask<TagBuilder> ProcessAsync(
             string userName,
-            IReadOnlyDictionary<string, string> attach,
+            IReadOnlyDictionary<string, string>? attach,
             ViewContext actionContext)
         {
+            attach ??= _emptyDict;
             var user = await GetUserAsync(userName, attach);
             var tag = new TagBuilder("a");
             await ProduceAsync(tag, user, attach, actionContext);
