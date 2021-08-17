@@ -41,5 +41,11 @@ namespace SatelliteSite.SampleModule.Controllers
         {
             return Json(User.IsInRole(roleName));
         }
+
+        [HttpGet]
+        public IActionResult ThrowErrors()
+        {
+            throw new System.Exception("hello?\ndhewufghe\ndheuwfhe");
+        }
     }
 }

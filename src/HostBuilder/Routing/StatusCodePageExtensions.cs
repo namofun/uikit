@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -52,6 +51,7 @@ namespace Microsoft.AspNetCore.Builder
                     {
                         context.Response.Clear();
                         context.Response.StatusCode = 500;
+                        context.Items["Microsoft.AspNetCore.Diagnostics.UnhandledException"] = ex;
                         if (_diagnosticSource.IsEnabled(_une))
                             _diagnosticSource.Write(_une, new { httpContext = context, exception = ex });
                         return;
