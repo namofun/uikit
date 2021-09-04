@@ -1,20 +1,7 @@
-﻿@using Microsoft.AspNetCore.Routing
-@using Microsoft.AspNetCore.Mvc.Abstractions
-@model IEnumerable<EndpointDataSource>
+﻿@using Microsoft.Extensions.Diagnostics.SmokeTests
+@model List<RoutingGroup>
 
 @functions {
-    string GetExtendedName(Type type)
-    {
-        if (type.GenericTypeArguments.Length == 0)
-        {
-            return type.Name;
-        }
-        else
-        {
-            return type.Name[0..^2] + "<" + string.Join(',', type.GenericTypeArguments.Select(a => GetExtendedName(a))) + ">";
-        }
-    }
-
     void Badge(string content, string color, bool condition = true, string? title = null)
     {
         if (condition)
@@ -32,25 +19,22 @@
 
 @foreach (var eds in Model)
 {
-<h4>@GetExtendedName(eds.GetType())</h4>
+<h4>@eds.Name</h4>
 <ul>
     @foreach (var ep in eds.Endpoints)
     {
     <li>
-        @if (!(ep is RouteEndpoint re))
+        @if (!ep.UsedForRouting)
         {
             Badge("non-route", "dark");
         }
         else
         {
-            var ad = re.Metadata.GetMetadata<ActionDescriptor>();
-            var area = (ad?.RouteValues.ContainsKey("area") ?? false) ? ad.RouteValues["area"] : null;
-            var routeName = re.Metadata.GetMetadata<IRouteNameMetadata>()?.RouteName;
-            Badge(area + (!string.IsNullOrEmpty(routeName) || re.Order != 0 ? " *" : ""), "light", area != null, (routeName != null ? "RouteName: " + routeName + "; " : "") + "Order: " + re.Order);
-            Badge("non-mvc" + (!string.IsNullOrEmpty(routeName) || re.Order != 0 ? " *" : ""), "dark", ad == null, "Order: " + re.Order);
-            if (!(re.Metadata.GetMetadata<ISuppressMatchingMetadata>()?.SuppressMatching ?? false))
+            Badge(ep.Area + (!string.IsNullOrEmpty(ep.AlternativeName) || ep.Order != 0 ? " *" : ""), "light", ep.Area != null, (ep.AlternativeName != null ? "RouteName: " + ep.AlternativeName + "; " : "") + "Order: " + ep.Order);
+            Badge("non-mvc" + (!string.IsNullOrEmpty(ep.AlternativeName) || ep.Order != 0 ? " *" : ""), "dark", ep.NonMvc, "Order: " + ep.Order);
+            if (!ep.Inert)
             {
-                var methods = re.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods ?? Array.Empty<string>();
+                var methods = ep.AllowedMethods ?? Array.Empty<string>();
                 Badge("GET", "primary", methods.Contains("GET"));
                 Badge("POST", "success", methods.Contains("POST"));
                 Badge("PUT", "warning", methods.Contains("PUT"));
@@ -60,14 +44,14 @@
                 Badge("HEAD", "dark", methods.Contains("HEAD"));
                 Badge("TRACE", "dark", methods.Contains("TRACE"));
                 Badge("CONNECT", "dark", methods.Contains("CONNECT"));
-        <code>/@re.RoutePattern.RawText.TrimStart('/')</code>
+        <code>@ep.RoutePattern</code>
             }
             else
             {
                 Badge("inert", "secondary");
             }
         }
-        @ep.DisplayName
+        @ep.Description
     </li>
     }
 </ul>

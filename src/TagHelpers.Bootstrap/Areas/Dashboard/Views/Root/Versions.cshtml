@@ -1,13 +1,56 @@
-﻿@using SatelliteSite.Substrate.Dashboards
-@model IEnumerable<LoadedModulesModel>
+﻿@using Microsoft.Extensions.Diagnostics.SmokeTests
+@model SystemComponent
 @{
     ViewData["Title"] = "Component Versions";
 }
 
 <h2 class="mt-2">@ViewData["Title"]</h2>
 
-<div asp-viewdata-key="RazorRuntimeCompilationEnabled" class="alert alert-warning" style="max-width:50em">
+<div asp-show-if="Model.RazorRuntimeCompilation" class="alert alert-warning" style="max-width:50em">
     <b>Razor Runtime Compilation</b> is turned on, assemblies named like <code>3bgi3jae.gwv</code> may appear.
 </div>
 
-<datatable data="Model" />
+<div class="table-wrapper">
+<table id="dataTable" class="data-table table table-sm table-striped" style="width:auto">
+<thead>
+<tr>
+<th class="sortable" scope="col">name</th>
+<th class="sortable" scope="col">version</th>
+<th scope="col">branch</th>
+<th scope="col">pkey</th>
+</tr>
+</thead>
+<tbody>
+@foreach (var version in Model.ComponentVersions)
+{
+<tr role="row"><td>@version.AssemblyName</td><td>@version.Version</td><td title="@version.CommitId">@(version.Branch != null ? $"{version.Branch} ({version.CommitId?.Substring(0, 7)})" : string.Empty)</td><td>@version.PublicKey</td></tr>
+}
+</tbody>
+</table>
+</div>
+<script>
+    $().ready(function () {
+        $('#dataTable').DataTable({
+            'searching': false,
+            'ordering': true,
+            'order': [[1, 'asc']],
+            'paging': false,
+            'info': false,
+            'autoWidth': true,
+            'language': {
+                'searchPlaceholder': 'filter table',
+                'search': '_INPUT_',
+                'oPaginate': {
+                    'sPrevious': '&laquo;',
+                    'sNext': '&raquo;'
+                }
+            },
+            'aoColumnDefs': [
+                { aTargets: ['sortable'], bSortable: true },
+                { aTargets: ['searchable'], bSearchable: true },
+                { aTargets: ['_all'], bSortable: false, bSearchable: false }
+            ],
+        });
+    });
+</script>
+

@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Diagnostics.SmokeTests;
 using SatelliteSite.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace SatelliteSite.Substrate.Dashboards
@@ -25,14 +24,10 @@ namespace SatelliteSite.Substrate.Dashboards
 
 
         [HttpGet]
-        public IActionResult Endpoints(
-            [FromServices] CompositeEndpointDataSource endpointDataSource,
-            [FromServices] ReExecuteEndpointDataSource endpointDataSource2)
+        public async Task<IActionResult> Endpoints(
+            [FromServices] ISmokeTest<List<RoutingGroup>> endpoints)
         {
-            var edss = endpointDataSource.DataSources;
-            if (endpointDataSource2.Endpoints.Count > 0)
-                edss = edss.Append(endpointDataSource2);
-            return View(edss);
+            return View(await endpoints.GetAsync());
         }
 
 
@@ -47,38 +42,10 @@ namespace SatelliteSite.Substrate.Dashboards
 
 
         [HttpGet]
-        public IActionResult Versions()
+        public async Task<IActionResult> Versions(
+            [FromServices] ISmokeTest<SystemComponent> versions)
         {
-            var lst = new List<LoadedModulesModel>();
-
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                GitVersionAttribute? gitVersion;
-
-                try
-                {
-                    gitVersion = assembly.GetCustomAttribute<GitVersionAttribute>();
-                }
-                catch
-                {
-                    gitVersion = null;
-                }
-
-                var asName = assembly.GetName();
-
-                lst.Add(new LoadedModulesModel
-                {
-                    AssemblyName = asName.Name,
-                    Branch = gitVersion?.Branch,
-                    CommitLong = gitVersion?.Version,
-                    PublicKey = asName.GetPublicKeyToken()?.ToHexDigest(true),
-                    Version = asName.Version?.ToString(),
-                });
-            }
-
-            if (HttpContext.RequestServices.GetService(typeof(IRazorFileProvider)) != null)
-                ViewData["RazorRuntimeCompilationEnabled"] = true;
-            return View(lst);
+            return View(await versions.GetAsync());
         }
 
 
