@@ -65,7 +65,7 @@ jobs:
   - task: CmdLine@2
     inputs:
       script: |
-        git remote add target https://tlylz:$(SYNC_PAT)@dev.azure.com/tlylz/namomo/_git/plagiarism
+        git remote add target https://tlylz:$(SYNC_PAT)@dev.azure.com/tlylz/namomo/_git/uikit
         git checkout $(Build.SourceBranchName)
         git pull target $(Build.SourceBranchName) --tags
         git push target --all
