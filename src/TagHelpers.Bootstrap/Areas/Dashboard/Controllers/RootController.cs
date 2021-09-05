@@ -77,7 +77,7 @@ namespace SatelliteSite.Substrate.Dashboards
             ConfigureEditModel models,
             [FromServices] IConfigurationRegistry registry)
         {
-            var items = (await registry.ListAsync()).SelectMany(a => a).ToList();
+            var items = await registry.GetAsync();
 
             foreach (var item in items)
             {
@@ -102,7 +102,7 @@ namespace SatelliteSite.Substrate.Dashboards
                 if (newVal == item.Value) continue;
 
                 await registry.UpdateAsync(item.Name, newVal);
-                await HttpContext.AuditAsync("updated", item.Name, "from " + item.Value);
+                await HttpContext.AuditAsync("updated", item.Name, $"from {item.Value} to {newVal}");
             }
 
             StatusMessage = "Configurations saved successfully.";
