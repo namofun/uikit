@@ -201,6 +201,10 @@ namespace Microsoft.AspNetCore.Mvc
 
             var modules = builder.Modules();
             modules.Insert(0, new TModule());
+            foreach (var module in modules)
+            {
+                module.Initialize();
+            }
 
             // register webservices
             return builder.ConfigureWebHostDefaults(builder =>

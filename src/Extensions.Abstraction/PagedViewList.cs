@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace System.Collections.Generic
 {
@@ -180,6 +181,64 @@ namespace System.Collections.Generic
         public static IPagedList<T2> As<T1, T2>(this IPagedList<T1> source, Func<T1, T2> selector)
         {
             return new PagedFakeList<T1, T2>(source, selector);
+        }
+    }
+
+    /// <summary>
+    /// The response for <see cref="IPagedList{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of paged element.</typeparam>
+    public class PagedResponse<T>
+    {
+        /// <summary>
+        /// Gets the total entity count.
+        /// </summary>
+        [JsonPropertyName("totalCount")]
+        public int TotalCount { get; set; }
+
+        /// <summary>
+        /// Gets the total page count.
+        /// </summary>
+        [JsonPropertyName("totalPage")]
+        public int TotalPage { get; set; }
+
+        /// <summary>
+        /// Gets the count of each page.
+        /// </summary>
+        [JsonPropertyName("countPerPage")]
+        public int CountPerPage { get; set; }
+
+        /// <summary>
+        /// Gets the current page.
+        /// </summary>
+        [JsonPropertyName("currentPage")]
+        public int CurrentPage { get; set; }
+
+        /// <summary>
+        /// Gets the contents.
+        /// </summary>
+        [JsonPropertyName("contents")]
+        public IReadOnlyList<T> Contents { get; set; }
+
+        /// <summary>
+        /// Constructor for deserialization.
+        /// </summary>
+        public PagedResponse()
+        {
+            Contents = Array.Empty<T>();
+        }
+
+        /// <summary>
+        /// Constructor for serializing <see cref="IPagedList{T}"/> in response.
+        /// </summary>
+        /// <param name="inner">The inner response.</param>
+        public PagedResponse(IPagedList<T> inner)
+        {
+            Contents = inner;
+            TotalCount = inner.TotalCount;
+            TotalPage = inner.TotalPage;
+            CountPerPage = inner.CountPerPage;
+            CurrentPage = inner.CurrentPage;
         }
     }
 }

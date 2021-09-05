@@ -14,10 +14,10 @@ namespace SatelliteSite.Substrate.Apis
     [Authorize]
     [Route("api/[controller]/[action]")]
     [Produces("application/json")]
-    [AuditPoint(AuditlogType.Attachment)]
     public class StaticController : ApiControllerBase
     {
         [HttpPost]
+        [AuditPoint(AuditlogType.Attachment)]
         public async Task<IActionResult> ImagesUpload(
             [FromQuery] int? id,
             [FromQuery] string type,
