@@ -11,6 +11,9 @@ trigger:
     include:
     - '*'
 
+variables:
+- group: azure-repos-sync
+
 jobs:
 - job: Build
   displayName: "Build, Test and Publish"
@@ -51,3 +54,20 @@ jobs:
       publishVstsFeed: '5f8d36de-7004-4c36-a8b5-8a4bda9eb598/c2949ad7-bda3-4f23-a41b-3109c9419cb7'
     displayName: 'Push to NuGet Feed'
     condition: startsWith(variables['Build.SourceBranch'], 'refs/tags/')
+
+- job: Sync
+  displayName: "Sync with Azure Repos"
+
+  pool:
+    vmImage: ubuntu-latest
+
+  steps:
+  - task: CmdLine@2
+    inputs:
+      script: |
+        git remote add target https://tlylz:$(SYNC_PAT)@dev.azure.com/tlylz/namomo/_git/plagiarism
+        git checkout $(Build.SourceBranchName)
+        git pull target $(Build.SourceBranchName) --tags
+        git push target --all
+        git push target HEAD:$(Build.SourceBranchName) --tags
+    displayName: 'Sync via Git Tools'
