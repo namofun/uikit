@@ -52,7 +52,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         }
 
 
-        [HttpGet("{username}")]
+        [HttpGet("{username}", Name = "AccountProfile")]
         [AllowAnonymous]
         public async Task<IActionResult> Show(string username)
         {
@@ -80,7 +80,7 @@ namespace SatelliteSite.IdentityModule.Controllers
             };
 
             if (string.IsNullOrEmpty(StatusMessage))
-                TempData["StatusMessage"] = "You can change your avatar in GAVATAR.";
+                TempData["StatusMessage"] = "You can change your avatar in GRAVATAR.";
 
             return View(model);
         }

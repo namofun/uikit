@@ -1,0 +1,128 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Card Sample 1";
+    ViewData["UseCardTheme"] = true;
+}
+
+@section Banner {
+    <style>body { padding-top: 56px; }</style>
+    <div class="nav-scroller bg-white shadow-sm">
+    <nav class="nav nav-underline">
+        <a class="nav-link active" data-order="0" href="/dashboard/teaching-center" id="menu_3d2585">Teaching Center</a>
+        <a class="nav-link " data-order="100" href="/dashboard/teaching-center/organization" id="menu_1b8814">Organization</a>
+    </nav>
+    </div>
+}
+
+<div class="row">
+<div class="container card-container">
+
+<div class="card window-card container-fluid">
+<div class="card-body">
+<h2 class="mb-3">Overview</h2>
+<div class="row">
+<div class="col-md-4">
+    <a class="breadcrumb mb-md-0 text-reset text-decoration-none" href="/dashboard/contests">
+        <div style="width:100%;color:#6c757d">
+            <span>Contests</span>
+            <span class="float-right"><i class="fas fa-trophy"></i></span>
+        </div>
+        <h3 class="mb-0">
+            43
+        </h3>
+    </a>
+</div>
+<div class="col-md-4">
+    <a class="breadcrumb mb-md-0 text-reset text-decoration-none" href="/dashboard/problems">
+        <div style="width:100%;color:#6c757d">
+            <span>Problems</span>
+            <span class="float-right"><i class="fas fa-book-open"></i></span>
+        </div>
+        <h3 class="mb-0">
+            509
+        </h3>
+    </a>
+</div>
+<div class="col-md-4">
+    <a class="breadcrumb mb-0 text-reset text-decoration-none" href="/dashboard/classes">
+        <div style="width:100%;color:#6c757d">
+            <span>Student Groups</span>
+            <span class="float-right"><i class="fas fa-users"></i></span>
+        </div>
+        <h3 class="mb-0">
+            4
+        </h3>
+    </a>
+</div>
+</div>
+</div>
+</div>
+
+<div class="card window-card container-fluid">
+<div class="card-body">
+<h2>
+    Contests
+    <a class="h2-more" href="/dashboard/contests">More &raquo;</a>
+</h2>
+<div class="card-table">
+<table class="table table-hover">
+<thead>
+    <tr role="row">
+        <th scope="col" style="min-width:17em">name</th>
+        <th scope="col" style="min-width:13em">time</th>
+        <th scope="col" style="min-width:10em" class="d-none d-md-table-cell">details</th>
+    </tr>
+</thead>
+<tbody>
+    <tr data-toggle="gotoUrlV2" data-href="/contest/42/jury">
+        <td>
+            <i class="fas fa-info-circle text-primary" title="scheduling"></i> Contest JLCPC
+            <br />
+            The 2018 Jilin Collegiate Programming Contest
+        </td>
+        <td>
+            <span title="start time"><i class="far fa-calendar-alt fa-fw"></i> N/A</span>
+            <br />
+            <span title="duration"><i class="far fa-clock fa-fw"></i> +05:00:00</span>
+        </td>
+        <td class="d-none d-md-table-cell">
+            <span title="# teams" class="mr-2"><i class="far fa-user fa-fw"></i> 0</span>
+            <span title="# problems"><i class="far fa-file-pdf fa-fw"></i> 13</span>
+            <br />
+            <span title="rule"><i class="far fa-futbol fa-fw"></i> ACM-ICPC</span>
+        </td>
+    </tr>
+    <tr data-toggle="gotoUrlV2" data-href="/contest/44/jury">
+        <td>
+            <i class="fas fa-info-circle text-secondary" title="finished"></i> Contest JLCPC
+            <br />
+            The 2019 Jilin Collegiate Programming Contest
+        </td>
+        <td>
+            <span title="start time"><i class="far fa-calendar-alt fa-fw"></i> 2021/04/17 17:00:00</span>
+            <br />
+            <span title="duration"><i class="far fa-clock fa-fw"></i> +05:00:00</span>
+        </td>
+        <td class="d-none d-md-table-cell">
+            <span title="# teams" class="mr-2"><i class="far fa-user fa-fw"></i> 19</span>
+            <span title="# problems"><i class="far fa-file-pdf fa-fw"></i> 10</span>
+            <br />
+            <span title="rule"><i class="far fa-futbol fa-fw"></i> ACM-ICPC</span>
+        </td>
+    </tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+<div class="card window-card container-fluid card-pagination">
+<div class="card-body">
+    <pagination bs-current-page="3" />
+</div>
+</div>
+
+
+</div>
+</div>

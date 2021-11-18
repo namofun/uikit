@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.FileProviders.Composite;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections;
@@ -15,6 +17,9 @@ namespace Microsoft.Extensions.FileProviders
     public class PeerFileProvider : IRazorFileProvider, IDirectoryContents, IFileInfo
     {
         #region Useless Properties
+
+        /// <summary>The logger to log things</summary>
+        public ILogger Logger { get; private set; } = NullLogger.Instance;
 
         /// <inheritdoc />
         public bool Exists => true;
@@ -39,27 +44,11 @@ namespace Microsoft.Extensions.FileProviders
 
         #endregion
 
-        /// <summary>
-        /// Filter out the <see cref="NotFoundFileInfo"/>.
-        /// </summary>
-        /// <param name="fileInfo">The source <see cref="IFileInfo"/>.</param>
-        /// <returns>The <see cref="IFileInfo"/>.</returns>
-        internal static IFileInfo? NullIfNotFound(IFileInfo? fileInfo)
-        {
-            if (fileInfo == null || fileInfo is NotFoundFileInfo || !fileInfo.Exists) return null;
-            return fileInfo;
-        }
+        internal static bool NotNulls(IFileInfo? fileInfo)
+            => !(fileInfo == null || fileInfo is NotFoundFileInfo || !fileInfo.Exists);
 
-        /// <summary>
-        /// Filter out the <see cref="NullChangeToken"/>.
-        /// </summary>
-        /// <param name="changeToken">The source <see cref="IChangeToken"/>.</param>
-        /// <returns>The <see cref="IChangeToken"/>.</returns>
-        internal static IChangeToken? NullIfNotFound(IChangeToken? changeToken)
-        {
-            if (changeToken == null || changeToken is NullChangeToken) return null;
-            return changeToken;
-        }
+        internal static bool NotNulls(IChangeToken? changeToken)
+            => !(changeToken == null || changeToken is NullChangeToken);
 
         /// <summary> The internal tree </summary>
         private Dictionary<string, PeerFileProvider>? Tree { get; set; }
@@ -74,35 +63,52 @@ namespace Microsoft.Extensions.FileProviders
         public IDirectoryContents GetDirectoryContents(string subpath)
         {
             if (Tree == null && Composite == null)
+            {
                 return new NotFoundDirectoryContents();
-            var fps = Enumerable.Empty<IFileProvider>();
-            if (Tree != null) fps = fps.Concat(Tree.Values);
-            if (Composite != null) fps = fps.Concat(Composite);
-            return new CompositeDirectoryContents(fps.ToArray(), subpath);
+            }
+
+            return new CompositeDirectoryContents(
+                Enumerable.Empty<IFileProvider>()
+                    .ConcatIf(Tree != null, Tree?.Values)
+                    .ConcatIf(Composite != null, Composite)
+                    .ToArray(),
+                subpath);
         }
 
         /// <inheritdoc />
         public IEnumerator<IFileInfo> GetEnumerator()
         {
             if (Tree == null && Composite == null)
+            {
                 return Enumerable.Empty<IFileInfo>().GetEnumerator();
-            var fps = Enumerable.Empty<IFileInfo>();
-            if (Tree != null) fps = fps.Concat(Tree.Values.SelectMany(a => a));
-            if (Composite != null) fps = fps.Concat(Composite.SelectMany(a => a.GetDirectoryContents("/")));
-            return fps.GetEnumerator();
+            }
+
+            return Enumerable.Empty<IFileInfo>()
+                .ConcatIf(Tree != null, Tree?.Values?.SelectMany(a => a))
+                .ConcatIf(Composite != null, Composite?.SelectMany(a => a.GetDirectoryContents("/")))
+                .GetEnumerator();
         }
 
         /// <inheritdoc />
         public IFileInfo GetFileInfo(string subpath)
         {
-            if (subpath == "/") return this;
+            if (subpath == "/")
+            {
+                return this;
+            }
+
             if (subpath.StartsWith("/Pages/", StringComparison.OrdinalIgnoreCase))
+            {
                 return new NotFoundFileInfo(subpath);
+            }
 
-            var f1 = Composite?.Select(a => NullIfNotFound(a.GetFileInfo(subpath)))
-                .Where(a => a != null).SingleOrDefault();
+            var candidates = new List<IFileInfo>();
+            if (Composite != null)
+            {
+                candidates.AddRange(Composite.Select(a => a.GetFileInfo(subpath)));
+            }
 
-            if (f1 == null && Tree != null)
+            if (Tree != null)
             {
                 ReadOnlySpan<char> ch = subpath;
                 ch = ch.TrimStart('/');
@@ -112,82 +118,110 @@ namespace Microsoft.Extensions.FileProviders
                 {
                     var newSubpath = ch.Slice(idx).ToString();
                     var smallPath = ch.Slice(0, idx).ToString();
-                    f1 = NullIfNotFound(Tree?.GetValueOrDefault(smallPath)?.GetFileInfo(newSubpath));
+                    if (Tree.TryGetValue(smallPath, out var pfp))
+                    {
+                        candidates.Add(pfp.GetFileInfo(newSubpath));
+                    }
                 }
             }
 
-            return f1 ?? new NotFoundFileInfo(subpath);
+            candidates = candidates.Where(NotNulls).ToList();
+            if (candidates.Count == 0) return new NotFoundFileInfo(subpath);
+            if (candidates.Count == 1) return candidates[0];
+
+            Logger.LogError(
+                "Multiple candidates while searching {subpath}. They are: \r\n{candidates}\r\nReturning the first one.",
+                Name?.TrimEnd('/') + "/" + subpath.TrimStart('/'),
+                string.Join("\r\n", candidates.Select(f => f.PhysicalPath ?? "(Unknown Physical Path)")));
+
+            return candidates[0];
         }
 
         /// <inheritdoc />
         public IChangeToken Watch(string filter)
         {
             if (filter.StartsWith("/Pages/", StringComparison.OrdinalIgnoreCase))
+            {
                 return NullChangeToken.Singleton;
+            }
 
             if (filter.StartsWith("/*", StringComparison.Ordinal))
             {
-                var toks = Enumerable.Empty<IChangeToken>();
-                if (Tree != null) toks = toks.Concat(
-                    Tree.Values.Select(a => NullIfNotFound(a.Watch(filter))!).Where(a => a != null));
-                if (Composite != null) toks = toks.Concat(
-                    Composite.Select(a => NullIfNotFound(a.Watch(filter))!).Where(a => a != null));
-                var results = toks.ToArray();
-                if (results.Length == 0) return NullChangeToken.Singleton;
-                else if (results.Length == 1) return results[0];
+                var results = Enumerable.Empty<IChangeToken>()
+                    .ConcatIf(Tree != null, Tree?.Values.Select(a => a.Watch(filter)))
+                    .ConcatIf(Composite != null, Composite?.Select(a => a.Watch(filter)))
+                    .Where(NotNulls)
+                    .ToList();
+
+                if (results.Count == 0) return NullChangeToken.Singleton;
+                else if (results.Count == 1) return results[0];
                 return new CompositeChangeToken(results);
             }
             else
             {
-                var toks = Enumerable.Empty<IChangeToken?>();
-                if (Composite != null) toks = toks.Concat(
-                    Composite.Select(a => a.Watch(filter)));
-                ReadOnlySpan<char> ch = filter;
-                ch = ch.TrimStart('/');
-                var idx = ch.IndexOf('/');
+                var toks = new List<IChangeToken>();
 
-                if (idx != -1)
+                if (Composite != null)
                 {
-                    var newSubpath = ch.Slice(idx).ToString();
-                    var smallPath = ch.Slice(0, idx).ToString();
-                    if (Tree != null) toks = toks.Append(
-                        NullIfNotFound(Tree.GetValueOrDefault(smallPath)?.Watch(newSubpath)));
+                    toks.AddRange(Composite.Select(a => a.Watch(filter)));
                 }
 
-                var toks3 = toks.Where(a => NullIfNotFound(a) != null).ToArray();
-                if (toks3.Length == 0) return NullChangeToken.Singleton;
-                else if (toks3.Length == 1) return toks3[0]!;
-                return new CompositeChangeToken(toks3);
+                if (Tree != null)
+                {
+                    ReadOnlySpan<char> ch = filter;
+                    ch = ch.TrimStart('/');
+                    var idx = ch.IndexOf('/');
+
+                    if (idx != -1)
+                    {
+                        var newSubpath = ch.Slice(idx).ToString();
+                        var smallPath = ch.Slice(0, idx).ToString();
+                        if (Tree.TryGetValue(smallPath, out var pfp))
+                        {
+                            toks.Add(pfp.Watch(newSubpath));
+                        }
+                    }
+                }
+
+                toks = toks.Where(NotNulls).ToList();
+                if (toks.Count == 0) return NullChangeToken.Singleton;
+                else if (toks.Count == 1) return toks[0];
+                return new CompositeChangeToken(toks);
             }
         }
 
-        /// <summary>
-        /// Gets the sub file provider.
-        /// </summary>
-        /// <param name="name">The folder name.</param>
-        /// <returns>The file provider.</returns>
-        public PeerFileProvider this[string name]
+        /// <inheritdoc />
+        public IRazorFileProvider this[string name]
         {
             get
             {
-                if (Tree == null)
-                    Tree = new Dictionary<string, PeerFileProvider>();
+                Tree ??= new Dictionary<string, PeerFileProvider>();
                 if (!Tree.TryGetValue(name, out var subp))
+                {
                     Tree.Add(name, subp = new PeerFileProvider { Name = Name + name + "/" });
+                }
+
                 return subp;
             }
         }
 
-        /// <summary>
-        /// Add the physical provider to this peer file provider.
-        /// </summary>
-        /// <param name="dest">The physical file provider.</param>
-        /// <returns>The peer file provider.</returns>
-        public PeerFileProvider Append(PhysicalFileProvider dest)
+        /// <inheritdoc />
+        public IRazorFileProvider Append(PhysicalFileProvider fileProvider)
         {
             Composite ??= new List<PhysicalFileProvider>();
-            Composite.Add(dest);
+            Composite.Add(fileProvider);
             return this;
+        }
+
+        /// <inheritdoc />
+        public void InjectLogger(ILogger? logger)
+        {
+            Logger = logger ?? NullLogger.Instance;
+            if (Tree == null) return;
+            foreach (var pfp in Tree.Values)
+            {
+                pfp.InjectLogger(logger);
+            }
         }
     }
 }

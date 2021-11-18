@@ -5,13 +5,19 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using SatelliteSite;
 using SatelliteSite.Services;
 using System;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 [assembly: RoleDefinition(1, "Administrator", "admin", "Administrative User")]
 [assembly: RoleDefinition(2, "Blocked", "blocked", "Blocked User")]
 [assembly: ConfigurationBoolean(0, "Identity", "enable_register", true, "Whether to allow user self registration.")]
+[assembly: TypeForwardedTo(typeof(Microsoft.AspNetCore.Authorization.AcceptancePolicyBuilder))]
+[assembly: TypeForwardedTo(typeof(Microsoft.AspNetCore.Authorization.IAuthorizationPolicyContainer))]
+[assembly: TypeForwardedTo(typeof(SatelliteSite.IAuthorizationPolicyRegistry))]
 
 namespace SatelliteSite.IdentityModule
 {
@@ -69,10 +75,11 @@ namespace SatelliteSite.IdentityModule
             services.AddSingleton<BasicAuthenticationValidator>();
             services.AddSingleton<CookieAuthenticationValidator>();
             services.AddSingleton<ISignInSlideExpiration, DefaultSignInSlideExpiration<TUser>>();
+            services.TryAddSingleton(typeof(IUserInformationCache<>), typeof(MemoryUserInformationCache<>));
 
             services.AddAuthentication().AddBasic();
             services.AddAuthorization();
-            services.ConfigureOptions<ConfigureAuthoraztionPolicy>();
+            services.ConfigureOptions<AuthorizationPolicyRegistryConfigurator>();
             services.ConfigureOptions<SubstrateSiteNameConfigurator>();
             services.ConfigureOptions<IdentityAdvancedConfigurator>();
             services.ConfigureOptions<AuthenticateSchemeConfigurator>();
@@ -84,6 +91,13 @@ namespace SatelliteSite.IdentityModule
             services.AddOptions<AuthMessageSenderOptions>();
 
             services.AddDbModelSupplier<TContext, IdentityEntityConfiguration<TUser, TRole, TContext>>();
+
+            if (services
+                .Where(d => d.ServiceType == typeof(IUserInformationProvider) && d.Lifetime == ServiceLifetime.Scoped)
+                .Single().ImplementationType == typeof(NullUserInformationProvider))
+            {
+                services.ReplaceScoped<IUserInformationProvider, DefaultUserInformationProvider>();
+            }
         }
 
         public override void RegisterEndpoints(IEndpointBuilder endpoints)

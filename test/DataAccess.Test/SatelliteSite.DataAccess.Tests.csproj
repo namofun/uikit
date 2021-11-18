@@ -10,9 +10,11 @@
     <PackageReference Include="MSTest.TestAdapter" Version="$(MSTestVersion)" />
     <PackageReference Include="MSTest.TestFramework" Version="$(MSTestVersion)" />
     <PackageReference Include="coverlet.collector" Version="$(CoverletVersion)" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Bulk.InMemory" Version="$(EFCoreBulkVersion)" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Bulk.SqlServer" Version="$(EFCoreBulkVersion)" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Bulk.PostgreSql" Version="$(EFCoreBulkVersion)" />
+    <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.InMemory" Version="$(EFCoreBulkVersion)" />
+    <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.SqlServer" Version="$(EFCoreBulkVersion)" />
+    <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.PostgreSql" Version="$(EFCoreBulkVersion)" />
+    <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.Sqlite" Version="$(EFCoreBulkVersion)" />
+    <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.MySql" Version="$(EFCoreBulkVersion)" />
   </ItemGroup>
 
   <ItemGroup>

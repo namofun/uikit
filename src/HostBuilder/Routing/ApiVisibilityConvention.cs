@@ -30,7 +30,9 @@ namespace Microsoft.AspNetCore.Mvc
         {
             bool isVisible = controller.ControllerType.IsSubclassOf(typeof(ApiControllerBase));
             if (!isVisible && !controller.ControllerType.IsSubclassOf(typeof(ViewControllerBase)))
+            {
                 throw new ApplicationException("Controllers must inherit from ApiControllerBase or ViewControllerBase.");
+            }
 
             if (isVisible && _decl.TryGetValue(controller.ControllerType.Assembly.FullName!, out var groupName))
             {

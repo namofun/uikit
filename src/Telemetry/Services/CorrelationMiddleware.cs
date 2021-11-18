@@ -14,5 +14,14 @@ namespace SatelliteSite.TelemetryModule.Services
                 telemetry.Name = context.Request.Method + " /" + endpoint.RoutePattern.RawText.TrimStart('/');
             }
         }
+
+        protected override void ProcessNotFound(HttpContext context, string url)
+        {
+            var telemetry = context.Features.Get<RequestTelemetry>();
+            if (string.IsNullOrEmpty(telemetry.Name))
+            {
+                telemetry.Name = context.Request.Method + " /" + (url ?? "").TrimStart('/');
+            }
+        }
     }
 }

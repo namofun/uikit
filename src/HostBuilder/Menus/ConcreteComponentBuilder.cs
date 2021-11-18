@@ -18,11 +18,15 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         /// <inheritdoc />
         public bool Finalized { get; private set; }
 
+        /// <inheritdoc />
+        public IMenuContributor Contributor { get; }
+
         /// <summary>
         /// Construct a component builder.
         /// </summary>
-        public ConcreteComponentBuilder()
+        public ConcreteComponentBuilder(IMenuContributor contributor)
         {
+            Contributor = contributor;
             Components = new List<(int, Type)>();
             Finalized = false;
         }

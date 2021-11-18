@@ -103,34 +103,34 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
             var user = ViewContext.HttpContext.User;
             var viewData = ViewContext.ViewData;
 
-            if (Key != null && !suppress)
+            if (Key != null && !string.IsNullOrWhiteSpace(Key) && !suppress)
             {
                 suppress = !viewData.ContainsKey(Key);
             }
 
-            if (Roles != null && !suppress)
+            if (Roles != null && !string.IsNullOrWhiteSpace(Roles) && !suppress)
             {
                 suppress = !user.IsInRoles(Roles);
             }
 
-            if (ElseKey != null && !suppress)
+            if (ElseKey != null && !string.IsNullOrWhiteSpace(ElseKey) && !suppress)
             {
                 suppress = viewData.ContainsKey(ElseKey);
             }
 
-            if (ElseRoles != null && !suppress)
+            if (ElseRoles != null && !string.IsNullOrWhiteSpace(ElseRoles) && !suppress)
             {
                 suppress = user.IsInRoles(ElseRoles);
             }
 
-            if (Policy != null && !suppress)
+            if (Policy != null && !string.IsNullOrWhiteSpace(Policy) && !suppress)
             {
                 var handler = ViewContext.HttpContext.RequestServices.GetRequiredService<IAuthorizationService>();
                 var result = await handler.AuthorizeAsync(user, Policy);
                 suppress = !result.Succeeded;
             }
 
-            if (ElsePolicy != null && !suppress)
+            if (ElsePolicy != null && !string.IsNullOrWhiteSpace(ElsePolicy) && !suppress)
             {
                 var handler = ViewContext.HttpContext.RequestServices.GetRequiredService<IAuthorizationService>();
                 var result = await handler.AuthorizeAsync(user, ElsePolicy);

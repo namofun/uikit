@@ -12,13 +12,24 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DataAccess.Abstraction\SatelliteSite.DataAccess.csproj" />
     <ProjectReference Include="..\Extensions.Abstraction\SatelliteSite.Abstraction.csproj" />
-    <ProjectReference Include="..\StaticWebAssets\SatelliteSite.StaticWebAssets.csproj" />
   </ItemGroup>
+
+  <PropertyGroup>
+    <ResolveCurrentProjectStaticWebAssetsInputsDependsOn>
+      SetStaticWebAssetsBasePath;
+      $(ResolveCurrentProjectStaticWebAssetsInputsDependsOn)
+    </ResolveCurrentProjectStaticWebAssetsInputsDependsOn>
+  </PropertyGroup>
+
+  <Target Name="SetStaticWebAssetsBasePath">
+    <PropertyGroup>
+      <StaticWebAssetBasePath>/lib/xylab</StaticWebAssetBasePath>
+    </PropertyGroup>
+  </Target>
 
 </Project>

@@ -16,7 +16,9 @@
                 .FindExtension<ModelSupplierService<T>>();
 
             foreach (var supplier in service.Holder)
-                supplier.Configure(modelBuilder);
+            {
+                supplier.Configure(modelBuilder, (T)context);
+            }
 
             base.Customize(modelBuilder, context);
         }

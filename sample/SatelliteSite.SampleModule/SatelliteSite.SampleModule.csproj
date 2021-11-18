@@ -9,6 +9,7 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <ProjectReference Include="..\..\src\Extensions.IdentityModel\SatelliteSite.IdentityModule.csproj" />
+    <ProjectReference Include="..\..\src\Jobs.Core\SatelliteSite.JobsCore.csproj" />
     <ProjectReference Include="..\..\src\TagHelpers.Bootstrap\SatelliteSite.Substrate.csproj" />
   </ItemGroup>
 

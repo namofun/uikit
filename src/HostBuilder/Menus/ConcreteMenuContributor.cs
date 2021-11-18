@@ -81,7 +81,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         {
             if (Components.ContainsKey(name))
                 return Components[name];
-            var builder = new ConcreteComponentBuilder();
+            var builder = new ConcreteComponentBuilder(this);
             Components.Add(name, builder);
             return builder;
         }
@@ -93,6 +93,15 @@ namespace Microsoft.AspNetCore.Mvc.Menus
                 throw new InvalidOperationException(
                     $"\"{name}\" is not a pre-defined menu. " +
                     $"Please add it in the corresponding menu first.");
+            menu2.Contribute();
+            return menu2;
+        }
+
+        /// <inheritdoc />
+        public ISubmenu UserDropdown()
+        {
+            if (!Store.TryGetValue(MenuNameDefaults.UserDropdown, out var menu) || !(menu is ConcreteSubmenuBuilder menu2))
+                throw new InvalidOperationException($"\"{MenuNameDefaults.UserDropdown}\" is missing. ");
             menu2.Contribute();
             return menu2;
         }

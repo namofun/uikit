@@ -24,18 +24,38 @@ namespace Microsoft.AspNetCore.Razor.Hosting
         /// <param name="fileName">The razor file identifier</param>
         /// <param name="areaName">The area name</param>
         /// <returns>The correct identifier</returns>
-        private static string IdentifierProbing(string fileName, string areaName)
+        /// <exception cref="ArgumentException">The file <paramref name="fileName"/> violates the discovery rules.</exception>
+        /// <remarks>
+        /// <list type="bullet">
+        /// <item><c>/Panels/AaaBbb</c> -> <c>/Areas/Dashboard/Views/AaaBbb</c></item>
+        /// <item><c>/Views/AaaBbb</c> -> <c>/Views/AaaBbb</c> (when <paramref name="areaName"/> is null or empty)</item>
+        /// <item><c>/Views/AaaBbb</c> -> <c>/Areas/<paramref name="areaName"/>/Views/AaaBbb</c></item>
+        /// <item><c>/Components/AaaBbb</c> -> <c>/Views/Shared/Components/AaaBbb</c></item>
+        /// <item>For those non-matching items, throws an exception</item>
+        /// </list>
+        /// </remarks>
+        public static string IdentifierProbing(string fileName, string areaName)
         {
             if (fileName.StartsWith("/Panels/"))
+            {
                 return "/Areas/Dashboard/Views" + fileName["/Panels".Length..];
+            }
             else if (fileName.StartsWith("/Views/") && string.IsNullOrEmpty(areaName))
+            {
                 return fileName;
+            }
             else if (fileName.StartsWith("/Views/"))
+            {
                 return "/Areas/" + areaName + fileName;
+            }
             else if (fileName.StartsWith("/Components/"))
+            {
                 return "/Views/Shared" + fileName;
+            }
             else
+            {
                 throw new ArgumentException($"The file {fileName} violates the discovery rules.");
+            }
         }
 
         /// <summary>

@@ -21,6 +21,15 @@
                     <br />
                     <code>@ViewBag.RequestId</code>
                 </div>
+                @if (code == System.Net.HttpStatusCode.InternalServerError
+                    && User.IsInRole("Administrator")
+                    && Context.Items.TryGetValue("Microsoft.AspNetCore.Diagnostics.UnhandledException", out var _ex1)
+                    && _ex1 is Exception ex)
+                {
+                <div class="error-details mt-4" style="text-align: left;">
+                    <pre style="color: #555555; white-space: pre-wrap; word-wrap: break-word;">@ex.ToString()</pre>
+                </div>
+                }
             </div>
         </div>
     </div>

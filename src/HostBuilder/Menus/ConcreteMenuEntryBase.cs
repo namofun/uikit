@@ -55,6 +55,17 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         public string Id { get; private set; } = "menu_" + Guid.NewGuid().ToString("N").Substring(0, 6);
 
         /// <inheritdoc />
+        public IMenuContributor Contributor { get; }
+
+        /// <summary>
+        /// Initialize the <see cref="IMenuEntryBase"/>.
+        /// </summary>
+        protected ConcreteMenuEntryBase(IMenuContributor menuContributor)
+        {
+            Contributor = menuContributor;
+        }
+
+        /// <inheritdoc />
         public virtual void Contribute()
         {
             foreach (var section in new[] { "Title", "Icon", "Link" }.Concat(ToCheck))
@@ -87,6 +98,13 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         public bool IsActive(ViewContext actionContext)
         {
             return Active?.Invoke(actionContext) ?? false;
+        }
+
+        /// <inheritdoc />
+        public object? GetMetadata(string key)
+        {
+            if (key == null) return null;
+            return Metadata.GetValueOrDefault(key);
         }
     }
 }

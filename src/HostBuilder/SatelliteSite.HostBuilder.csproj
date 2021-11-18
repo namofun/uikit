@@ -13,9 +13,11 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="$(AspNetCoreVersion)" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerEndpoint" Version="5.1.9" />
+    <PackageReference Include="SatelliteSite.StaticWebAssets" Version="$(StaticAssetsVersion)" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Jobs.Core\SatelliteSite.JobsCore.csproj" />
     <ProjectReference Include="..\TagHelpers.Bootstrap\SatelliteSite.Substrate.csproj" />
   </ItemGroup>
 

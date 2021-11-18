@@ -9,7 +9,7 @@
   <Import Project="..\..\build\NugetPackage.props" />
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.16.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.18.0" />
   </ItemGroup>
 
   <ItemGroup>

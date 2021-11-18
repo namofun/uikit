@@ -23,6 +23,12 @@ namespace SatelliteSite.SampleModule.Controllers
         }
 
         [HttpGet]
+        public IActionResult CardSample1()
+        {
+            return View();
+        }
+
+        [HttpGet]
         public IActionResult Markdown()
         {
             return View();
@@ -34,6 +40,12 @@ namespace SatelliteSite.SampleModule.Controllers
         public IActionResult Claims(string roleName)
         {
             return Json(User.IsInRole(roleName));
+        }
+
+        [HttpGet]
+        public IActionResult ThrowErrors()
+        {
+            throw new System.Exception("hello?\ndhewufghe\ndheuwfhe");
         }
     }
 }

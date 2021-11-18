@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.ApplicationInsights.DependencyCollector;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,11 @@ namespace SatelliteSite.TelemetryModule
             services.ReplaceSingleton<TelemetryCorrelationMiddleware, AppInsightsCorrelationMiddleware>();
 
             services.AddHttpClient<TelemetryDataClient>();
+
+            services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
+            {
+                module.EnableSqlCommandTextInstrumentation = true;
+            });
         }
 
         public override void RegisterEndpoints(IEndpointBuilder endpoints)

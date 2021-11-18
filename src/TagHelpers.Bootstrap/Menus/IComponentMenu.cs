@@ -25,6 +25,11 @@ namespace Microsoft.AspNetCore.Mvc.Menus
     public interface IComponentMenuBuilder
     {
         /// <summary>
+        /// The menu contributor
+        /// </summary>
+        IMenuContributor Contributor { get; }
+
+        /// <summary>
         /// The final components
         /// </summary>
         IReadOnlyCollection<(int, Type)> Components { get; }

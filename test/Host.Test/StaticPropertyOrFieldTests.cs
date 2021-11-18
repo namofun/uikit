@@ -1,4 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -55,6 +59,11 @@ namespace SatelliteSite.Tests
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Routing.OrderLinkGenerator]::[typeInner]"] = "Fast Reflect",
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Mvc.Routing.SubstrateUrlHelperFactory]::[_nRewriteUrlHelper]"] = "Fast Reflect",
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Mvc.Routing.SubstrateUrlHelperFactory]::[_nEndpointRoutingUrlHelper]"] = "Fast Reflect",
+                ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Builder.ConnectionEndpointBuilderExtensions]::[_httpConnectionDispatcherType]"] = "Fast Reflect",
+                ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Builder.SignalREndpointBuilderExtensions]::[_signalRMarkerServiceType]"] = "Fast Reflect",
+                ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Builder.BlazorEndpointBuilderExtensions]::[_componentHubType]"] = "Fast Reflect",
+                ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Builder.BlazorEndpointBuilderExtensions]::[_circuitDisconnectMiddlewareType]"] = "Fast Reflect",
+                ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Builder.BlazorEndpointBuilderExtensions]::[_mapComponentHubDelegate]"] = "Fast Reflect",
 
                 ["[SatelliteSite.Host]::[SatelliteSite.Program]::[Current]"] = "Global Entry Point",
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Mvc.Rendering.HtmlHelperExtensions]::[EnglishCulture]"] = "Global Entry Point",
@@ -62,10 +71,16 @@ namespace SatelliteSite.Tests
                 ["[SatelliteSite.Abstraction]::[System.Linq.Expressions.ExpressionExtensions+ParameterExpressionHolder`1]::[Param]"] = "Type Related Singleton",
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Mvc.TagHelpers.DataTablesTagHelper]::[FactoryCache]"] = "Type Related Singleton",
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Mvc.Menus.ConcreteComponentBuilder]::[param]"] = "Type Related Singleton",
+                ["[SatelliteSite.DataAccess]::[Microsoft.EntityFrameworkCore.Diagnostics.DiagnosticDbInterceptor]::[_diagnosticListener]"] = "Type Related Singleton",
+                ["[SatelliteSite.DataAccess]::[Microsoft.EntityFrameworkCore.Diagnostics.DiagnosticDbInterceptor]::[Instance]"] = "Type Related Singleton",
 
+                ["[SatelliteSite.DataAccess]::[System.SequentialGuidGenerator]::[_rng]"] = "Singleton",
+                ["[SatelliteSite.DataAccess]::[System.SequentialGuidGenerator]::[DatabaseMapping]"] = "Constant Array",
                 ["[SatelliteSite.SampleModule]::[SatelliteSite.SampleModule.Services.ForecastService]::[Summaries]"] = "Constant Array",
                 ["[SatelliteSite.Substrate]::[System.ComponentModel.DataAnnotations.UserNameAttribute]::[AllowedCharacters]"] = "Constant Array",
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Mvc.TagHelpers.GravatarTagHelper]::[_chars]"] = "Constant Array",
+                ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Mvc.TagHelpers.UserInformationTagHelper]::[_emptyInfo]"] = "Constant Object",
+                ["[SatelliteSite.IdentityModule]::[Microsoft.AspNetCore.Identity.UserInformationProviderBase`1]::[_emptyDict]"] = "Constant Object",
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Routing.TrackAvailabilityMetadata]::[Default]"] = "Constant Object",
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Routing.TrackAvailabilityMetadata]::[ErrorHandler]"] = "Constant Object",
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Routing.TrackAvailabilityMetadata]::[Fallback]"] = "Constant Object",
@@ -111,6 +126,43 @@ namespace SatelliteSite.Tests
             }
 
             Assert.Equal(0, errorCount);
+        }
+
+        [Fact]
+        public void BlazorMapWorksRight()
+        {
+            var app = new BlazorApplication();
+            app.CreateClient();
+        }
+
+        private class BlazorModule : AbstractModule
+        {
+            public override string Area => "Blazor";
+
+            public override void Initialize()
+            {
+            }
+
+            public override void RegisterServices(IServiceCollection services)
+            {
+                services.AddServerSideBlazor();
+            }
+
+            public override void RegisterEndpoints(IEndpointBuilder endpoints)
+            {
+                endpoints.MapBlazorHub();
+            }
+        }
+
+        private class BlazorApplication : SubstrateApplicationBase
+        {
+            protected override Assembly EntryPointAssembly => typeof(DefaultContext).Assembly;
+
+            protected override IHostBuilder CreateHostBuilder() =>
+                Host.CreateDefaultBuilder()
+                    .MarkTest(this)
+                    .AddModule<BlazorModule>()
+                    .ConfigureSubstrateDefaultsCore();
         }
     }
 }

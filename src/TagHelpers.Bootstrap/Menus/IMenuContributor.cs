@@ -59,6 +59,12 @@ namespace Microsoft.AspNetCore.Mvc
         IMenu Find(string name);
 
         /// <summary>
+        /// Gets the user dropdown submenu.
+        /// </summary>
+        /// <returns>The submenu.</returns>
+        ISubmenu UserDropdown();
+
+        /// <summary>
         /// Gets the component extensions for such menu.
         /// </summary>
         /// <param name="name">The name identifier.</param>

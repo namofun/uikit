@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Diagnostics.SmokeTests;
 using Microsoft.Extensions.Options;
 using System;
 using System.Reflection;
@@ -206,6 +207,19 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddLazyScoped(this IServiceCollection services)
         {
             services.TryAdd(ServiceDescriptor.Scoped(typeof(Lazy<>), typeof(ServiceProviderLazyService<>)));
+            return services;
+        }
+
+        /// <summary>
+        /// Adds smoke test executor.
+        /// </summary>
+        /// <typeparam name="TResult">The smoke test result.</typeparam>
+        /// <typeparam name="TExecutor">The smoke test executor.</typeparam>
+        /// <param name="services">The service collection.</param>
+        /// <returns>The service collection.</returns>
+        public static IServiceCollection AddSmokeTest<TResult, TExecutor>(this IServiceCollection services) where TExecutor : class, ISmokeTest<TResult>
+        {
+            services.TryAddScoped<ISmokeTest<TResult>, TExecutor>();
             return services;
         }
 

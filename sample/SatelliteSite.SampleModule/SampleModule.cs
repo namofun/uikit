@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using SatelliteSite;
+using SatelliteSite.SampleModule.Components.Fake;
 using SatelliteSite.SampleModule.Components.Weather;
 using SatelliteSite.SampleModule.Services;
 using System.Threading.Tasks;
@@ -55,6 +56,8 @@ namespace SatelliteSite.SampleModule
             services.AddScoped<ForecastService>();
             services.AddScoped<IUserClaimsProvider, RandomClaimsProvider>();
             services.AddScoped<IUserClaimsProvider, RandomClaimsProvider>();
+
+            services.ReplaceScoped<IUserInformationProvider, UserInformationProviderV2>();
         }
 
         public override void RegisterMenu(IMenuContributor menus)
@@ -78,7 +81,7 @@ namespace SatelliteSite.SampleModule
             });
 
             menus.Component("Component_UserDetail")
-                .HasComponent<WeatherViewComponent>(10);
+                .HasComponent<FakeViewComponent>(10);
 
             menus.Component("Component_DashboardUserDetail")
                 .HasComponent<WeatherViewComponent>(10);

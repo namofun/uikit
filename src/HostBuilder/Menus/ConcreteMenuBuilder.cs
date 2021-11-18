@@ -40,6 +40,9 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         public List<Expression<Func<ViewContext, bool>>> Activities => throw new NotImplementedException();
 
         /// <inheritdoc />
+        IMenuContributor IMenuEntryBuilderBase.Contributor => Contributor;
+
+        /// <inheritdoc />
         public IMenuEntryBase this[int index] => Entries[index];
 
         /// <summary>
@@ -64,7 +67,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
         /// <inheritdoc />
         public IMenuEntryBuilder HasEntry(int priority)
         {
-            var entry = new ConcreteMenuEntryBuilder { Priority = priority };
+            var entry = new ConcreteMenuEntryBuilder(Contributor) { Priority = priority };
             Entries.Add(entry);
             return entry;
         }
@@ -75,7 +78,7 @@ namespace Microsoft.AspNetCore.Mvc.Menus
             if (!Submenus.Contains(name)) Submenus.Add(name);
             ISubmenuBuilder menu2;
             if (!Contributor.Store.TryGetValue(name, out var menu))
-                Contributor.Store.Add(name, menu2 = new ConcreteSubmenuBuilder { Priority = priority });
+                Contributor.Store.Add(name, menu2 = new ConcreteSubmenuBuilder(Contributor) { Priority = priority });
             else if (menu is ISubmenuBuilder menu3)
                 menu2 = menu3;
             else

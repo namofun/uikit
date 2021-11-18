@@ -26,6 +26,7 @@ namespace SatelliteSite
                 .AddModule<IdentityModule.IdentityModule<User, Role, DefaultContext>>()
                 .AddModule<SampleModule.SampleModule>()
                 .AddModule<TelemetryModule.TelemetryModule>()
+                .AddModule<JobsModule.JobsModule<User, DefaultContext>>()
                 .AddDatabase<DefaultContext>((c, b) => b.UseSqlServer(c.GetConnectionString("UserDbConnection"), b => b.UseBulk()))
                 .ConfigureSubstrateDefaults<DefaultContext>(builder =>
                 {
@@ -36,6 +37,11 @@ namespace SatelliteSite
                             options.ExternalLogin = true;
                             options.TwoFactorAuthentication = true;
                             options.ShortenedClaimName = true;
+                        });
+
+                        services.ConfigureApplicationBuilder(options =>
+                        {
+                            options.GravatarMirror = "//gravatar.zeruns.tech/avatar/";
                         });
 
                         services.Configure<ApplicationInsightsDisplayOptions>(options =>
@@ -52,8 +58,9 @@ namespace SatelliteSite
                             }
                         });
 
-                        new AuthenticationBuilder(services)
-                            .AddAzureAd(options =>
+                        if (ctx.Configuration["AzureAD:ClientId"] != null)
+                        {
+                            AzureAdAuthentication.AddAzureAd(new AuthenticationBuilder(services), options =>
                             {
                                 options.Instance = ctx.Configuration["AzureAD:Instance"];
                                 options.Domain = ctx.Configuration["AzureAD:Domain"];
@@ -61,6 +68,7 @@ namespace SatelliteSite
                                 options.ClientSecret = ctx.Configuration["AzureAD:ClientSecret"];
                                 options.TenantId = ctx.Configuration["AzureAD:TenantId"];
                             });
+                        }
                     });
                 });
     }

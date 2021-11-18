@@ -1,0 +1,108 @@
+﻿@model JobEntry
+@{
+    ViewData["Title"] = "Job " + Model.JobId.ToString().Substring(0, 8);
+}
+
+<h2 class="mt-2">@ViewData["Title"]</h2>
+
+<div class="row">
+    <div class="col-lg-5">
+        <table class="table table-sm table-striped">
+            <tr><th>Full ID</th><td>@Model.JobId</td></tr>
+            <tr><th>Type</th><td>@Model.JobType</td></tr>
+            <tr><th>Status</th><td>@Model.Status</td></tr>
+            <tr><th>File Name</th><td>@Model.SuggestedFileName</td></tr>
+            <tr><th>Owner</th><td><user uid="Model.OwnerId" /></td></tr>
+            <tr><th>Creation Time</th><td>@Model.CreationTime.ToString("yyyy/M/d HH:mm:ss zzz")</td></tr>
+            <tr><th>Complete Time</th><td>@(Model.CompleteTime?.ToString("yyyy/M/d HH:mm:ss zzz") ?? "N/A")</td></tr>
+            <tr>
+                <th colspan="2">
+                    <details>
+                        <summary style="padding-left:3px">Arguments</summary>
+                        <div id="json_viewer_css_scope" class="jv-collapsing mt-1" style="background:transparent">
+                            <link href="/lib/jsonviewer/jsonTree.css" rel="stylesheet" />
+                            <script src="/lib/jsonviewer/jsonTree.js"></script>
+                            <link href="/lib/jsonviewer/ptmono.css" rel="stylesheet">
+                            <div class="d-none" id="args_json">@Model.Arguments</div>
+                            <div id="wrapper"></div>
+                            <script>
+                                $(function () {
+                                    jsonTree.create(JSON.parse($('#args_json').text()), document.getElementById("wrapper")).expand(function (node) {
+                                        return true;
+                                    });
+                                });
+                            </script>
+                        </div>
+                    </details>
+                </th>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<p>
+    <a class="btn btn-primary" asp-action="Download"><i class="fas fa-file-download"></i> Download</a>
+    <a class="btn btn-secondary" asp-action="Logs"><i class="fas fa-project-diagram"></i> Logs</a>
+</p>
+
+@if (Model.Composite)
+{
+    <h3 class="mt-4">Children</h3>
+    <div class="table-wrapper">
+        <table class="data-table table table-sm table-striped" style="width:auto">
+            <thead>
+                <tr role="row">
+                    <th scope="col" class="sortable searchable">ID</th>
+                    <th scope="col" class="sortable searchable">type</th>
+                    <th scope="col" class="sortable searchable">file name</th>
+                    <th scope="col" class="sortable">status</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var job in Model.Children)
+                {
+                <tr asp-action="Detail" asp-route-id="@job.JobId" role="row" data-toggle="gotoUrl">
+                    <td use-a>@job.JobId</td>
+                    <td use-a>@job.JobType</td>
+                    <td use-a>@job.SuggestedFileName</td>
+                    <td use-a>@job.Status</td>
+                    <td><a asp-action="Download" asp-route-id="@job.JobId" title="download"><i class="fas fa-file-download"></i></a></td>
+                    <td><a asp-action="Logs" asp-route-id="@job.JobId" title="logs"><i class="fas fa-project-diagram"></i></a></td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        $().ready(function () {
+            $('.data-table').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "order": [[0, 'asc']],
+                "info": false,
+                "autoWidth": true,
+                "language": {
+                    "searchPlaceholder": "filter table",
+                    "search": "_INPUT_",
+                    "paginate": {
+                        "previous": "&laquo;",
+                        "next": "&raquo;"
+                    }
+                },
+                'aoColumnDefs': [
+                    { aTargets: ['sortable'], bSortable: true },
+                    { aTargets: ['searchable'], bSearchable: true },
+                    { aTargets: ['_all'], bSortable: false, bSearchable: false }
+                ],
+            });
+
+            $('.dataTables_wrapper .row:first-child .col-md-6:first-child').html($('#paging').html());
+            $('.dataTables_wrapper .pagination-sm').addClass('mb-0');
+        });
+    </script>
+
+}

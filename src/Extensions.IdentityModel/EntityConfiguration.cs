@@ -72,7 +72,7 @@ namespace SatelliteSite.IdentityModule
             entity.HasData(roles);
         }
 
-        public void Configure(ModelBuilder builder)
+        public void Configure(ModelBuilder builder, TContext context)
         {
             builder.Entity<TUser>(Configure);
 

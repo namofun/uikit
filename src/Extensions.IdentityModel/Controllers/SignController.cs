@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using MediatR;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,17 +21,19 @@ namespace SatelliteSite.IdentityModule.Controllers
         private ISignInManager SignInManager { get; }
         private IConfigurationRegistry Configurations { get; }
         private IEmailSender EmailSender { get; }
+        private IMediator Mediator { get; }
 
-        public SignController(ISignInManager signInManager, IConfigurationRegistry registry, IEmailSender emailSender)
+        public SignController(ISignInManager signInManager, IConfigurationRegistry registry, IEmailSender emailSender, IMediator mediator)
         {
             SignInManager = signInManager;
             UserManager = signInManager.UserManager;
             Configurations = registry;
             EmailSender = emailSender;
+            Mediator = mediator;
         }
 
 
-        [HttpGet]
+        [HttpGet(Name = "AccountLogin")]
         [AllowAnonymous]
         public async Task<IActionResult> Login(string returnUrl = null)
         {
@@ -250,6 +253,10 @@ namespace SatelliteSite.IdentityModule.Controllers
             if (await Configurations.GetBooleanAsync("enable_register") == false)
                 return ExternalRegisterClosed();
 
+            var check = new RegisterNotification(model.Username);
+            await Mediator.Publish(check);
+            if (check.Failed) ModelState.AddModelError("xys::custom_rule", "The username is invalid. Please change another one.");
+
             if (!ModelState.IsValid)
             {
                 ViewData["ReturnUrl"] = returnUrl;
@@ -290,7 +297,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet(Name = "AccountRegister")]
         [AllowAnonymous]
         public async Task<IActionResult> Register(string returnUrl = null)
         {
@@ -309,6 +316,10 @@ namespace SatelliteSite.IdentityModule.Controllers
         {
             if (await Configurations.GetBooleanAsync("enable_register") == false)
                 return RegisterClosed();
+
+            var check = new RegisterNotification(model.UserName);
+            await Mediator.Publish(check);
+            if (check.Failed) ModelState.AddModelError("xys::custom_rule", "The username is invalid. Please change another one.");
 
             ViewData["ReturnUrl"] = returnUrl;
             if (!ModelState.IsValid) return View(model);
