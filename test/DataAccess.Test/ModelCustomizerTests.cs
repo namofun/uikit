@@ -134,7 +134,7 @@ namespace SatelliteSite.Tests
             RegisterAndTest(b => b.UseNpgsql(ConnectionString, b => b.UseBulk()));
             RegisterAndTest(b => b.UseSqlite(ConnectionString, b => b.UseBulk()));
             RegisterAndTest(b => b.UseSqlite(ConnectionString, b => b.UseBulk()));
-            RegisterAndTest(b => b.UseMySql(ConnectionString, b => b.UseBulk()));
+            RegisterAndTest(b => b.UseMySql(ConnectionString, ServerVersion.FromString("8.0.21-mysql"), b => b.UseBulk()));
 
             Assert.ThrowsException<InvalidOperationException>(
                 () => RegisterAndTest(b => b.UseInMemoryDatabase(ConnectionString)),
@@ -153,7 +153,7 @@ namespace SatelliteSite.Tests
                 HostBuilderDataAccessExtensions.NoBulkExtRegistered);
 
             Assert.ThrowsException<InvalidOperationException>(
-                () => RegisterAndTest(b => b.UseMySql(ConnectionString)),
+                () => RegisterAndTest(b => b.UseMySql(ConnectionString, ServerVersion.FromString("8.0.21-mysql"))),
                 HostBuilderDataAccessExtensions.NoBulkExtRegistered);
         }
     }

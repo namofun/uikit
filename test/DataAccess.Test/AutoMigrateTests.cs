@@ -91,7 +91,7 @@ namespace SatelliteSite.Tests
         public void EnsureDefaultEntitiesMySql()
         {
             using var host = Host.CreateDefaultBuilder()
-                .AddDatabase<Context>(b => b.UseMySql("Host=localhost", b => b.UseBulk()))
+                .AddDatabase<Context>(b => b.UseMySql("Host=localhost", ServerVersion.FromString("8.0.21-mysql"), b => b.UseBulk()))
                 .ConfigureServices(services => services.AddDbModelSupplier<Context, ContextMore>())
                 .Build();
 
