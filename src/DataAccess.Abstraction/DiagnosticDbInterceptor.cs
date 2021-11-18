@@ -371,10 +371,10 @@
             return result;
         }
 
-        public Task<InterceptionResult> ConnectionClosingAsync(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
+        public ValueTask<InterceptionResult> ConnectionClosingAsync(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
         {
             WriteConnectionCloseBefore(eventData);
-            return Task.FromResult(result);
+            return ValueTask.FromResult(result);
         }
 
         public void ConnectionFailed(DbConnection connection, ConnectionErrorEventData eventData)
@@ -438,10 +438,10 @@
             return result;
         }
 
-        public Task<InterceptionResult> ConnectionOpeningAsync(DbConnection connection, ConnectionEventData eventData, InterceptionResult result, CancellationToken cancellationToken = default)
+        public ValueTask<InterceptionResult> ConnectionOpeningAsync(DbConnection connection, ConnectionEventData eventData, InterceptionResult result, CancellationToken cancellationToken = default)
         {
             WriteConnectionOpenBefore(eventData);
-            return Task.FromResult(result);
+            return ValueTask.FromResult(result);
         }
 
         public InterceptionResult DataReaderDisposing(DbCommand command, DataReaderDisposingEventData eventData, InterceptionResult result)
@@ -455,10 +455,10 @@
             return result;
         }
 
-        public Task<int> NonQueryExecutedAsync(DbCommand command, CommandExecutedEventData eventData, int result, CancellationToken cancellationToken = default)
+        public ValueTask<int> NonQueryExecutedAsync(DbCommand command, CommandExecutedEventData eventData, int result, CancellationToken cancellationToken = default)
         {
             WriteCommandAfter(eventData);
-            return Task.FromResult(result);
+            return ValueTask.FromResult(result);
         }
 
         public InterceptionResult<int> NonQueryExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<int> result)
@@ -467,10 +467,10 @@
             return result;
         }
 
-        public Task<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+        public ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
         {
             WriteCommandBefore(eventData);
-            return Task.FromResult(result);
+            return ValueTask.FromResult(result);
         }
 
         public DbDataReader ReaderExecuted(DbCommand command, CommandExecutedEventData eventData, DbDataReader result)
@@ -479,10 +479,10 @@
             return result;
         }
 
-        public Task<DbDataReader> ReaderExecutedAsync(DbCommand command, CommandExecutedEventData eventData, DbDataReader result, CancellationToken cancellationToken = default)
+        public ValueTask<DbDataReader> ReaderExecutedAsync(DbCommand command, CommandExecutedEventData eventData, DbDataReader result, CancellationToken cancellationToken = default)
         {
             WriteCommandAfter(eventData);
-            return Task.FromResult(result);
+            return ValueTask.FromResult(result);
         }
 
         public InterceptionResult<DbDataReader> ReaderExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result)
@@ -491,10 +491,10 @@
             return result;
         }
 
-        public Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result, CancellationToken cancellationToken = default)
+        public ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result, CancellationToken cancellationToken = default)
         {
             WriteCommandBefore(eventData);
-            return Task.FromResult(result);
+            return ValueTask.FromResult(result);
         }
 
         public object ScalarExecuted(DbCommand command, CommandExecutedEventData eventData, object result)
@@ -503,10 +503,10 @@
             return result;
         }
 
-        public Task<object> ScalarExecutedAsync(DbCommand command, CommandExecutedEventData eventData, object result, CancellationToken cancellationToken = default)
+        public ValueTask<object> ScalarExecutedAsync(DbCommand command, CommandExecutedEventData eventData, object result, CancellationToken cancellationToken = default)
         {
             WriteCommandAfter(eventData);
-            return Task.FromResult(result);
+            return ValueTask.FromResult(result);
         }
 
         public InterceptionResult<object> ScalarExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<object> result)
@@ -515,10 +515,10 @@
             return result;
         }
 
-        public Task<InterceptionResult<object>> ScalarExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<object> result, CancellationToken cancellationToken = default)
+        public ValueTask<InterceptionResult<object>> ScalarExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<object> result, CancellationToken cancellationToken = default)
         {
             WriteCommandBefore(eventData);
-            return Task.FromResult(result);
+            return ValueTask.FromResult(result);
         }
 
         public void TransactionCommitted(DbTransaction transaction, TransactionEndEventData eventData)
@@ -549,12 +549,12 @@
             return result;
         }
 
-        public Task<InterceptionResult> TransactionCommittingAsync(DbTransaction transaction, TransactionEventData eventData, InterceptionResult result, CancellationToken cancellationToken = default)
+        public ValueTask<InterceptionResult> TransactionCommittingAsync(DbTransaction transaction, TransactionEventData eventData, InterceptionResult result, CancellationToken cancellationToken = default)
         {
             var info = new DbTransactionInformation(transaction);
             WriteTransactionCommitBefore(eventData, info);
             transactionInfo.Add(transaction, info);
-            return Task.FromResult(result);
+            return ValueTask.FromResult(result);
         }
 
         public void TransactionFailed(DbTransaction transaction, TransactionErrorEventData eventData)
@@ -621,12 +621,12 @@
             return result;
         }
 
-        public Task<InterceptionResult> TransactionRollingBackAsync(DbTransaction transaction, TransactionEventData eventData, InterceptionResult result, CancellationToken cancellationToken = default)
+        public ValueTask<InterceptionResult> TransactionRollingBackAsync(DbTransaction transaction, TransactionEventData eventData, InterceptionResult result, CancellationToken cancellationToken = default)
         {
             var info = new DbTransactionInformation(transaction);
             WriteTransactionRollbackBefore(eventData, info);
             transactionInfo.Add(transaction, info);
-            return Task.FromResult(result);
+            return ValueTask.FromResult(result);
         }
 
         public DbTransaction TransactionStarted(DbConnection connection, TransactionEndEventData eventData, DbTransaction result)
@@ -634,9 +634,9 @@
             return result;
         }
 
-        public Task<DbTransaction> TransactionStartedAsync(DbConnection connection, TransactionEndEventData eventData, DbTransaction result, CancellationToken cancellationToken = default)
+        public ValueTask<DbTransaction> TransactionStartedAsync(DbConnection connection, TransactionEndEventData eventData, DbTransaction result, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(result);
+            return ValueTask.FromResult(result);
         }
 
         public InterceptionResult<DbTransaction> TransactionStarting(DbConnection connection, TransactionStartingEventData eventData, InterceptionResult<DbTransaction> result)
@@ -644,9 +644,9 @@
             return result;
         }
 
-        public Task<InterceptionResult<DbTransaction>> TransactionStartingAsync(DbConnection connection, TransactionStartingEventData eventData, InterceptionResult<DbTransaction> result, CancellationToken cancellationToken = default)
+        public ValueTask<InterceptionResult<DbTransaction>> TransactionStartingAsync(DbConnection connection, TransactionStartingEventData eventData, InterceptionResult<DbTransaction> result, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(result);
+            return ValueTask.FromResult(result);
         }
 
         public DbTransaction TransactionUsed(DbConnection connection, TransactionEventData eventData, DbTransaction result)
@@ -654,9 +654,66 @@
             return result;
         }
 
-        public Task<DbTransaction> TransactionUsedAsync(DbConnection connection, TransactionEventData eventData, DbTransaction result, CancellationToken cancellationToken = default)
+        public ValueTask<DbTransaction> TransactionUsedAsync(DbConnection connection, TransactionEventData eventData, DbTransaction result, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(result);
+            return ValueTask.FromResult(result);
+        }
+
+        public InterceptionResult CreatingSavepoint(DbTransaction transaction, TransactionEventData eventData, InterceptionResult result)
+        {
+            return result;
+        }
+
+        public void CreatedSavepoint(DbTransaction transaction, TransactionEventData eventData)
+        {
+        }
+
+        public ValueTask<InterceptionResult> CreatingSavepointAsync(DbTransaction transaction, TransactionEventData eventData, InterceptionResult result, CancellationToken cancellationToken = default)
+        {
+            return ValueTask.FromResult(result);
+        }
+
+        public Task CreatedSavepointAsync(DbTransaction transaction, TransactionEventData eventData, CancellationToken cancellationToken = default)
+        {
+            return Task.CompletedTask;
+        }
+
+        public InterceptionResult RollingBackToSavepoint(DbTransaction transaction, TransactionEventData eventData, InterceptionResult result)
+        {
+            return result;
+        }
+
+        public void RolledBackToSavepoint(DbTransaction transaction, TransactionEventData eventData)
+        {
+        }
+
+        public ValueTask<InterceptionResult> RollingBackToSavepointAsync(DbTransaction transaction, TransactionEventData eventData, InterceptionResult result, CancellationToken cancellationToken = default)
+        {
+            return ValueTask.FromResult(result);
+        }
+
+        public Task RolledBackToSavepointAsync(DbTransaction transaction, TransactionEventData eventData, CancellationToken cancellationToken = default)
+        {
+            return Task.CompletedTask;
+        }
+
+        public InterceptionResult ReleasingSavepoint(DbTransaction transaction, TransactionEventData eventData, InterceptionResult result)
+        {
+            return result;
+        }
+
+        public void ReleasedSavepoint(DbTransaction transaction, TransactionEventData eventData)
+        {
+        }
+
+        public ValueTask<InterceptionResult> ReleasingSavepointAsync(DbTransaction transaction, TransactionEventData eventData, InterceptionResult result, CancellationToken cancellationToken = default)
+        {
+            return ValueTask.FromResult(result);
+        }
+
+        public Task ReleasedSavepointAsync(DbTransaction transaction, TransactionEventData eventData, CancellationToken cancellationToken = default)
+        {
+            return Task.CompletedTask;
         }
 
         #endregion
