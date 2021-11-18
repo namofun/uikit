@@ -13,10 +13,13 @@ namespace SatelliteSite.Substrate
 {
     internal class DefaultModule : AbstractModule
     {
+        public string Version { get; private set; } = "unknown";
+
         public override string Area => string.Empty;
 
         public override void Initialize()
         {
+            Version = typeof(DefaultModule).Assembly.GetName().Version?.ToString() ?? "unknown";
         }
 
         public override void RegisterMenu(IMenuContributor menus)
@@ -101,10 +104,17 @@ namespace SatelliteSite.Substrate
             endpoints.MapControllers();
             endpoints.MapFallNotFound("/api/{**slug}");
             endpoints.MapFallNotFound("/lib/{**slug}");
+            endpoints.MapFallNotFound("/static/{**slug}");
             endpoints.MapFallNotFound("/images/{**slug}");
 
             endpoints.WithErrorHandler("Dashboard", "Root")
                 .MapStatusCode("/dashboard/{**slug}");
+
+            endpoints.MapApiDocument(
+                name: "static",
+                title: "Platform Substrate",
+                description: "Project fabric API",
+                version: this.Version);
         }
     }
 
