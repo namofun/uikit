@@ -36,17 +36,17 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// Gets or sets the name of the action to use for generating the URL.
         /// </summary>
-        public string ActionName { get; set; }
+        public string? ActionName { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the controller to use for generating the URL.
         /// </summary>
-        public string ControllerName { get; set; }
+        public string? ControllerName { get; set; }
 
         /// <summary>
         /// Gets or sets the route data to use for generating the URL.
         /// </summary>
-        public RouteValueDictionary RouteValues { get; set; }
+        public RouteValueDictionary? RouteValues { get; set; }
 
         /// <summary>
         /// Gets or sets an indication that the redirect preserves the initial request method.
@@ -56,7 +56,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <summary>
         /// Gets or sets the fragment to add to the URL.
         /// </summary>
-        public string Fragment { get; set; }
+        public string? Fragment { get; set; }
 
         /// <summary>
         /// Gets or sets the action whether in ajax.

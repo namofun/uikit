@@ -29,7 +29,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
             var action = actions.OfType<ControllerActionDescriptor>()
                 .Where(s => s.ControllerName.Equals(_controller, StringComparison.OrdinalIgnoreCase))
                 .Where(s => s.ActionName.Equals(_action, StringComparison.OrdinalIgnoreCase))
-                .Where(s => s.RouteValues.TryGetValue("area", out var AreaName) && AreaName.Equals(_area, StringComparison.OrdinalIgnoreCase))
+                .Where(s => s.RouteValues.TryGetValue("area", out var AreaName) && string.Equals(AreaName, _area, StringComparison.OrdinalIgnoreCase))
                 .Single();
 
             return _value = action;

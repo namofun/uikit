@@ -97,7 +97,7 @@ namespace Microsoft.AspNetCore.Builder
         {
             return MapFallback(pattern, context =>
             {
-                context.Features.Get<IStatusCodePagesFeature>().Enabled = false;
+                context.Features.Get<IStatusCodePagesFeature>()!.Enabled = false;
                 context.Response.StatusCode = 404;
                 return Task.CompletedTask;
             })

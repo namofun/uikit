@@ -45,7 +45,7 @@
 </style>
 
 <form asp-action="Config" method="post">
-@foreach (var group in Model)
+@foreach (var group in Model!)
 {
     <div class="card">
         <div class="card-header">@group.Key Options</div>

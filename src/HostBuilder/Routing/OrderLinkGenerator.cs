@@ -83,7 +83,7 @@ namespace Microsoft.AspNetCore.Routing
             inner.GetUriByAddress(httpContext, address, values, ambientValues, scheme, host, pathBase, fragment, options);
 
         /// <inheritdoc />
-        public override string? GetUriByAddress<TAddress>(TAddress address, RouteValueDictionary values, string scheme, HostString host, PathString pathBase = default, FragmentString fragment = default, LinkOptions? options = null) =>
+        public override string? GetUriByAddress<TAddress>(TAddress address, RouteValueDictionary values, string? scheme, HostString host, PathString pathBase = default, FragmentString fragment = default, LinkOptions? options = null) =>
             inner.GetUriByAddress(address, values, scheme, host, pathBase, fragment, options);
 
         /// <inheritdoc />

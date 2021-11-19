@@ -108,7 +108,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
                 _rewriteRules = rewriteRules;
             }
 
-            public override string Action(UrlActionContext urlActionContext)
+            public override string? Action(UrlActionContext urlActionContext)
             {
                 if (urlActionContext == null)
                 {
@@ -152,7 +152,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
                 return GenerateUrl2(urlActionContext.Protocol, urlActionContext.Host, path);
             }
 
-            public override string RouteUrl(UrlRouteContext routeContext)
+            public override string? RouteUrl(UrlRouteContext routeContext)
             {
                 if (routeContext == null)
                 {
@@ -167,7 +167,7 @@ namespace Microsoft.AspNetCore.Mvc.Routing
                 return GenerateUrl2(routeContext.Protocol, routeContext.Host, path);
             }
 
-            private string GenerateUrl2(string? protocol, string? host, string? path)
+            private string? GenerateUrl2(string? protocol, string? host, string? path)
             {
                 for (int i = 0; path != null && i < _rewriteRules.Count; i++)
                 {

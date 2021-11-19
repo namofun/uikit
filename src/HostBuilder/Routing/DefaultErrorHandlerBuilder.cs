@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace Microsoft.AspNetCore.Routing
 {
@@ -32,7 +33,8 @@ namespace Microsoft.AspNetCore.Routing
 
                 var invoker = context.RequestServices
                     .GetRequiredService<IActionInvokerFactory>()
-                    .CreateInvoker(actionContext);
+                    .CreateInvoker(actionContext)
+                    ?? throw new InvalidOperationException("Failed to create an action invoker.");
 
                 return invoker.InvokeAsync();
             })

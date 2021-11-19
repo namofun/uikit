@@ -1,6 +1,6 @@
 ﻿@{
     Layout = "_WindowLayout";
-    var messages = ((string)ViewData["Message"]).Split('\n');
+    var messages = ((string)ViewData["Message"]!).Split('\n');
 }
 
 <p>
@@ -15,6 +15,6 @@
     <button asp-area="@ViewData["AreaName"]"
             asp-controller="@ViewData["ControllerName"]"
             asp-action="@ViewData["ActionName"]"
-            asp-all-route-data="@((Dictionary<string,string>)ViewData["RouteValues"])"
+            asp-all-route-data="@((Dictionary<string,string>)ViewData["RouteValues"]!)"
             type="submit" class="btn btn-@ViewData["MsgType"]">Ok</button>
 }

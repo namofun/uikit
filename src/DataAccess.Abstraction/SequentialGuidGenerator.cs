@@ -59,7 +59,7 @@ namespace System
         /// <returns>The generated GUID.</returns>
         public static Guid Create(DbContext dbContext)
         {
-            if (DatabaseMapping.TryGetValue(dbContext.Database.ProviderName, out var type))
+            if (DatabaseMapping.TryGetValue(dbContext.Database.ProviderName ?? "UNKNOWN", out var type))
             {
                 return Create(type);
             }

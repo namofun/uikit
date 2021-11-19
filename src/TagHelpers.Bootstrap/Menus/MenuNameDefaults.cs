@@ -113,7 +113,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="that">The menu builder.</param>
         /// <param name="linkFactory">The link factory.</param>
         /// <returns>The <typeparamref name="TBuilder"/> to chain the configures.</returns>
-        public static TBuilder HasLink<TBuilder>(this TBuilder that, Func<IUrlHelper, ViewContext, string> linkFactory) where TBuilder : IMenuEntryBuilderBase
+        public static TBuilder HasLink<TBuilder>(this TBuilder that, Func<IUrlHelper, ViewContext, string?> linkFactory) where TBuilder : IMenuEntryBuilderBase
         {
             if (that.Finalized)
                 throw new InvalidOperationException(ModelFinalized);
@@ -268,7 +268,7 @@ namespace Microsoft.AspNetCore.Mvc
                 throw new InvalidOperationException(ModelFinalized);
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
-            that.Activities.Add(CreateExpression(c => (string)c.ViewData["ActiveAction"], value));
+            that.Activities.Add(CreateExpression(c => (string?)c.ViewData["ActiveAction"], value));
             return that;
         }
 

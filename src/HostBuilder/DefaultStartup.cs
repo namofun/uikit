@@ -86,7 +86,6 @@ namespace Microsoft.AspNetCore.Mvc
 
             services.AddControllersWithViews()
                 .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new TimeSpanJsonConverter()))
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0)
                 .AddDataAnnotationsLocalization()
                 .AddMvcLocalization()
                 .ContinueWith(ConfigureParts);

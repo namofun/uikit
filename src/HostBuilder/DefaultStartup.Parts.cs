@@ -184,7 +184,7 @@ namespace Microsoft.AspNetCore.Mvc
                         var rcap = builder.PartManager.ApplicationParts
                             .OfType<CompiledRazorAssemblyPart>()
                             .SingleOrDefault(a => a.Assembly == vap.Assembly);
-                        builder.PartManager.ApplicationParts.Remove(rcap);
+                        builder.PartManager.ApplicationParts.Remove(rcap!);
                         builder.PartManager.ApplicationParts.Add(vap);
                         break;
 

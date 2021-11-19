@@ -97,7 +97,7 @@ namespace Microsoft.AspNetCore.Routing
                     .Append(TrackAvailabilityMetadata.ErrorHandler);
 
                 newEndpoints.Add(new RouteEndpoint(
-                    oldEndpoint.RequestDelegate,
+                    oldEndpoint.RequestDelegate ?? throw new InvalidOperationException("No request delegate for original endpoint."),
                     pattern,
                     order: -pattern.PathSegments.Count,
                     new EndpointMetadataCollection(metadata),

@@ -1,4 +1,6 @@
-﻿namespace Microsoft.EntityFrameworkCore.Infrastructure
+﻿using System;
+
+namespace Microsoft.EntityFrameworkCore.Infrastructure
 {
     /// <inheritdoc />
     public class SuppliedModelCustomizer<T> : ModelCustomizer where T : DbContext
@@ -14,6 +16,11 @@
         {
             var service = context.GetService<IDbContextOptions>()
                 .FindExtension<ModelSupplierService<T>>();
+
+            if (service == null)
+            {
+                throw new InvalidOperationException("Model supplier service not registered.");
+            }
 
             foreach (var supplier in service.Holder)
             {

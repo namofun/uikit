@@ -76,7 +76,8 @@ namespace Microsoft.AspNetCore.Routing
 
                     var invoker = context.RequestServices
                         .GetRequiredService<IActionInvokerFactory>()
-                        .CreateInvoker(actionContext);
+                        .CreateInvoker(actionContext)
+                        ?? throw new InvalidOperationException("Failed to create an action invoker.");
 
                     return invoker.InvokeAsync();
                 })

@@ -497,13 +497,13 @@
             return ValueTask.FromResult(result);
         }
 
-        public object ScalarExecuted(DbCommand command, CommandExecutedEventData eventData, object result)
+        public object? ScalarExecuted(DbCommand command, CommandExecutedEventData eventData, object? result)
         {
             WriteCommandAfter(eventData);
             return result;
         }
 
-        public ValueTask<object> ScalarExecutedAsync(DbCommand command, CommandExecutedEventData eventData, object result, CancellationToken cancellationToken = default)
+        public ValueTask<object?> ScalarExecutedAsync(DbCommand command, CommandExecutedEventData eventData, object? result, CancellationToken cancellationToken = default)
         {
             WriteCommandAfter(eventData);
             return ValueTask.FromResult(result);

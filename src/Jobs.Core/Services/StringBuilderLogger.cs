@@ -21,7 +21,7 @@ namespace Jobs.Services
         public bool IsEnabled(LogLevel logLevel)
             => true;
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
             => StringBuilder
                 .AppendLine($"[{DateTimeOffset.Now:yyyy/M/d HH:mm:ss.ffffff zzz}] {logLevel} ({eventId}) =====>")
                 .AppendLine(formatter(state, exception))

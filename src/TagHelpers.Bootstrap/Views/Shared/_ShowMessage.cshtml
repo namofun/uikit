@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "_WindowLayout";
     ViewData["IgnoreCancelButton"] = true;
-    var messages = ((string)ViewData["Message"]).Split('\n');
+    var messages = ((string)ViewData["Message"]!).Split('\n');
 }
 
 <p>

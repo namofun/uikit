@@ -134,7 +134,7 @@ namespace SatelliteSite.Tests
             RegisterAndTest(b => b.UseNpgsql(ConnectionString, b => b.UseBulk()));
             RegisterAndTest(b => b.UseSqlite(ConnectionString, b => b.UseBulk()));
             RegisterAndTest(b => b.UseSqlite(ConnectionString, b => b.UseBulk()));
-            RegisterAndTest(b => b.UseMySql(ConnectionString, ServerVersion.FromString("8.0.21-mysql"), b => b.UseBulk()));
+            RegisterAndTest(b => b.UseMySql(ConnectionString, ServerVersion.Parse("8.0.21-mysql"), b => b.UseBulk()));
 
             Assert.ThrowsException<InvalidOperationException>(
                 () => RegisterAndTest(b => b.UseInMemoryDatabase(ConnectionString)),
@@ -153,7 +153,7 @@ namespace SatelliteSite.Tests
                 HostBuilderDataAccessExtensions.NoBulkExtRegistered);
 
             Assert.ThrowsException<InvalidOperationException>(
-                () => RegisterAndTest(b => b.UseMySql(ConnectionString, ServerVersion.FromString("8.0.21-mysql"))),
+                () => RegisterAndTest(b => b.UseMySql(ConnectionString, ServerVersion.Parse("8.0.21-mysql"))),
                 HostBuilderDataAccessExtensions.NoBulkExtRegistered);
         }
 
@@ -176,7 +176,7 @@ namespace SatelliteSite.Tests
             Validate(b => b.UseSqlServer(ConnectionString, b => b.UseBulk()), SequentialGuidType.SequentialAtEnd);
             Validate(b => b.UseNpgsql(ConnectionString, b => b.UseBulk()), SequentialGuidType.SequentialAsString);
             Validate(b => b.UseSqlite(ConnectionString, b => b.UseBulk()), SequentialGuidType.SequentialAsString);
-            Validate(b => b.UseMySql(ConnectionString, ServerVersion.FromString("8.0.21-mysql"), b => b.UseBulk()), SequentialGuidType.SequentialAsString);
+            Validate(b => b.UseMySql(ConnectionString, ServerVersion.Parse("8.0.21-mysql"), b => b.UseBulk()), SequentialGuidType.SequentialAsString);
             // ["Oracle.EntityFrameworkCore"] = SequentialGuidType.SequentialAsBinary
         }
     }
