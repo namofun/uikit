@@ -114,7 +114,7 @@ namespace System
         /// <returns>The calculated MD5 result.</returns>
         public static byte[] ToMD5(this byte[] source)
         {
-            using var MD5p = new MD5CryptoServiceProvider();
+            using var MD5p = MD5.Create();
             return MD5p.ComputeHash(source);
         }
 
@@ -125,7 +125,7 @@ namespace System
         /// <returns>The calculated MD5 result.</returns>
         public static byte[] ToMD5(this Stream source)
         {
-            using var MD5p = new MD5CryptoServiceProvider();
+            using var MD5p = MD5.Create();
             return MD5p.ComputeHash(source);
         }
 

@@ -2,19 +2,19 @@
 
   <PropertyGroup>
     <GitRepositoryDirectory>$(MSBuildThisFileDirectory).git</GitRepositoryDirectory>
-    <AspNetCoreVersion>5.0.5</AspNetCoreVersion>
-    <EFCoreBulkVersion>5.0.26</EFCoreBulkVersion>
-    <MSExtVersion>5.0.0</MSExtVersion>
+    <AspNetCoreVersion>6.0.0</AspNetCoreVersion>
+    <EFCoreBulkVersion>6.0.27-preview</EFCoreBulkVersion>
+    <MSExtVersion>6.0.0</MSExtVersion>
     <EFCoreVersion>$(AspNetCoreVersion)</EFCoreVersion>
     <MediatRVersion>9.0.0</MediatRVersion>
     <StaticAssetsVersion>1.1.1</StaticAssetsVersion>
-    <SystemTextJsonVersion>5.0.1</SystemTextJsonVersion>
-    <SystemNetHttpJsonVersion>5.0.0</SystemNetHttpJsonVersion>
+    <SystemTextJsonVersion>6.0.0</SystemTextJsonVersion>
+    <SystemNetHttpJsonVersion>6.0.0</SystemNetHttpJsonVersion>
 
-    <TestSdkVersion>16.5.0</TestSdkVersion>
+    <TestSdkVersion>17.0.0</TestSdkVersion>
     <XunitVersion>2.4.0</XunitVersion>
-    <CoverletVersion>1.2.0</CoverletVersion>
-    <MSTestVersion>2.1.0</MSTestVersion>
+    <CoverletVersion>3.1.0</CoverletVersion>
+    <MSTestVersion>2.2.7</MSTestVersion>
   </PropertyGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)build\Microsoft.AspNetCore.Hosting.GitVersions.props" />

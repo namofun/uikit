@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>SatelliteSite</RootNamespace>
     <IsPackable>false</IsPackable>
     <UserSecretsId>ed28fc1c-e408-439e-9894-fff904130b9b</UserSecretsId>
