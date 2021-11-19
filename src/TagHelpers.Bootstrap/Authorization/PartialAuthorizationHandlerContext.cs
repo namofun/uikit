@@ -29,7 +29,7 @@ namespace Microsoft.AspNetCore.Authorization
         public PartialAuthorizationHandlerContext(
             IEnumerable<IAuthorizationRequirement> requirements,
             ClaimsPrincipal user,
-            object resource)
+            object? resource)
             : base(requirements, user, resource)
         {
         }

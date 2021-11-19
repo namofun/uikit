@@ -318,7 +318,7 @@
         {
             public IsolationLevel IsolationLevel { get; }
 
-            public DbConnection Connection { get; }
+            public DbConnection? Connection { get; }
 
             public Guid CorrelationId { get; }
 

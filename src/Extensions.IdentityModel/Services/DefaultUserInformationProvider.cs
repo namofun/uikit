@@ -30,7 +30,7 @@ namespace Microsoft.AspNetCore.Identity
             var url = _urlHelperFactory.GetUrlHelper(actionContext);
 
             tag.MergeAttribute("href", url.RouteUrl("AccountProfile", new { username }));
-            tag.InnerHtml.AppendHtml(username);
+            tag.InnerHtml.AppendHtml(username ?? string.Empty);
             return default;
         }
 

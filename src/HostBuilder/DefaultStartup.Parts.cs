@@ -166,7 +166,7 @@ namespace Microsoft.AspNetCore.Mvc
 
                 if (compilerProvider == null || razorTree == null) return;
                 services.AddSingleton<IRazorFileProvider>(razorTree);
-                var assembly = compilerProvider.ImplementationType.Assembly;
+                var assembly = compilerProvider.ImplementationType!.Assembly;
                 var optionsType = assembly.GetType(MvcRazorRuntimeCompilationOptions)!;
 
                 services.AddTransient(

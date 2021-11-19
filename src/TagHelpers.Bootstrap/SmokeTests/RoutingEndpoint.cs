@@ -33,8 +33,8 @@ namespace Microsoft.Extensions.Diagnostics.SmokeTests
                 Inert = inert,
                 NonMvc = actionDescriptor == null,
                 Order = endpoint.Order,
-                Description = endpoint.DisplayName,
-                RoutePattern = '/' + endpoint.RoutePattern.RawText.TrimStart('/'),
+                Description = endpoint.DisplayName ?? "<deducted>",
+                RoutePattern = endpoint.RoutePattern.RawText == null ? "<deducted>" : '/' + endpoint.RoutePattern.RawText.TrimStart('/'),
                 UsedForRouting = true,
             };
         }
@@ -49,7 +49,7 @@ namespace Microsoft.Extensions.Diagnostics.SmokeTests
             {
                 return new RoutingEndpoint
                 {
-                    Description = endpoint.DisplayName,
+                    Description = endpoint.DisplayName ?? "<deducted>",
                     UsedForRouting = false,
                 };
             }

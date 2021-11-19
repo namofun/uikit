@@ -156,5 +156,28 @@ namespace SatelliteSite.Tests
                 () => RegisterAndTest(b => b.UseMySql(ConnectionString, ServerVersion.FromString("8.0.21-mysql"))),
                 HostBuilderDataAccessExtensions.NoBulkExtRegistered);
         }
+
+        [TestMethod]
+        public void GetSequentialGuidType()
+        {
+            DbContextOptions RegisterAndTest(Action<DbContextOptionsBuilder> action)
+                => Host.CreateDefaultBuilder()
+                    .AddDatabase<Context>(action)
+                    .Build()
+                    .Services
+                    .GetRequiredService<DbContextOptions<Context>>();
+
+            void Validate(Action<DbContextOptionsBuilder> action, SequentialGuidType type)
+                => Assert.AreEqual(type, SequentialGuidGenerator.GetSequentialGuidType(RegisterAndTest(action)));
+
+            const string ConnectionString = "Host=localhost";
+
+            Validate(b => b.UseInMemoryDatabase(ConnectionString, b => b.UseBulk()), SequentialGuidType.SequentialAsString);
+            Validate(b => b.UseSqlServer(ConnectionString, b => b.UseBulk()), SequentialGuidType.SequentialAtEnd);
+            Validate(b => b.UseNpgsql(ConnectionString, b => b.UseBulk()), SequentialGuidType.SequentialAsString);
+            Validate(b => b.UseSqlite(ConnectionString, b => b.UseBulk()), SequentialGuidType.SequentialAsString);
+            Validate(b => b.UseMySql(ConnectionString, ServerVersion.FromString("8.0.21-mysql"), b => b.UseBulk()), SequentialGuidType.SequentialAsString);
+            // ["Oracle.EntityFrameworkCore"] = SequentialGuidType.SequentialAsBinary
+        }
     }
 }
