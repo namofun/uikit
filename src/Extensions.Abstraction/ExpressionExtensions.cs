@@ -73,6 +73,7 @@ namespace System.Linq.Expressions
         /// <param name="objectTemplate">The source anonymous object template to use this function.</param>
         /// <param name="selector">The other expression to combine.</param>
         /// <returns>The combined expression.</returns>
+        [return: CA.NotNullIfNotNull("expression")]
         public static Expression<Func<T1, T2, T3>>? Combine<T1, T2, T3, T4>(
             this Expression<Func<T4, T2, T3>>? expression,
             T1 objectTemplate,
@@ -142,8 +143,9 @@ namespace System.Linq.Expressions
         /// <param name="place1">The placehold 1 selector.</param>
         /// <param name="place2">The placehold 2 selector.</param>
         /// <returns>The compiled object.</returns>
+        [return: CA.NotNullIfNotNull("expression")]
         public static Expression<Func<T4, T3>>? Combine<T1, T2, T3, T4>(
-            this Expression<Func<T1, T2, T3>> expression,
+            this Expression<Func<T1, T2, T3>>? expression,
             T4 objectTemplate,
             Expression<Func<T4, T1>> place1,
             Expression<Func<T4, T2>> place2)
@@ -175,6 +177,7 @@ namespace System.Linq.Expressions
         /// <param name="place2">The placehold 2 selector.</param>
         /// <param name="place3">The placehold 3 selector.</param>
         /// <returns>The compiled object.</returns>
+        [return: CA.NotNullIfNotNull("expression")]
         public static Expression<Func<T5, T4>>? Combine<T1, T2, T3, T4, T5>(
             this Expression<Func<T1, T2, T3, T4>>? expression,
             T5 objectTemplate,
@@ -215,6 +218,7 @@ namespace System.Linq.Expressions
         /// <param name="place3">The placehold 3 selector.</param>
         /// <param name="place4">The placehold 4 selector.</param>
         /// <returns>The compiled object.</returns>
+        [return: CA.NotNullIfNotNull("expression")]
         public static Expression<Func<T6, T5>>? Combine<T1, T2, T3, T4, T5, T6>(
             this Expression<Func<T1, T2, T3, T4, T5>>? expression,
             T6 objectTemplate,
@@ -258,6 +262,7 @@ namespace System.Linq.Expressions
         /// <param name="place1">The placehold 1 selector.</param>
         /// <param name="place2">The placehold 2 selector.</param>
         /// <returns>The compiled object.</returns>
+        [return: CA.NotNullIfNotNull("expression")]
         public static Expression<Func<T4, T5, T3>>? Combine<T1, T2, T3, T4, T5>(
             this Expression<Func<T1, T2, T3>>? expression,
             T4 objectTemplate1,
@@ -410,7 +415,7 @@ namespace System.Linq.Expressions
         /// <param name="expression">The core expression.</param>
         /// <returns>The same expression.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Expression<Func<T, bool>>? Of<T>(Expression<Func<T, bool>>? expression)
+        public static Expression<Func<T, bool>> Of<T>(Expression<Func<T, bool>> expression)
         {
             return expression;
         }
