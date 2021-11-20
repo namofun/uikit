@@ -33,7 +33,7 @@ namespace SatelliteSite.Tests
         [TestMethod]
         public void EnsureDefaultEntitiesInMemory()
         {
-            using var host = Host.CreateDefaultBuilder()
+            using var host = new SimpleHostBuilder()
                 .AddDatabase<Context>(b => b.UseInMemoryDatabase("0x8c", b => b.UseBulk()))
                 .ConfigureServices(services => services.AddDbModelSupplier<Context, ContextMore>())
                 .Build()
@@ -48,7 +48,7 @@ namespace SatelliteSite.Tests
         [TestMethod]
         public void EnsureDefaultEntitiesSqlServer()
         {
-            using var host = Host.CreateDefaultBuilder()
+            using var host = new SimpleHostBuilder()
                 .AddDatabase<Context>(b => b.UseSqlServer("Host=localhost", b => b.UseBulk()))
                 .ConfigureServices(services => services.AddDbModelSupplier<Context, ContextMore>())
                 .Build();
@@ -69,7 +69,7 @@ namespace SatelliteSite.Tests
         [TestMethod]
         public void EnsureDefaultEntitiesNpgsql()
         {
-            using var host = Host.CreateDefaultBuilder()
+            using var host = new SimpleHostBuilder()
                 .AddDatabase<Context>(b => b.UseNpgsql("Host=localhost", b => b.UseBulk()))
                 .ConfigureServices(services => services.AddDbModelSupplier<Context, ContextMore>())
                 .Build();
@@ -90,7 +90,7 @@ namespace SatelliteSite.Tests
         [TestMethod]
         public void EnsureDefaultEntitiesMySql()
         {
-            using var host = Host.CreateDefaultBuilder()
+            using var host = new SimpleHostBuilder()
                 .AddDatabase<Context>(b => b.UseMySql("Host=localhost", ServerVersion.Parse("8.0.21-mysql"), b => b.UseBulk()))
                 .ConfigureServices(services => services.AddDbModelSupplier<Context, ContextMore>())
                 .Build();
@@ -111,7 +111,7 @@ namespace SatelliteSite.Tests
         [TestMethod]
         public void EnsureDefaultEntitiesSqlite()
         {
-            using var host = Host.CreateDefaultBuilder()
+            using var host = new SimpleHostBuilder()
                 .AddDatabase<Context>(b => b.UseSqlite("Host=localhost", b => b.UseBulk()))
                 .ConfigureServices(services => services.AddDbModelSupplier<Context, ContextMore>())
                 .Build();
