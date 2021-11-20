@@ -72,8 +72,8 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
 
             /// <inheritdoc />
             public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
-                => other is ModelSupplierExtensionInfo otherInfo
-                    && otherInfo.Extension.Holder.SequenceEqual(Extension.Holder);
+                => other is not ModelSupplierExtensionInfo otherInfo
+                    || otherInfo.Extension.Holder.SequenceEqual(Extension.Holder);
         }
     }
 }
