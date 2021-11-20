@@ -68,6 +68,7 @@ namespace SatelliteSite.Tests
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Builder.SignalREndpointBuilderExtensions]::[_signalRMarkerServiceType]"] = "Fast Reflect",
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Builder.BlazorEndpointBuilderExtensions]::[_componentHubType]"] = "Fast Reflect",
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Builder.BlazorEndpointBuilderExtensions]::[_circuitDisconnectMiddlewareType]"] = "Fast Reflect",
+                ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Builder.BlazorEndpointBuilderExtensions]::[_circuitJavaScriptInitializationMiddlewareType]"] = "Fast Reflect",
                 ["[SatelliteSite.HostBuilder]::[Microsoft.AspNetCore.Builder.BlazorEndpointBuilderExtensions]::[_mapComponentHubDelegate]"] = "Fast Reflect",
 
                 ["[SatelliteSite.Host]::[SatelliteSite.Program]::[Current]"] = "Global Entry Point",

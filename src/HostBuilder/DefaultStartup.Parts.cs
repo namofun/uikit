@@ -70,19 +70,47 @@ namespace Microsoft.AspNetCore.Mvc
                     throw new TypeLoadException("The assembly is invalid.");
                 }
 
-                if (!assemblyName.EndsWith(".Views"))
+                var partFactory = assembly.GetCustomAttribute<ProvideApplicationPartFactoryAttribute>();
+                if (partFactory == null)
+                {
+                    // No configured application part so it would not be loaded.
+                    return;
+                }
+
+                var partFactoryType = partFactory.GetFactoryType();
+                if (partFactoryType == typeof(ConsolidatedAssemblyApplicationPartFactory))
+                {
+                    DiscoveyDefault();
+                    DiscoveryRazor();
+                }
+                else if (partFactoryType == typeof(CompiledRazorAssemblyApplicationPartFactory))
+                {
+                    // This is a separate view file.
+                    DiscoveryRazor();
+                }
+                else if (partFactoryType == typeof(DefaultApplicationPartFactory))
+                {
+                    DiscoveyDefault();
+                }
+
+                void DiscoveyDefault()
                 {
                     partList.Add(new AssemblyPart(assembly));
                     var debugPath = assembly.GetCustomAttribute<LocalDebugPathAttribute>();
                     if (debugPath != null) DiscoverPath(debugPath.Path, areaName);
                 }
-                else if (assemblyName == "SatelliteSite.Substrate.Views")
+
+                void DiscoveryRazor()
                 {
-                    partList.Add(new CompiledRazorAssemblyPart(assembly));
-                }
-                else
-                {
-                    partList.Add(new ViewsAssemblyPart(assembly, areaName));
+                    if (assemblyName == "SatelliteSite.Substrate.Views"
+                        || assemblyName == "SatelliteSite.Substrate")
+                    {
+                        partList.Add(new CompiledRazorAssemblyPart(assembly));
+                    }
+                    else
+                    {
+                        partList.Add(new ViewsAssemblyPart(assembly, areaName));
+                    }
                 }
 
                 foreach (var related in assembly.GetCustomAttributes<RelatedAssemblyAttribute>())
