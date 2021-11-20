@@ -49,8 +49,9 @@ namespace SatelliteSite.Tests
             this HttpContent httpContent,
             JsonSerializerOptions? options = null)
         {
+            // explicitly suppress the null because it will throws
             using var stream = await httpContent.ReadAsStreamAsync();
-            return await JsonSerializer.DeserializeAsync<T>(stream, options);
+            return (await JsonSerializer.DeserializeAsync<T>(stream, options))!;
         }
 
         /// <summary>
@@ -110,7 +111,7 @@ namespace SatelliteSite.Tests
                     [nameof(Password)] = Password,
                     [nameof(__RequestVerificationToken)] = __RequestVerificationToken,
                     [nameof(RememberMe)] = RememberMe.ToString().ToLower(),
-                })))
+                }!)))
             {
                 var content = await root.Content.ReadAsStringAsync();
                 return !content.Contains("Invalid login attempt.");

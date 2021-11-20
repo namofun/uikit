@@ -84,11 +84,9 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
         [HtmlAttributeName(FormAjaxUploadKey)]
         public string? FormAjaxUpload { get; set; }
 
-#pragma warning disable CS8618
         [ViewContext]
         [HtmlAttributeNotBound]
-        public ViewContext ViewContext { get; set; }
-#pragma warning restore CS8618
+        public ViewContext ViewContext { get; set; } = null!;
 
         /// <inheritdoc />
         public override void Process(TagHelperContext context, TagHelperOutput output)
@@ -103,8 +101,8 @@ namespace Microsoft.AspNetCore.Mvc.TagHelpers
 
                 if (ViewContext.ViewData.ContainsKey("InAjax"))
                 {
-                    var handleKey = (string)ViewContext.ViewData["HandleKey"];
-                    var handleKey2 = (string)ViewContext.ViewData["HandleKey2"];
+                    var handleKey = (string?)ViewContext.ViewData["HandleKey"];
+                    var handleKey2 = (string?)ViewContext.ViewData["HandleKey2"];
                     output.Attributes.Add("onsubmit", $"ajaxpost(this,'{handleKey2}','{handleKey}');return false");
                 }
             }

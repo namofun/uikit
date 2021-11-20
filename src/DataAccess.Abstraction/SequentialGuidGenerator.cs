@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.InMemory.Infrastructure.Internal;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -60,7 +59,7 @@ namespace System
         /// <returns>The generated GUID.</returns>
         public static Guid Create(DbContext dbContext)
         {
-            if (DatabaseMapping.TryGetValue(dbContext.Database.ProviderName, out var type))
+            if (DatabaseMapping.TryGetValue(dbContext.Database.ProviderName ?? "UNKNOWN", out var type))
             {
                 return Create(type);
             }
@@ -162,6 +161,24 @@ namespace System
         {
             _type = type;
         }
+
+        /// <summary>
+        /// Parses the DbContextOptions and get the result.
+        /// </summary>
+        /// <param name="options">The options.</param>
+        /// <returns>The sequential guid type.</returns>
+        internal static SequentialGuidType GetSequentialGuidType(DbContextOptions options)
+        {
+            if (options.Extensions.Where(e => e.Info.IsDatabaseProvider).FirstOrDefault() is IDbContextOptionsExtension dbext
+                && DatabaseMapping.TryGetValue(dbext.GetType().Assembly.GetName().Name ?? "", out var relGuidSeq))
+            {
+                return relGuidSeq;
+            }
+            else
+            {
+                throw new InvalidOperationException("Unknown database type configured.");
+            }
+        }
     }
 
     /// <summary>
@@ -171,33 +188,11 @@ namespace System
     public class SequentialGuidGenerator<TContext> : SequentialGuidGenerator where TContext : DbContext
     {
         /// <summary>
-        /// Parses the DbContextOptions and get the result.
-        /// </summary>
-        /// <param name="options">The options.</param>
-        /// <returns>The sequential guid type.</returns>
-        private static SequentialGuidType Parse(DbContextOptions<TContext> options)
-        {
-            if (options.FindExtension<InMemoryOptionsExtension>() != null)
-            {
-                return SequentialGuidType.SequentialAsString;
-            }
-            else if (options.Extensions.OfType<RelationalOptionsExtension>().FirstOrDefault() is RelationalOptionsExtension relExt
-                && DatabaseMapping.TryGetValue(relExt.GetType().Assembly.GetName().Name ?? "", out var relGuidSeq))
-            {
-                return relGuidSeq;
-            }
-            else
-            {
-                throw new InvalidOperationException("Unknown database type configured.");
-            }
-        }
-
-        /// <summary>
         /// Initialize the generator.
         /// </summary>
         /// <param name="options">The DbContextOptions.</param>
         public SequentialGuidGenerator(DbContextOptions<TContext> options)
-            : base(Parse(options))
+            : base(GetSequentialGuidType(options))
         {
         }
     }

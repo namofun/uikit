@@ -46,7 +46,7 @@ namespace Microsoft.AspNetCore.Routing
 
             if (dataSource == null)
             {
-                dataSource = (ModuleEndpointDataSource)ServiceProvider.GetService(edsType);
+                dataSource = (ModuleEndpointDataSource)ServiceProvider.GetService(edsType)!;
                 DataSources.Add(dataSource);
             }
 

@@ -30,9 +30,9 @@ namespace Microsoft.Extensions.FileProviders
 
 
         /// <inheritdoc />
-        private void EnsureDirectoryExists(string subpath)
+        private static void EnsureDirectoryExists(string subpath)
         {
-            var path = Path.GetDirectoryName(subpath);
+            var path = Path.GetDirectoryName(subpath)!;
             Directory.CreateDirectory(path);
         }
 
@@ -50,7 +50,7 @@ namespace Microsoft.Extensions.FileProviders
             using FileStream stream = new FileStream(
                 fileInfo.PhysicalPath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096,
                 FileOptions.Asynchronous | FileOptions.SequentialScan);
-            await stream.WriteAsync(content, 0, content.Length);
+            await stream.WriteAsync(content.AsMemory());
             return fileInfo;
         }
 

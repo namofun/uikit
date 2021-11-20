@@ -257,6 +257,11 @@ namespace Microsoft.AspNetCore.Builder
             = typeof(CircuitOptions).Assembly.GetType(_circuitDisconnectMiddlewareTypeName)
             ?? throw new TypeLoadException("No " + _circuitDisconnectMiddlewareTypeName + " found.");
 
+        private const string _circuitJavaScriptInitializationMiddlewareTypeName = "Microsoft.AspNetCore.Builder.CircuitJavaScriptInitializationMiddleware";
+        private static readonly Type _circuitJavaScriptInitializationMiddlewareType
+            = typeof(CircuitOptions).Assembly.GetType(_circuitJavaScriptInitializationMiddlewareTypeName)
+            ?? throw new TypeLoadException("No " + _circuitJavaScriptInitializationMiddlewareTypeName + " found.");
+
         private static readonly Func<IEndpointBuilder, string, Action<HttpConnectionDispatcherOptions>, HubEndpointConventionBuilder> _mapComponentHubDelegate
             = (Func<IEndpointBuilder, string, Action<HttpConnectionDispatcherOptions>, HubEndpointConventionBuilder>)
                 new Func<IEndpointBuilder, string, Action<HttpConnectionDispatcherOptions>, HubEndpointConventionBuilder>(
@@ -355,11 +360,17 @@ namespace Microsoft.AspNetCore.Builder
                     endpoints.CreateApplicationBuilder().UseMiddleware(_circuitDisconnectMiddlewareType).Build())
                 .WithDisplayName("Blazor disconnect");
 
+            var jsInitializersEndpoint = endpoints
+                .MapRequestDelegate(
+                    (path.EndsWith('/') ? path : path + "/") + "initializers/",
+                    endpoints.CreateApplicationBuilder().UseMiddleware(_circuitJavaScriptInitializationMiddlewareType).Build())
+                .WithDisplayName("Blazor initializers");
+
             return (ComponentEndpointConventionBuilder)
                 typeof(ComponentEndpointConventionBuilder)
                     .GetTypeInfo().DeclaredConstructors
                     .Single()
-                    .Invoke(new object[] { hubEndpoint, disconnectEndpoint });
+                    .Invoke(new object[] { hubEndpoint, disconnectEndpoint, jsInitializersEndpoint });
         }
     }
 

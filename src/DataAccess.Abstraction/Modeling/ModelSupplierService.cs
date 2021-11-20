@@ -64,11 +64,16 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
             public override string LogFragment => string.Empty;
 
             /// <inheritdoc />
-            public override long GetServiceProviderHashCode() => 0L;
+            public override int GetServiceProviderHashCode() => 0;
 
             /// <inheritdoc />
             public override void PopulateDebugInfo(IDictionary<string, string> debugInfo)
                 => debugInfo["DbModelSupplier"] = "Count=" + Extension.Holder.Count;
+
+            /// <inheritdoc />
+            public override bool ShouldUseSameServiceProvider(DbContextOptionsExtensionInfo other)
+                => other is not ModelSupplierExtensionInfo otherInfo
+                    || otherInfo.Extension.Holder.SequenceEqual(Extension.Holder);
         }
     }
 }

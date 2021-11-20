@@ -21,7 +21,7 @@ namespace Microsoft.AspNetCore.Mvc.DataTables
 
         public IEnumerable<Expression> Process(
             PropertyInfo prop,
-            IEnumerable<Expression>? expressions,
+            IEnumerable<Expression> expressions,
             Expression modelExpression)
         {
             return expressions

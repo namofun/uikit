@@ -1,8 +1,8 @@
 ﻿@inject IMenuProvider Menu
 @{
     var menuName = (ViewData["NavbarName"] as string) ?? MenuNameDefaults.MainNavbar;
-    var suppressUserMenu = ViewData.TryGetValue("SuppressUserMenu", out object _suppressUserMenu) && _suppressUserMenu is bool __suppressUserMenu && __suppressUserMenu;
-    var suppressUserSubmenu = ViewData.TryGetValue("SuppressUserSubmenu", out object _suppressUserSubmenu) && _suppressUserSubmenu is bool __suppressUserSubmenu && __suppressUserSubmenu;
+    var suppressUserMenu = ViewData.TryGetValue("SuppressUserMenu", out object? _suppressUserMenu) && _suppressUserMenu is bool __suppressUserMenu && __suppressUserMenu;
+    var suppressUserSubmenu = ViewData.TryGetValue("SuppressUserSubmenu", out object? _suppressUserSubmenu) && _suppressUserSubmenu is bool __suppressUserSubmenu && __suppressUserSubmenu;
     var extraMenu = ViewData["ExtraMenu"] as string;
 }
 <ul class="navbar-nav mr-auto">

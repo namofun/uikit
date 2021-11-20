@@ -15,7 +15,7 @@ namespace System.ComponentModel.DataAnnotations
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_@.".ToHashSet();
 
         /// <inheritdoc />
-        public override bool IsValid(object value)
+        public override bool IsValid(object? value)
         {
             if (value is string str)
             {

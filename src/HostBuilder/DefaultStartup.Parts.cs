@@ -17,32 +17,6 @@ namespace Microsoft.AspNetCore.Mvc
     public partial class Startup
     {
         /// <summary>
-        /// AssemblyLoadFileDelegate for <see cref="ApplicationParts.RelatedAssemblyAttribute"/>.
-        /// </summary>
-        /// <param name="fileName">The file name.</param>
-        /// <returns>The loaded assembly.</returns>
-        private static Assembly AssemblyLoadFileDelegate(string fileName)
-        {
-            bool AreSameAssembly(Assembly a) => !a.IsDynamic && string.Equals(a.Location, fileName, StringComparison.OrdinalIgnoreCase);
-
-            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(AreSameAssembly);
-            if (assembly != null) return assembly;
-            return Assembly.LoadFile(fileName);
-        }
-
-        /// <summary>
-        /// Setup the <see cref="AssemblyLoadFileDelegate"/>.
-        /// </summary>
-        static Startup()
-        {
-            // For ASP.NET Core 3.1
-            typeof(ApplicationParts.RelatedAssemblyAttribute)
-                .GetFields(BindingFlags.Static | BindingFlags.NonPublic)
-                .Single(f => f.Name == nameof(AssemblyLoadFileDelegate))
-                .SetValue(null, new Func<string, Assembly>(AssemblyLoadFileDelegate));
-        }
-
-        /// <summary>
         /// Batch add the application parts and razor files into the <see cref="ApplicationPartManager"/>.
         /// </summary>
         /// <param name="builder">The <see cref="IMvcBuilder"/> to configure more.</param>
@@ -96,19 +70,47 @@ namespace Microsoft.AspNetCore.Mvc
                     throw new TypeLoadException("The assembly is invalid.");
                 }
 
-                if (!assemblyName.EndsWith(".Views"))
+                var partFactory = assembly.GetCustomAttribute<ProvideApplicationPartFactoryAttribute>();
+                if (partFactory == null)
+                {
+                    // No configured application part so it would not be loaded.
+                    return;
+                }
+
+                var partFactoryType = partFactory.GetFactoryType();
+                if (partFactoryType == typeof(ConsolidatedAssemblyApplicationPartFactory))
+                {
+                    DiscoveyDefault();
+                    DiscoveryRazor();
+                }
+                else if (partFactoryType == typeof(CompiledRazorAssemblyApplicationPartFactory))
+                {
+                    // This is a separate view file.
+                    DiscoveryRazor();
+                }
+                else if (partFactoryType == typeof(DefaultApplicationPartFactory))
+                {
+                    DiscoveyDefault();
+                }
+
+                void DiscoveyDefault()
                 {
                     partList.Add(new AssemblyPart(assembly));
                     var debugPath = assembly.GetCustomAttribute<LocalDebugPathAttribute>();
                     if (debugPath != null) DiscoverPath(debugPath.Path, areaName);
                 }
-                else if (assemblyName == "SatelliteSite.Substrate.Views")
+
+                void DiscoveryRazor()
                 {
-                    partList.Add(new CompiledRazorAssemblyPart(assembly));
-                }
-                else
-                {
-                    partList.Add(new ViewsAssemblyPart(assembly, areaName));
+                    if (assemblyName == "SatelliteSite.Substrate.Views"
+                        || assemblyName == "SatelliteSite.Substrate")
+                    {
+                        partList.Add(new CompiledRazorAssemblyPart(assembly));
+                    }
+                    else
+                    {
+                        partList.Add(new ViewsAssemblyPart(assembly, areaName));
+                    }
                 }
 
                 foreach (var related in assembly.GetCustomAttributes<RelatedAssemblyAttribute>())
@@ -192,7 +194,7 @@ namespace Microsoft.AspNetCore.Mvc
 
                 if (compilerProvider == null || razorTree == null) return;
                 services.AddSingleton<IRazorFileProvider>(razorTree);
-                var assembly = compilerProvider.ImplementationType.Assembly;
+                var assembly = compilerProvider.ImplementationType!.Assembly;
                 var optionsType = assembly.GetType(MvcRazorRuntimeCompilationOptions)!;
 
                 services.AddTransient(
@@ -210,7 +212,7 @@ namespace Microsoft.AspNetCore.Mvc
                         var rcap = builder.PartManager.ApplicationParts
                             .OfType<CompiledRazorAssemblyPart>()
                             .SingleOrDefault(a => a.Assembly == vap.Assembly);
-                        builder.PartManager.ApplicationParts.Remove(rcap);
+                        builder.PartManager.ApplicationParts.Remove(rcap!);
                         builder.PartManager.ApplicationParts.Add(vap);
                         break;
 

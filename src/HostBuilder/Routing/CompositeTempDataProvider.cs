@@ -37,7 +37,7 @@ namespace Microsoft.AspNetCore.Mvc.ViewFeatures
             _chunkingCookieManager = new ChunkingCookieManager();
             _logger = loggerFactory.CreateLogger<CookieTempDataProvider>();
             _options = options.Value;
-            _cookieName = options.Value.Cookie.Name;
+            _cookieName = options.Value.Cookie.Name ?? throw new NotSupportedException("No Cookie Name.");
 
             _tempDataCookieLoadFailure = LoggerMessage.Define<string>(
                 LogLevel.Warning,

@@ -76,7 +76,8 @@ namespace Microsoft.AspNetCore.Routing
 
                     var invoker = context.RequestServices
                         .GetRequiredService<IActionInvokerFactory>()
-                        .CreateInvoker(actionContext);
+                        .CreateInvoker(actionContext)
+                        ?? throw new InvalidOperationException("Failed to create an action invoker.");
 
                     return invoker.InvokeAsync();
                 })
@@ -100,7 +101,7 @@ namespace Microsoft.AspNetCore.Routing
 
                 static string TransformDisplayName(EndpointBuilder builder)
                 {
-                    var original = builder.DisplayName;
+                    var original = builder.DisplayName ?? string.Empty;
                     var segments = original.Split(' ');
                     if (segments.Length != 2) return original;
                     if (!segments[1].StartsWith('(') || !segments[1].EndsWith(')')) return original;

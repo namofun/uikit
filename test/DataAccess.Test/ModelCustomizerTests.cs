@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -66,14 +67,15 @@ namespace SatelliteSite.Tests
                 .Select((_, i) => (i: -1-i, v: Guid.NewGuid()))
                 .ToDictionary(k => k.i, k => k.v);
 
-            using var host =
-            Host.CreateDefaultBuilder()
+            using var host = new SimpleHostBuilder()
                 .AddDatabase<Context>(b => b.UseInMemoryDatabase("0x3f", b => b.UseBulk()))
                 .ConfigureServices(services =>
                 {
                     services.AddDbModelSupplier<Context, GeneralDbModelSupplier>();
                     foreach (var item in list)
+                    {
                         services.AddSingleton<IDbModelSupplier<Context>>(new EntityTypeConfigurationSupplier(item.Key, item.Value));
+                    }
                 })
                 .Build();
 
@@ -89,7 +91,8 @@ namespace SatelliteSite.Tests
             using (var scope = host.Services.CreateScope())
             {
                 using var context = scope.ServiceProvider.GetRequiredService<Context>();
-                var types = context.Model.GetEntityTypes().ToList();
+                var model = context.GetService<IDesignTimeModel>().Model;
+                var types = model.GetEntityTypes().ToList();
                 Assert.AreEqual(1, types.Count);
                 var entityType = types[0];
 
@@ -121,7 +124,7 @@ namespace SatelliteSite.Tests
         public void CheckBulkRegistered()
         {
             static void RegisterAndTest(Action<DbContextOptionsBuilder> action)
-                => Host.CreateDefaultBuilder()
+                => new SimpleHostBuilder()
                     .AddDatabase<Context>(action)
                     .Build()
                     .Services
@@ -134,7 +137,7 @@ namespace SatelliteSite.Tests
             RegisterAndTest(b => b.UseNpgsql(ConnectionString, b => b.UseBulk()));
             RegisterAndTest(b => b.UseSqlite(ConnectionString, b => b.UseBulk()));
             RegisterAndTest(b => b.UseSqlite(ConnectionString, b => b.UseBulk()));
-            RegisterAndTest(b => b.UseMySql(ConnectionString, b => b.UseBulk()));
+            RegisterAndTest(b => b.UseMySql(ConnectionString, ServerVersion.Parse("8.0.21-mysql"), b => b.UseBulk()));
 
             Assert.ThrowsException<InvalidOperationException>(
                 () => RegisterAndTest(b => b.UseInMemoryDatabase(ConnectionString)),
@@ -153,8 +156,31 @@ namespace SatelliteSite.Tests
                 HostBuilderDataAccessExtensions.NoBulkExtRegistered);
 
             Assert.ThrowsException<InvalidOperationException>(
-                () => RegisterAndTest(b => b.UseMySql(ConnectionString)),
+                () => RegisterAndTest(b => b.UseMySql(ConnectionString, ServerVersion.Parse("8.0.21-mysql"))),
                 HostBuilderDataAccessExtensions.NoBulkExtRegistered);
+        }
+
+        [TestMethod]
+        public void GetSequentialGuidType()
+        {
+            DbContextOptions RegisterAndTest(Action<DbContextOptionsBuilder> action)
+                => new SimpleHostBuilder()
+                    .AddDatabase<Context>(action)
+                    .Build()
+                    .Services
+                    .GetRequiredService<DbContextOptions<Context>>();
+
+            void Validate(Action<DbContextOptionsBuilder> action, SequentialGuidType type)
+                => Assert.AreEqual(type, SequentialGuidGenerator.GetSequentialGuidType(RegisterAndTest(action)));
+
+            const string ConnectionString = "Host=localhost";
+
+            Validate(b => b.UseInMemoryDatabase(ConnectionString, b => b.UseBulk()), SequentialGuidType.SequentialAsString);
+            Validate(b => b.UseSqlServer(ConnectionString, b => b.UseBulk()), SequentialGuidType.SequentialAtEnd);
+            Validate(b => b.UseNpgsql(ConnectionString, b => b.UseBulk()), SequentialGuidType.SequentialAsString);
+            Validate(b => b.UseSqlite(ConnectionString, b => b.UseBulk()), SequentialGuidType.SequentialAsString);
+            Validate(b => b.UseMySql(ConnectionString, ServerVersion.Parse("8.0.21-mysql"), b => b.UseBulk()), SequentialGuidType.SequentialAsString);
+            // ["Oracle.EntityFrameworkCore"] = SequentialGuidType.SequentialAsBinary
         }
     }
 }

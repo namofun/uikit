@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
     <Nullable>enable</Nullable>
     <RootNamespace>Microsoft.AspNetCore.Mvc</RootNamespace>
     <DescriptionAttach>The substrate module</DescriptionAttach>
+    <StaticWebAssetBasePath>/lib/xylab</StaticWebAssetBasePath>
   </PropertyGroup>
 
   <Import Project="..\..\build\NugetPackage.props" />
@@ -18,18 +19,5 @@
     <ProjectReference Include="..\DataAccess.Abstraction\SatelliteSite.DataAccess.csproj" />
     <ProjectReference Include="..\Extensions.Abstraction\SatelliteSite.Abstraction.csproj" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <ResolveCurrentProjectStaticWebAssetsInputsDependsOn>
-      SetStaticWebAssetsBasePath;
-      $(ResolveCurrentProjectStaticWebAssetsInputsDependsOn)
-    </ResolveCurrentProjectStaticWebAssetsInputsDependsOn>
-  </PropertyGroup>
-
-  <Target Name="SetStaticWebAssetsBasePath">
-    <PropertyGroup>
-      <StaticWebAssetBasePath>/lib/xylab</StaticWebAssetBasePath>
-    </PropertyGroup>
-  </Target>
 
 </Project>

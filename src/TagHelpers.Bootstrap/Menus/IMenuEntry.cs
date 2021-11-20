@@ -41,7 +41,7 @@ namespace Microsoft.AspNetCore.Mvc
         /// <param name="urlHelper">The <see cref="IUrlHelper"/> to generate links.</param>
         /// <param name="actionContext">The <see cref="ActionContext"/>.</param>
         /// <returns>The generated link.</returns>
-        string GetLink(IUrlHelper urlHelper, ViewContext actionContext);
+        string? GetLink(IUrlHelper urlHelper, ViewContext actionContext);
 
         /// <summary>
         /// Checks whether this tag is active for such <see cref="ActionContext"/>.

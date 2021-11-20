@@ -22,7 +22,7 @@ namespace Microsoft.EntityFrameworkCore
         static readonly MethodInfo ApplyConfiguration =
             typeof(ModelBuilder).GetMethods()
             .Where(m => m.Name == nameof(ApplyConfiguration))
-            .Where(m => IsEntityTypeConfiguration(m.GetParameters().FirstOrDefault().ParameterType))
+            .Where(m => IsEntityTypeConfiguration(m.GetParameters()[0].ParameterType))
             .Single();
 
         /// <summary>

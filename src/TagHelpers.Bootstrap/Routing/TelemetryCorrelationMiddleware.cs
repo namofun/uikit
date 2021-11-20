@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
-using System;
 using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Routing
@@ -19,7 +18,7 @@ namespace Microsoft.AspNetCore.Routing
 
                 if (endpoint == null)
                 {
-                    ProcessNotFound(context, context.Request.Path.Value);
+                    ProcessNotFound(context, context.Request.Path.Value ?? "<null>");
                 }
                 else if (endpoint is RouteEndpoint routeEndpoint)
                 {

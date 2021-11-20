@@ -45,8 +45,9 @@ namespace System
         /// <exception cref="JsonException" />
         public static T AsJson<T>(this string jsonString)
         {
+            // explicitly suppress the null because it will throws
             if (string.IsNullOrEmpty(jsonString)) return default!;
-            return JsonSerializer.Deserialize<T>(jsonString);
+            return JsonSerializer.Deserialize<T>(jsonString)!;
         }
 
         /// <summary>
@@ -113,7 +114,7 @@ namespace System
         /// <returns>The calculated MD5 result.</returns>
         public static byte[] ToMD5(this byte[] source)
         {
-            using var MD5p = new MD5CryptoServiceProvider();
+            using var MD5p = MD5.Create();
             return MD5p.ComputeHash(source);
         }
 
@@ -124,7 +125,7 @@ namespace System
         /// <returns>The calculated MD5 result.</returns>
         public static byte[] ToMD5(this Stream source)
         {
-            using var MD5p = new MD5CryptoServiceProvider();
+            using var MD5p = MD5.Create();
             return MD5p.ComputeHash(source);
         }
 

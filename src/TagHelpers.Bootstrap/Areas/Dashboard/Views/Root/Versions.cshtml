@@ -6,7 +6,7 @@
 
 <h2 class="mt-2">@ViewData["Title"]</h2>
 
-<div asp-show-if="Model.RazorRuntimeCompilation" class="alert alert-warning" style="max-width:50em">
+<div asp-show-if="Model!.RazorRuntimeCompilation" class="alert alert-warning" style="max-width:50em">
     <b>Razor Runtime Compilation</b> is turned on, assemblies named like <code>3bgi3jae.gwv</code> may appear.
 </div>
 

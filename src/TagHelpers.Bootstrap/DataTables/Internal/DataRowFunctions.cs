@@ -48,7 +48,7 @@ namespace Microsoft.AspNetCore.Mvc.DataTables.Internal
             = Expression.New(typeof(TableCell).GetConstructors().Single());
 
         private static readonly Expression FactoryTableRow
-            = Expression.New(typeof(TagBuilder).GetConstructors().Single(), Expression.Constant("tr"));
+            = Expression.New(typeof(TagBuilder).GetConstructor(new[] { typeof(string) })!, Expression.Constant("tr"));
 
         public static readonly ParameterExpression ExpTableCell
             = Expression.Variable(typeof(TableCell), "cell");
@@ -80,7 +80,7 @@ namespace Microsoft.AspNetCore.Mvc.DataTables.Internal
             var cur = expression;
             foreach (var nav in navigation.Split('.'))
             {
-                var prop = cur.Type.GetProperty(nav, FindFlag);
+                var prop = cur.Type.GetProperty(nav, FindFlag)!;
                 cur = Expression.Property(cur, prop);
             }
 
