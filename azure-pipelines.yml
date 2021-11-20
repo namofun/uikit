@@ -28,6 +28,12 @@ jobs:
       script: 'echo "ref: $(Build.SourceBranch)" > $(Build.SourcesDirectory)/.git/ADO_OVERRIDE_HEAD'
     displayName: 'Set Source Branch'
 
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '6'
+    displayName: 'Setup Build Environment'
+
   - task: DotNetCoreCLI@2
     inputs:
       command: 'build'
