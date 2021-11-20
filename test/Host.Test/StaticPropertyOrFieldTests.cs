@@ -1,24 +1,29 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace SatelliteSite.Tests
 {
     public class StaticPropertyOrFieldTests
     {
+        private readonly ITestOutputHelper output;
+
+        public StaticPropertyOrFieldTests(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
+
         [Fact]
         public void ReviewStaticMembers()
         {
-            using var loggerFactory = LoggerFactory.Create(b => b.AddConsole().AddDebug());
-            var logger = loggerFactory.CreateLogger<StaticPropertyOrFieldTests>();
-
             var asm = AppDomain.CurrentDomain
                 .GetAssemblies()
                 .Where(a =>
@@ -108,17 +113,17 @@ namespace SatelliteSite.Tests
                     foreach (var member in checks)
                     {
                         if (member.Name.StartsWith('<')) continue;
-                        if (assemblyName.EndsWith(".Views") && member.Name.StartsWith("__tagHelperAttribute_")) continue;
+                        if (type.IsAssignableTo(typeof(IRazorPage)) && member.Name.StartsWith("__tagHelperAttribute_")) continue;
                         var memberName = $"[{assemblyName}]::[{typeName}]::[{member.Name}]";
 
                         if (justification.TryGetValue(memberName, out var say))
                         {
                             if (say == "Fast Reflect") continue;
-                            logger.LogInformation("Justificated {memberName} as {say}", memberName, say);
+                            output.WriteLine("[INFO] Justificated {0} as {1}", memberName, say);
                         }
                         else
                         {
-                            logger.LogError("{memberName} not justificated.", memberName);
+                            output.WriteLine("[CRIT] Item {0} not justificated.", memberName);
                             errorCount++;
                         }
                     }
