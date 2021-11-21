@@ -155,4 +155,30 @@ namespace Microsoft.AspNetCore.Builder
         /// <returns>A <see cref="IErrorHandlerBuilder"/> that can be used to further customize the error handler.</returns>
         IErrorHandlerBuilder MapStatusCode(string pattern);
     }
+
+    /// <summary>
+    /// Class for endpoint builder conventions related.
+    /// </summary>
+    public static class EndpointBuilderConventionExtensions
+    {
+        /// <summary>
+        /// Conventions for setting up order for route endpoints.
+        /// </summary>
+        /// <typeparam name="TEndpointConventionBuilder">The endpoint convention builder.</typeparam>
+        /// <param name="builder">The endpoint convention builder.</param>
+        /// <param name="order">The order to set.</param>
+        /// <returns>The endpoint convention builder to chain the configurations.</returns>
+        public static TEndpointConventionBuilder WithOrder<TEndpointConventionBuilder>(this TEndpointConventionBuilder builder, int order) where TEndpointConventionBuilder : IEndpointConventionBuilder
+        {
+            builder.Add(builder =>
+            {
+                if (builder is RouteEndpointBuilder routeEndpointBuilder)
+                {
+                    routeEndpointBuilder.Order = order;
+                }
+            });
+
+            return builder;
+        }
+    }
 }

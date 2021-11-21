@@ -459,6 +459,7 @@ namespace Microsoft.AspNetCore.Builder
         /// <summary>
         /// Conventions for endpoints that requires the authorization.
         /// </summary>
+        /// <typeparam name="TEndpointConventionBuilder">The endpoint convention builder.</typeparam>
         /// <param name="builder">The endpoint convention builder.</param>
         /// <param name="roles">The roles to be confirmed.</param>
         /// <returns>The endpoint convention builder to chain the configurations.</returns>
