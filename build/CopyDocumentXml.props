@@ -1,0 +1,11 @@
+﻿<Project>
+
+  <!--
+  The item is hidden but will be copied to corresponding folders.
+  Wanted to keep the document XML always be present so that we can discover it for swagger-gen.
+  -->
+  <ItemGroup>
+    <ContentWithTargetPath Include="$(MSBuildThisFileDirectory)\..\lib\net6.0\SatelliteSite.Substrate.xml" TargetPath="SatelliteSite.Substrate.xml" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

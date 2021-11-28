@@ -7,9 +7,15 @@
     <RootNamespace>Microsoft.AspNetCore.Mvc</RootNamespace>
     <DescriptionAttach>The substrate module</DescriptionAttach>
     <StaticWebAssetBasePath>/lib/xylab</StaticWebAssetBasePath>
+    <StaticWebAssetsDisableProjectBuildPropsFileGeneration>true</StaticWebAssetsDisableProjectBuildPropsFileGeneration>
   </PropertyGroup>
 
   <Import Project="..\..\build\NugetPackage.props" />
+
+  <ItemGroup>
+    <None Include="..\..\build\CopyDocumentXml.props" Pack="true" PackagePath="build\" Link="build\CopyDocumentXml.props" />
+    <None Include="..\..\build\SatelliteSite.Substrate.props" Pack="true" PackagePath="build\" Link="build\SatelliteSite.Substrate.props" />
+  </ItemGroup>
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
