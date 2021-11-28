@@ -20,9 +20,11 @@ namespace Microsoft.Extensions.FileProviders
         /// <inheritdoc />
         public Task<bool> RemoveFileAsync(string subpath)
         {
-            var fileInfo = GetFileInfo(subpath);
+            IFileInfo fileInfo = GetFileInfo(subpath);
             if (fileInfo is NotFoundFileInfo || !fileInfo.Exists)
+            {
                 return Task.FromResult(false);
+            }
 
             File.Delete(fileInfo.PhysicalPath);
             return Task.FromResult(true);
@@ -32,7 +34,7 @@ namespace Microsoft.Extensions.FileProviders
         /// <inheritdoc />
         private static void EnsureDirectoryExists(string subpath)
         {
-            var path = Path.GetDirectoryName(subpath)!;
+            string path = Path.GetDirectoryName(subpath)!;
             Directory.CreateDirectory(path);
         }
 
@@ -41,14 +43,24 @@ namespace Microsoft.Extensions.FileProviders
         public async Task<IFileInfo> WriteBinaryAsync(string subpath, byte[] content)
         {
             if (content == null)
+            {
                 throw new ArgumentNullException(nameof(content));
-            var fileInfo = GetFileInfo(subpath);
+            }
+
+            IFileInfo fileInfo = GetFileInfo(subpath);
             if (fileInfo is NotFoundFileInfo || fileInfo.IsDirectory)
+            {
                 throw new InvalidOperationException();
+            }
+
             EnsureDirectoryExists(fileInfo.PhysicalPath);
 
-            using FileStream stream = new FileStream(
-                fileInfo.PhysicalPath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096,
+            using FileStream stream = new(
+                fileInfo.PhysicalPath,
+                FileMode.Create,
+                FileAccess.Write,
+                FileShare.Read,
+                bufferSize: 4096,
                 FileOptions.Asynchronous | FileOptions.SequentialScan);
             await stream.WriteAsync(content.AsMemory());
             return fileInfo;
@@ -59,16 +71,26 @@ namespace Microsoft.Extensions.FileProviders
         public async Task<IFileInfo> WriteStringAsync(string subpath, string content)
         {
             if (content == null)
+            {
                 throw new ArgumentNullException(nameof(content));
-            var fileInfo = GetFileInfo(subpath);
+            }
+
+            IFileInfo fileInfo = GetFileInfo(subpath);
             if (fileInfo is NotFoundFileInfo || fileInfo.IsDirectory)
+            {
                 throw new InvalidOperationException();
+            }
+
             EnsureDirectoryExists(fileInfo.PhysicalPath);
 
-            using var stream = new FileStream(
-                fileInfo.PhysicalPath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096,
+            using FileStream stream = new(
+                fileInfo.PhysicalPath,
+                FileMode.Create,
+                FileAccess.Write,
+                FileShare.Read,
+                bufferSize: 4096,
                 FileOptions.Asynchronous | FileOptions.SequentialScan);
-            using var streamWriter = new StreamWriter(stream, new UTF8Encoding(false));
+            using StreamWriter streamWriter = new(stream, new UTF8Encoding(false));
             await streamWriter.WriteAsync(content);
             return fileInfo;
         }
@@ -78,14 +100,20 @@ namespace Microsoft.Extensions.FileProviders
         public async Task<IFileInfo> WriteStreamAsync(string subpath, Stream content)
         {
             if (content == null)
+            {
                 throw new ArgumentNullException(nameof(content));
-            var fileInfo = GetFileInfo(subpath);
+            }
+
+            IFileInfo fileInfo = GetFileInfo(subpath);
             if (fileInfo is NotFoundFileInfo || fileInfo.IsDirectory)
+            {
                 throw new InvalidOperationException();
+            }
+
             EnsureDirectoryExists(fileInfo.PhysicalPath);
 
-            var fileInfo2 = new FileInfo(fileInfo.PhysicalPath);
-            using var fs = fileInfo2.Open(FileMode.Create);
+            FileInfo fileInfo2 = new(fileInfo.PhysicalPath);
+            using FileStream fs = fileInfo2.Open(FileMode.Create);
             await content.CopyToAsync(fs);
             return fileInfo;
         }
