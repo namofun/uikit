@@ -1,10 +1,12 @@
 ﻿using Microsoft.ApplicationInsights.DependencyCollector;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using SatelliteSite.Services;
 using SatelliteSite.TelemetryModule.Services;
+using System;
 
 namespace SatelliteSite.TelemetryModule
 {
@@ -32,6 +34,12 @@ namespace SatelliteSite.TelemetryModule
             {
                 module.EnableSqlCommandTextInstrumentation = true;
             });
+
+            if (Environment.GetEnvironmentVariable("APPINSIGHTS_CLOUDROLE") is string cloudRole)
+            {
+                string roleInstance = Environment.GetEnvironmentVariable("APPINSIGHTS_CLOUDROLEINSTANCE");
+                services.AddSingleton<ITelemetryInitializer>(new CloudRoleInitializer(cloudRole, roleInstance));
+            }
         }
 
         public override void RegisterEndpoints(IEndpointBuilder endpoints)

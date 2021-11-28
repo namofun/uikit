@@ -93,8 +93,8 @@ namespace SatelliteSite.TelemetryModule.Services
             using var resp = await _httpClient.SendAsync(_request, cancellationToken);
             resp.EnsureSuccessStatusCode();
 
-            using var result = await resp.Content.ReadAsStreamAsync();
-            return await JsonSerializer.DeserializeAsync<TResult>(result);
+            using var result = await resp.Content.ReadAsStreamAsync(cancellationToken);
+            return await JsonSerializer.DeserializeAsync<TResult>(result, cancellationToken: cancellationToken);
         }
     }
 }
