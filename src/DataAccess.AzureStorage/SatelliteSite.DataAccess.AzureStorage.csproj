@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <DescriptionAttach>The data access layer for Azure Storage</DescriptionAttach>
+  </PropertyGroup>
+
+  <Import Project="..\..\build\NugetPackage.props" />
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="$(AzureStorageBlobVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataAccess.Abstraction\SatelliteSite.DataAccess.csproj" />
+  </ItemGroup>
+
+</Project>

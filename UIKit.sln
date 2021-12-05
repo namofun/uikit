@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29926.136
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{65EF0846-B58D-4C79-B254-456B61BC845B}"
 EndProject
@@ -55,6 +55,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.JobsCore", "src\Jobs.Core\SatelliteSite.JobsCore.csproj", "{D1997D07-6114-4156-A1C2-A8232BED9E4D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.JobsModule", "src\Jobs.Module\SatelliteSite.JobsModule.csproj", "{3717FF77-8CAB-4D9F-94DC-CB3C970886A6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SatelliteSite.DataAccess.AzureStorage", "src\DataAccess.AzureStorage\SatelliteSite.DataAccess.AzureStorage.csproj", "{F78882E1-E71F-44AB-8C2B-ABEE6B9E5006}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -126,6 +128,10 @@ Global
 		{3717FF77-8CAB-4D9F-94DC-CB3C970886A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3717FF77-8CAB-4D9F-94DC-CB3C970886A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3717FF77-8CAB-4D9F-94DC-CB3C970886A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F78882E1-E71F-44AB-8C2B-ABEE6B9E5006}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F78882E1-E71F-44AB-8C2B-ABEE6B9E5006}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F78882E1-E71F-44AB-8C2B-ABEE6B9E5006}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F78882E1-E71F-44AB-8C2B-ABEE6B9E5006}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -147,6 +153,7 @@ Global
 		{59F8BB87-C0CF-4CED-B195-9FA15B406151} = {BB2A9F4A-7E6E-4A8F-ADF5-22E17D5EC325}
 		{D1997D07-6114-4156-A1C2-A8232BED9E4D} = {65EF0846-B58D-4C79-B254-456B61BC845B}
 		{3717FF77-8CAB-4D9F-94DC-CB3C970886A6} = {65EF0846-B58D-4C79-B254-456B61BC845B}
+		{F78882E1-E71F-44AB-8C2B-ABEE6B9E5006} = {65EF0846-B58D-4C79-B254-456B61BC845B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D2DCECCB-DCBD-4EC2-A75F-CE8B756096A1}
