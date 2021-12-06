@@ -38,7 +38,13 @@ jobs:
     inputs:
       packageType: 'sdk'
       version: '6.0.x'
-    displayName: 'Setup Build Environment'
+    displayName: 'Setup .NET SDK'
+
+  - bash: |
+      sudo npm install -g azurite
+      sudo mkdir azurite
+      sudo azurite --silent --location azurite --debug azurite\debug.log &
+    displayName: 'Install and Run Azurite'
 
   - task: DotNetCoreCLI@2
     inputs:
