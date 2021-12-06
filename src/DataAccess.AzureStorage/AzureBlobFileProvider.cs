@@ -1,30 +1,60 @@
-﻿using Azure;
-using Azure.Storage;
-using Azure.Storage.Blobs;
+﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Microsoft.Extensions.FileProviders.AzureBlob;
 using Microsoft.Extensions.FileProviders.Physical;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.FileProviders
 {
     public class AzureBlobFileProvider : IMutableFileProvider
     {
+        private static readonly Regex _unusablePathChars = new("(" + string.Join('|', "\\/:?*\"<>|%".Select(ch => Regex.Escape(ch.ToString()))) + ")");
         private readonly BlobContainerClient _client;
         private readonly PhysicalMutableFileProvider _physicalCache;
-        private readonly AccessTier _defaultAccessTier;
+        private readonly AccessTier? _defaultAccessTier;
 
         public AzureBlobFileProvider(
             BlobContainerClient client,
             PhysicalMutableFileProvider physicalCache,
-            AccessTier defaultAccessTier)
+            AccessTier? defaultAccessTier = default)
         {
             _client = client;
             _physicalCache = physicalCache;
             _defaultAccessTier = defaultAccessTier;
+        }
+
+        private static string GetNormalizedFileName(string subpath)
+        {
+            return _unusablePathChars.Replace(subpath, "__");
+        }
+
+        private static string GenerateLocalCacheGuid()
+        {
+            return Convert.ToBase64String(Guid.NewGuid().ToByteArray()).TrimEnd('=').Replace('/', '@');
+        }
+
+        private BlobClient GetBlobClient(string subpath)
+        {
+            _ = subpath ?? throw new ArgumentNullException(nameof(subpath));
+
+            subpath = subpath.TrimStart('/', '\\').Replace('\\', '/');
+            return _client.GetBlobClient(subpath);
+        }
+
+        private IFileInfo GetLocalCacheFile(string subpath, string localCacheGuid)
+        {
+            _ = subpath ?? throw new ArgumentNullException(nameof(subpath));
+            _ = localCacheGuid ?? throw new ArgumentNullException(nameof(localCacheGuid));
+
+            subpath = subpath.TrimStart('/', '\\').Replace('\\', '/');
+            return _physicalCache.GetFileInfo(GetNormalizedFileName(subpath) + "%" + localCacheGuid);
         }
 
         public Task<IDirectoryContents> GetDirectoryContentsAsync(string subpath)
@@ -34,19 +64,19 @@ namespace Microsoft.Extensions.FileProviders
 
         public async Task<IFileInfo> GetFileInfoAsync(string subpath)
         {
-            BlobClient blob = _client.GetBlobClient(subpath);
-            if (!await blob.ExistsAsync())
+            BlobClient blob = this.GetBlobClient(subpath);
+            if (!await blob.ExistsAsync().ConfigureAwait(false))
             {
                 return new NotFoundFileInfo(Path.GetFileName(subpath));
             }
 
-            BlobProperties properties = await blob.GetPropertiesAsync();
-            if (!properties.Metadata.ContainsKey("LocalCacheGuid"))
+            BlobProperties properties = await blob.GetPropertiesAsync().ConfigureAwait(false);
+            if (!properties.Metadata.TryGetValue("LocalCacheGuid", out string? cacheGuid))
             {
                 throw new InvalidOperationException("Unknown blob uploaded.");
             }
 
-            IFileInfo cachedFile = _physicalCache.GetFileInfo(subpath + "%" + properties.Metadata["LocalCacheGuid"]);
+            IFileInfo cachedFile = this.GetLocalCacheFile(subpath, cacheGuid);
             if (cachedFile is not PhysicalFileInfo)
             {
                 throw new InvalidOperationException("Invalid file path format.");
@@ -54,7 +84,8 @@ namespace Microsoft.Extensions.FileProviders
 
             if (!cachedFile.Exists || cachedFile.Length != properties.ContentLength)
             {
-                await blob.DownloadToAsync(cachedFile.PhysicalPath);
+                await blob.DownloadToAsync(cachedFile.PhysicalPath).ConfigureAwait(false);
+                cachedFile = this.GetLocalCacheFile(subpath, cacheGuid);
             }
 
             return new AzureBlobFileInfo(cachedFile, cachedFile.Length, subpath, properties.LastModified);
@@ -62,7 +93,7 @@ namespace Microsoft.Extensions.FileProviders
 
         public async Task<bool> RemoveFileAsync(string subpath)
         {
-            return await _client.DeleteBlobIfExistsAsync(subpath).ConfigureAwait(false);
+            return await this.GetBlobClient(subpath).DeleteIfExistsAsync().ConfigureAwait(false);
         }
 
         public Task<IFileInfo> WriteStringAsync(string subpath, string content)
@@ -78,32 +109,43 @@ namespace Microsoft.Extensions.FileProviders
 
         public async Task<IFileInfo> WriteStreamAsync(string subpath, Stream content)
         {
-            string storageTag = Convert.ToBase64String(Guid.NewGuid().ToByteArray()).TrimEnd('=').Replace('/', '@');
-            IFileInfo cachedFile = _physicalCache.GetFileInfo(subpath + "%" + storageTag);
+            string storageTag = GenerateLocalCacheGuid();
+            IFileInfo cachedFile = this.GetLocalCacheFile(subpath, storageTag);
             if (cachedFile is not PhysicalFileInfo)
             {
                 throw new InvalidOperationException("Invalid file path format.");
             }
 
-            using (FileStream fs = new(cachedFile.PhysicalPath, FileMode.Create))
+            byte[] contentHash;
+            using (FileStream fileStream = new(cachedFile.PhysicalPath, FileMode.Create))
             {
-                await content.CopyToAsync(fs).ConfigureAwait(false);
+                await content.CopyToAsync(fileStream).ConfigureAwait(false);
+                fileStream.Position = 0;
+
+                using HashAlgorithm md5 = MD5.Create();
+                contentHash = await md5.ComputeHashAsync(fileStream).ConfigureAwait(false);
             }
 
+            cachedFile = this.GetLocalCacheFile(subpath, storageTag);
             if (!cachedFile.Exists)
             {
-                throw new NotImplementedException();
+                throw new InvalidDataException("File caching corrupted, non existence.");
             }
 
-            BlobClient blob = _client.GetBlobClient(subpath);
+            BlobClient blob = this.GetBlobClient(subpath);
             BlobContentInfo contentInfo = await blob.UploadAsync(
                 cachedFile.PhysicalPath,
                 new BlobUploadOptions
                 {
                     AccessTier = _defaultAccessTier,
-                    Metadata = { ["LocalCacheGuid"] = storageTag },
+                    Metadata = new Dictionary<string, string> { ["LocalCacheGuid"] = storageTag },
                 })
                 .ConfigureAwait(false);
+
+            if (!contentInfo.ContentHash.SequenceEqual(contentHash))
+            {
+                throw new InvalidDataException("File uploading corrupted, MD5 mismatch.");
+            }
 
             return new AzureBlobFileInfo(cachedFile, cachedFile.Length, subpath, contentInfo.LastModified);
         }

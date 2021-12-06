@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
 
         public long Length { get; }
 
-        public string? PhysicalPath => null;
+        public string? PhysicalPath => cachedFileInfo.PhysicalPath;
 
         public string Name { get; }
 
