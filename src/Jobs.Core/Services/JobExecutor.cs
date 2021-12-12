@@ -1,6 +1,5 @@
 ﻿using Jobs.Entities;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Threading.Tasks;
 
 namespace Jobs.Services
@@ -14,9 +13,9 @@ namespace Jobs.Services
         /// Asynchronously execute the targeted job with argument.
         /// </summary>
         /// <param name="arguments">The job arguments.</param>
-        /// <param name="guid">The storage unique ID.</param>
+        /// <param name="entry">The job entry.</param>
         /// <param name="logger">The job logger.</param>
         /// <returns>The job status.</returns>
-        Task<JobStatus> ExecuteAsync(string arguments, Guid guid, ILogger logger);
+        Task<JobStatus> ExecuteAsync(string arguments, Job entry, ILogger logger);
     }
 }

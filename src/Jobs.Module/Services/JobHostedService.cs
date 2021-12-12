@@ -33,7 +33,7 @@ namespace SatelliteSite.JobsModule.Services
 
                 try
                 {
-                    result = await executor.ExecuteAsync(job.Arguments, job.JobId, logger);
+                    result = await executor.ExecuteAsync(job.Arguments, job, logger);
                 }
                 catch (Exception ex)
                 {
@@ -41,7 +41,7 @@ namespace SatelliteSite.JobsModule.Services
                     result = JobStatus.Failed;
                 }
 
-                await _fileProvider.WriteStringAsync(job.JobId + "/log", logger.StringBuilder.ToString());
+                await _fileProvider.SaveLogAsync(job, logger.StringBuilder.ToString());
                 logger.StringBuilder.Clear();
 
                 await scheduler.MarkAsync(job, result, DateTimeOffset.Now, JobStatus.Running);
