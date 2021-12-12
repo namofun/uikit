@@ -44,7 +44,7 @@ jobs:
       sudo npm install -g azurite
       sudo mkdir azurite
       sudo azurite --silent --location azurite --debug azurite\debug.log &
-    displayName: 'Install and Run Azurite'
+    displayName: 'Setup Azurite'
 
   - task: DotNetCoreCLI@2
     inputs:
