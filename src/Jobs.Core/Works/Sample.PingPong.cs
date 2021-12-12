@@ -26,10 +26,10 @@ namespace Jobs.Works
                 _fileProvider = fileProvider;
             }
 
-            public async Task<JobStatus> ExecuteAsync(string arguments, Guid guid, ILogger logger)
+            public async Task<JobStatus> ExecuteAsync(string arguments, Job entry, ILogger logger)
             {
-                await _fileProvider.WriteStringAsync(guid + "/main", arguments);
-                logger.LogInformation("Pong! from {guid}", guid);
+                await _fileProvider.SaveOutputAsync(entry, arguments);
+                logger.LogInformation("Pong! from {guid}", entry.JobId);
                 return JobStatus.Finished;
             }
         }

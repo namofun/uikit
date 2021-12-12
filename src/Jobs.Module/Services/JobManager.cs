@@ -75,14 +75,14 @@ namespace SatelliteSite.JobsModule.Services
             return e;
         }
 
-        public Task<IFileInfo> GetLogsAsync(Guid guid)
+        public Task<string> GetLogsAsync(Job jobEntry)
         {
-            return _fileProvider.GetFileInfoAsync(guid + "/log");
+            return _fileProvider.GetLogsAsync(jobEntry);
         }
 
-        public Task<IFileInfo> GetDownloadAsync(Guid guid)
+        public Task<IFileInfo> GetDownloadAsync(Job jobEntry)
         {
-            return _fileProvider.GetFileInfoAsync(guid + "/main");
+            return _fileProvider.GetOutputAsync(jobEntry);
         }
 
         public Task<List<JobEntry>> GetChildrenAsync(Guid id, int? ownerId = null)

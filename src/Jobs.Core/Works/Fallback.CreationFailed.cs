@@ -15,7 +15,7 @@ namespace Jobs.Works
             _reason = reason;
         }
 
-        public Task<JobStatus> ExecuteAsync(string arguments, Guid guid, ILogger logger)
+        public Task<JobStatus> ExecuteAsync(string arguments, Job entry, ILogger logger)
         {
             logger.LogError(_reason, "Job Executor Creation failed.");
             return Task.FromResult(JobStatus.Failed);
