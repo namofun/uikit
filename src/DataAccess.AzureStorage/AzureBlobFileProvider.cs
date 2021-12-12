@@ -57,11 +57,6 @@ namespace Microsoft.Extensions.FileProviders
             return _physicalCache.GetFileInfo(GetNormalizedFileName(subpath) + "%" + localCacheGuid);
         }
 
-        public Task<IDirectoryContents> GetDirectoryContentsAsync(string subpath)
-        {
-            throw new System.NotImplementedException();
-        }
-
         public async Task<IFileInfo> GetFileInfoAsync(string subpath)
         {
             BlobClient blob = this.GetBlobClient(subpath);

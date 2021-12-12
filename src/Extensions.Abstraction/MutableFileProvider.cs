@@ -16,13 +16,6 @@ namespace Microsoft.Extensions.FileProviders
         Task<IFileInfo> GetFileInfoAsync(string subpath);
 
         /// <summary>
-        /// Enumerate a directory at the given path, if any.
-        /// </summary>
-        /// <param name="subpath">Relative path that identifies the directory.</param>
-        /// <returns>The task for contents of the directory.</returns>
-        Task<IDirectoryContents> GetDirectoryContentsAsync(string subpath);
-
-        /// <summary>
         /// Write a file at the given path.
         /// </summary>
         /// <param name="subpath">A path under the root directory</param>

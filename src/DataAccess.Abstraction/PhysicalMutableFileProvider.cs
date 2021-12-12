@@ -124,12 +124,5 @@ namespace Microsoft.Extensions.FileProviders
         {
             return Task.FromResult(GetFileInfo(subpath));
         }
-
-
-        /// <inheritdoc />
-        public Task<IDirectoryContents> GetDirectoryContentsAsync(string subpath)
-        {
-            return Task.FromResult(GetDirectoryContents(subpath));
-        }
     }
 }
