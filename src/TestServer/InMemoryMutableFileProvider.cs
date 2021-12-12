@@ -111,21 +111,6 @@ namespace SatelliteSite.Tests
             public IEnumerator<IFileInfo> GetEnumerator() => _kvps.Value.GetEnumerator();
         }
 
-        public async Task<IDirectoryContents> GetDirectoryContentsAsync(string subpath)
-        {
-            subpath = subpath.Replace('\\', '/').Trim('/') + "/";
-            if (subpath == "/") subpath = "";
-            using var ___ = await _directoryLocker.LockAsync();
-
-            var _directoryFiles = _files
-                .Where(k => k.Key.StartsWith(subpath))
-                .ToDictionary(k => k.Key, v => v.Value);
-
-            if (_directoryFiles.Count == 0)
-                return new NotFoundDirectoryContents();
-            return new InMemoryDirectory(subpath, _directoryFiles);
-        }
-
         public async Task<IFileInfo> GetFileInfoAsync(string subpath)
         {
             subpath = subpath.Replace('\\', '/').TrimStart('/');
