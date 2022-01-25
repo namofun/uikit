@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.FileProviders.Physical;
+using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -6,13 +7,13 @@ using System.Threading.Tasks;
 namespace Microsoft.Extensions.FileProviders
 {
     /// <inheritdoc />
-    public class PhysicalMutableFileProvider : PhysicalFileProvider, IMutableFileProvider
+    public class PhysicalBlobProvider : PhysicalFileProvider, IBlobProvider
     {
         /// <summary>
         /// Initializes a new instance of a PhysicalMutableFileProvider at the given root directory.
         /// </summary>
         /// <param name="root">The root directory. This should be an absolute path.</param>
-        public PhysicalMutableFileProvider(string root) : base(root)
+        public PhysicalBlobProvider(string root) : base(root)
         {
         }
 
@@ -40,7 +41,7 @@ namespace Microsoft.Extensions.FileProviders
 
 
         /// <inheritdoc />
-        public async Task<IFileInfo> WriteBinaryAsync(string subpath, byte[] content)
+        public async Task<IBlobInfo> WriteBinaryAsync(string subpath, byte[] content, string mime = "application/octet-stream")
         {
             if (content == null)
             {
@@ -63,12 +64,12 @@ namespace Microsoft.Extensions.FileProviders
                 bufferSize: 4096,
                 FileOptions.Asynchronous | FileOptions.SequentialScan);
             await stream.WriteAsync(content.AsMemory());
-            return fileInfo;
+            return Convert(fileInfo);
         }
 
 
         /// <inheritdoc />
-        public async Task<IFileInfo> WriteStringAsync(string subpath, string content)
+        public async Task<IBlobInfo> WriteStringAsync(string subpath, string content, string mime = "application/octet-stream")
         {
             if (content == null)
             {
@@ -92,12 +93,12 @@ namespace Microsoft.Extensions.FileProviders
                 FileOptions.Asynchronous | FileOptions.SequentialScan);
             using StreamWriter streamWriter = new(stream, new UTF8Encoding(false));
             await streamWriter.WriteAsync(content);
-            return fileInfo;
+            return Convert(fileInfo);
         }
 
 
         /// <inheritdoc />
-        public async Task<IFileInfo> WriteStreamAsync(string subpath, Stream content)
+        public async Task<IBlobInfo> WriteStreamAsync(string subpath, Stream content, string mime = "application/octet-stream")
         {
             if (content == null)
             {
@@ -115,14 +116,31 @@ namespace Microsoft.Extensions.FileProviders
             FileInfo fileInfo2 = new(fileInfo.PhysicalPath);
             using FileStream fs = fileInfo2.Open(FileMode.Create);
             await content.CopyToAsync(fs);
-            return fileInfo;
+            return Convert(fileInfo);
         }
 
 
         /// <inheritdoc />
-        public Task<IFileInfo> GetFileInfoAsync(string subpath)
+        public Task<IBlobInfo> GetFileInfoAsync(string subpath)
         {
-            return Task.FromResult(GetFileInfo(subpath));
+            return Task.FromResult(Convert(GetFileInfo(subpath)));
+        }
+
+
+        /// <summary>
+        /// Converts the file info to blob info.
+        /// </summary>
+        /// <param name="fileInfo">The file info.</param>
+        /// <returns>The blob info.</returns>
+        /// <exception cref="NotImplementedException">The file info is not supported.</exception>
+        private static IBlobInfo Convert(IFileInfo fileInfo)
+        {
+            return fileInfo switch
+            {
+                NotFoundFileInfo nf => new NotFoundBlobInfo(nf.Name),
+                PhysicalFileInfo pf => new PhysicalBlobInfo(new FileInfo(pf.PhysicalPath)),
+                _ => throw new NotImplementedException("Did not implement for " + fileInfo.GetType().Name),
+            };
         }
     }
 }
