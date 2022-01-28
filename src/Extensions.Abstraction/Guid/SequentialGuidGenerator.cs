@@ -1,35 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Security.Cryptography;
 
 namespace System
 {
-    /// <summary>
-    /// Describes the type of a sequential GUID value.
-    /// </summary>
-    public enum SequentialGuidType
-    {
-        /// <summary>
-        /// The GUID should be sequential when formatted using the <see cref="Guid.ToString()" /> method.
-        /// Used by MySql and PostgreSql.
-        /// </summary>
-        SequentialAsString,
-
-        /// <summary>
-        /// The GUID should be sequential when formatted using the <see cref="Guid.ToByteArray" /> method.
-        /// Used by Oracle.
-        /// </summary>
-        SequentialAsBinary,
-
-        /// <summary>
-        /// The sequential portion of the GUID should be located at the end of the Data4 block.
-        /// Used by SqlServer.
-        /// </summary>
-        SequentialAtEnd
-    }
-
     /// <summary>
     /// This code is from <a href="https://github.com/jhtodd/SequentialGuid/blob/master/SequentialGuid/Classes/SequentialGuid.cs">jhtodd/SequentialGuid</a>.
     /// </summary>
@@ -41,7 +14,7 @@ namespace System
         /// <summary>
         /// Declares the sequential GUID mapping.
         /// </summary>
-        public static Dictionary<string, SequentialGuidType> DatabaseMapping { get; }
+        public static IReadOnlyDictionary<string, SequentialGuidType> DatabaseMapping { get; }
             = new Dictionary<string, SequentialGuidType>
             {
                 ["Microsoft.EntityFrameworkCore.InMemory"] = SequentialGuidType.SequentialAsString,
@@ -51,23 +24,6 @@ namespace System
                 ["Oracle.EntityFrameworkCore"] = SequentialGuidType.SequentialAsBinary,
                 ["Pomelo.EntityFrameworkCore.MySql"] = SequentialGuidType.SequentialAsString,
             };
-
-        /// <summary>
-        /// Creates a sequential GUID via database type.
-        /// </summary>
-        /// <param name="dbContext">The <see cref="DbContext"/> instance.</param>
-        /// <returns>The generated GUID.</returns>
-        public static Guid Create(DbContext dbContext)
-        {
-            if (DatabaseMapping.TryGetValue(dbContext.Database.ProviderName ?? "UNKNOWN", out var type))
-            {
-                return Create(type);
-            }
-            else
-            {
-                throw new ArgumentOutOfRangeException("Unknown database provider.");
-            }
-        }
 
         /// <summary>
         /// Creates a sequential GUID via sequential type.
@@ -160,40 +116,6 @@ namespace System
         public SequentialGuidGenerator(SequentialGuidType type)
         {
             _type = type;
-        }
-
-        /// <summary>
-        /// Parses the DbContextOptions and get the result.
-        /// </summary>
-        /// <param name="options">The options.</param>
-        /// <returns>The sequential guid type.</returns>
-        internal static SequentialGuidType GetSequentialGuidType(DbContextOptions options)
-        {
-            if (options.Extensions.Where(e => e.Info.IsDatabaseProvider).FirstOrDefault() is IDbContextOptionsExtension dbext
-                && DatabaseMapping.TryGetValue(dbext.GetType().Assembly.GetName().Name ?? "", out var relGuidSeq))
-            {
-                return relGuidSeq;
-            }
-            else
-            {
-                throw new InvalidOperationException("Unknown database type configured.");
-            }
-        }
-    }
-
-    /// <summary>
-    /// Generate sequential GUID for a certain DbContext.
-    /// </summary>
-    /// <typeparam name="TContext">The DbContext type.</typeparam>
-    public class SequentialGuidGenerator<TContext> : SequentialGuidGenerator where TContext : DbContext
-    {
-        /// <summary>
-        /// Initialize the generator.
-        /// </summary>
-        /// <param name="options">The DbContextOptions.</param>
-        public SequentialGuidGenerator(DbContextOptions<TContext> options)
-            : base(GetSequentialGuidType(options))
-        {
         }
     }
 }
