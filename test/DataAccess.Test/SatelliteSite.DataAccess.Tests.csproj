@@ -19,7 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\DataAccess.Abstraction\SatelliteSite.DataAccess.csproj" />
-    <ProjectReference Include="..\..\src\DataAccess.AzureStorage\SatelliteSite.DataAccess.AzureStorage.csproj" />
+    <ProjectReference Include="..\..\src\Azure.Convergence\SatelliteSite.AzureCloud.csproj" />
     <ProjectReference Include="..\..\src\HostBuilder\SatelliteSite.HostBuilder.csproj" />
   </ItemGroup>
 

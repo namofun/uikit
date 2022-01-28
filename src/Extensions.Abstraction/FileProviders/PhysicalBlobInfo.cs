@@ -12,7 +12,7 @@ namespace Microsoft.Extensions.FileProviders.Physical
         {
         }
 
-        public Task<string> CreateDirectLinkAsync(TimeSpan validPeriod)
+        public Task<Uri> CreateDirectLinkAsync(TimeSpan validPeriod)
         {
             throw new NotSupportedException("Physical blob does not support direct link.");
         }

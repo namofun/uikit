@@ -1,9 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <DescriptionAttach>The data access layer for Azure Storage</DescriptionAttach>
+    <DescriptionAttach>The convergence package for Azure</DescriptionAttach>
   </PropertyGroup>
 
   <Import Project="..\..\build\NugetPackage.props" />
@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DataAccess.Abstraction\SatelliteSite.DataAccess.csproj" />
+    <ProjectReference Include="..\Extensions.Abstraction\SatelliteSite.Abstraction.csproj" />
   </ItemGroup>
 
 </Project>

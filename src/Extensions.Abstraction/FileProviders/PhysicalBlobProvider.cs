@@ -1,10 +1,9 @@
-﻿using Microsoft.Extensions.FileProviders.Physical;
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Microsoft.Extensions.FileProviders
+namespace Microsoft.Extensions.FileProviders.Physical
 {
     /// <inheritdoc />
     public class PhysicalBlobProvider : PhysicalFileProvider, IBlobProvider
@@ -133,7 +132,7 @@ namespace Microsoft.Extensions.FileProviders
         /// <param name="fileInfo">The file info.</param>
         /// <returns>The blob info.</returns>
         /// <exception cref="NotImplementedException">The file info is not supported.</exception>
-        private static IBlobInfo Convert(IFileInfo fileInfo)
+        public static IBlobInfo Convert(IFileInfo fileInfo)
         {
             return fileInfo switch
             {

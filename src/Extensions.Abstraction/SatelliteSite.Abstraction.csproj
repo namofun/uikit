@@ -23,6 +23,7 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="$(MSExtVersion)" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="$(MSExtVersion)" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Abstractions" Version="$(MSExtVersion)" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Physical" Version="$(MSExtVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(MSExtVersion)" />
     <PackageReference Include="System.Text.Json" Version="$(SystemTextJsonVersion)" />
     <PackageReference Include="System.Net.Http.Json" Version="$(SystemNetHttpJsonVersion)" />

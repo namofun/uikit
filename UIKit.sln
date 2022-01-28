@@ -56,7 +56,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.JobsCore", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.JobsModule", "src\Jobs.Module\SatelliteSite.JobsModule.csproj", "{3717FF77-8CAB-4D9F-94DC-CB3C970886A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SatelliteSite.DataAccess.AzureStorage", "src\DataAccess.AzureStorage\SatelliteSite.DataAccess.AzureStorage.csproj", "{F78882E1-E71F-44AB-8C2B-ABEE6B9E5006}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SatelliteSite.AzureCloud", "src\Azure.Convergence\SatelliteSite.AzureCloud.csproj", "{F78882E1-E71F-44AB-8C2B-ABEE6B9E5006}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

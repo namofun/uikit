@@ -23,7 +23,7 @@ namespace Microsoft.Extensions.FileProviders
         /// The path to the file, including the file name.
         /// Return null if the file is not directly accessible.
         /// </summary>
-        string PhysicalPath { get; }
+        string? PhysicalPath { get; }
 
         /// <summary>
         /// True if resource can be accessed by direct link.
@@ -43,8 +43,9 @@ namespace Microsoft.Extensions.FileProviders
         /// <summary>
         /// Creates a direct link for two hour access.
         /// </summary>
+        /// <param name="validPeriod">The valid time period.</param>
         /// <returns>The link to access file without permission.</returns>
-        Task<string> CreateDirectLinkAsync(TimeSpan validPeriod);
+        Task<Uri> CreateDirectLinkAsync(TimeSpan validPeriod);
 
         /// <summary>
         /// Return file contents as readonly stream. Caller should dispose stream when complete.
