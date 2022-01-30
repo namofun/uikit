@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Jobs.Services
+namespace Microsoft.Extensions.Primitives
 {
     /// <summary>
     /// The interface for notifiable signal.

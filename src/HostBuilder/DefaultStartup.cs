@@ -1,5 +1,4 @@
-﻿using Jobs.Services;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -15,6 +14,7 @@ using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Mailing;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using SatelliteSite.Services;
 using System.Collections.Generic;
 using System.Linq;

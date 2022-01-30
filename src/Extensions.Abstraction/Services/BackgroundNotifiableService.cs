@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Jobs.Services
+namespace Microsoft.Extensions.Hosting
 {
     /// <summary>
     /// Base class for implementing a notifiable background service.
