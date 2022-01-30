@@ -80,8 +80,9 @@ namespace SatelliteSite.Tests
                 ["[SatelliteSite.DataAccess]::[Microsoft.EntityFrameworkCore.Diagnostics.DiagnosticDbInterceptor]::[_diagnosticListener]"] = "Type Related Singleton",
                 ["[SatelliteSite.DataAccess]::[Microsoft.EntityFrameworkCore.Diagnostics.DiagnosticDbInterceptor]::[Instance]"] = "Type Related Singleton",
 
-                ["[SatelliteSite.DataAccess]::[System.SequentialGuidGenerator]::[_rng]"] = "Singleton",
-                ["[SatelliteSite.DataAccess]::[System.SequentialGuidGenerator]::[DatabaseMapping]"] = "Constant Array",
+                ["[SatelliteSite.Abstraction]::[System.SequentialGuidGenerator]::[_rng]"] = "Singleton",
+                ["[SatelliteSite.Abstraction]::[System.SequentialGuidGenerator]::[DatabaseMapping]"] = "Constant Array",
+                ["[SatelliteSite.AzureCloud]::[Microsoft.Extensions.FileProviders.AzureBlob.AzureBlobProvider+StrongPath]::[_unusablePathChars]"] = "Constant Array",
                 ["[SatelliteSite.SampleModule]::[SatelliteSite.SampleModule.Services.ForecastService]::[Summaries]"] = "Constant Array",
                 ["[SatelliteSite.Substrate]::[System.ComponentModel.DataAnnotations.UserNameAttribute]::[AllowedCharacters]"] = "Constant Array",
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Mvc.TagHelpers.GravatarTagHelper]::[_chars]"] = "Constant Array",

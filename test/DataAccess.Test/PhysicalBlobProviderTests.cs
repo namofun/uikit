@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
@@ -9,13 +10,13 @@ using System.Threading.Tasks;
 namespace SatelliteSite.Tests
 {
     [TestClass]
-    public class MutableFileProviderTests
+    public class PhysicalBlobProviderTests
     {
         public string DirectoryPath { get; set; }
 
-        public PhysicalMutableFileProvider PhysicalMutableFileProvider { get; set; }
+        public PhysicalBlobProvider PhysicalBlobProvider { get; set; }
 
-        public IMutableFileProvider MutableFileProvider => PhysicalMutableFileProvider;
+        public IBlobProvider MutableFileProvider => PhysicalBlobProvider;
 
         [TestInitialize]
         public void InitializeDirectory()
@@ -24,7 +25,7 @@ namespace SatelliteSite.Tests
             while (Directory.Exists(DirectoryPath));
 
             Directory.CreateDirectory(DirectoryPath);
-            PhysicalMutableFileProvider = new PhysicalMutableFileProvider(DirectoryPath);
+            PhysicalBlobProvider = new(DirectoryPath);
         }
 
         private byte[] GenerateByteArray(int length)
@@ -120,8 +121,8 @@ namespace SatelliteSite.Tests
         public void DisposeDirectory()
         {
             Directory.Delete(DirectoryPath, true);
-            PhysicalMutableFileProvider.Dispose();
-            PhysicalMutableFileProvider = null;
+            PhysicalBlobProvider.Dispose();
+            PhysicalBlobProvider = null;
             DirectoryPath = null;
         }
     }

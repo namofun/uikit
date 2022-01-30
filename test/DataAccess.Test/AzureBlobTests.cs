@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.FileProviders.AzureBlob;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using System.Threading.Tasks;
@@ -10,8 +11,7 @@ namespace SatelliteSite.Tests
     public class AzureBlobTests
     {
         private BlobContainerClient blobClient;
-        private PhysicalMutableFileProvider physicalFileProvider;
-        private AzureBlobFileProvider fileProvider;
+        private AzureBlobProvider fileProvider;
 
         [TestInitialize]
         public async Task TestInitialize()
@@ -21,8 +21,7 @@ namespace SatelliteSite.Tests
 
             await blobClient.CreateAsync();
             Directory.CreateDirectory("./BlobContainerTestRoot");
-            physicalFileProvider = new PhysicalMutableFileProvider(Path.GetFullPath("./BlobContainerTestRoot"));
-            fileProvider = new AzureBlobFileProvider(blobClient, physicalFileProvider, default); // AccessTier.Hot);
+            fileProvider = new(blobClient, Path.GetFullPath("./BlobContainerTestRoot"), default); // AccessTier.Hot);
         }
 
         [TestCleanup]
@@ -38,14 +37,12 @@ namespace SatelliteSite.Tests
         [TestMethod]
         public async Task UploadAsync()
         {
-            IFileInfo file = await fileProvider.WriteStringAsync("/hello.txt", "hello, world!");
+            IBlobInfo file = await fileProvider.WriteStringAsync("/hello.txt", "hello, world!");
 
             Assert.AreEqual("hello.txt", file.Name);
             Assert.AreEqual(13, file.Length);
 
-            File.Delete(file.PhysicalPath);
-
-            IFileInfo file1 = await fileProvider.GetFileInfoAsync("/hello.txt");
+            IBlobInfo file1 = await fileProvider.GetFileInfoAsync("/hello.txt");
 
             Assert.AreEqual("hello.txt", file1.Name);
             Assert.AreEqual(13, file1.Length);

@@ -72,12 +72,12 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
                 .ConfigureAwait(false);
         }
 
-        public Task<IBlobInfo> WriteStringAsync(string subpath, string content, string mime)
+        public Task<IBlobInfo> WriteStringAsync(string subpath, string content, string mime = "application/octet-stream")
         {
             return WriteBinaryDataAsync(subpath, BinaryData.FromString(content), mime);
         }
 
-        public Task<IBlobInfo> WriteBinaryAsync(string subpath, byte[] content, string mime)
+        public Task<IBlobInfo> WriteBinaryAsync(string subpath, byte[] content, string mime = "application/octet-stream")
         {
             return WriteBinaryDataAsync(subpath, BinaryData.FromBytes(content), mime);
         }
@@ -106,7 +106,7 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
                 contentInfo.LastModified);
         }
 
-        public async Task<IBlobInfo> WriteStreamAsync(string _subpath, Stream content, string mime)
+        public async Task<IBlobInfo> WriteStreamAsync(string _subpath, Stream content, string mime = "application/octet-stream")
         {
             StrongPath subpath = new(_subpath);
             string storageTag = GenerateLocalCacheGuid();

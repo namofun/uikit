@@ -171,7 +171,7 @@ namespace SatelliteSite.Tests
                     .GetRequiredService<DbContextOptions<Context>>();
 
             void Validate(Action<DbContextOptionsBuilder> action, SequentialGuidType type)
-                => Assert.AreEqual(type, SequentialGuidGenerator.GetSequentialGuidType(RegisterAndTest(action)));
+                => Assert.AreEqual(type, SequentialGuidGeneratorHelper.GetSequentialGuidType(RegisterAndTest(action)));
 
             const string ConnectionString = "Host=localhost";
 

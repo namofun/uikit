@@ -1,5 +1,5 @@
-﻿#pragma warning disable CA1820
-using Microsoft.Extensions.FileProviders;
+﻿using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,20 +10,20 @@ using System.Threading.Tasks;
 
 namespace SatelliteSite.Tests
 {
-    public class InMemoryMutableFileProvider : IMutableFileProvider
+    public class InMemoryFileProvider : IFileProvider, IBlobProvider
     {
         private readonly AsyncLock _directoryLocker;
         private readonly AsyncLock _fileLocker;
         private readonly Dictionary<string, InMemoryFile> _files;
 
-        public InMemoryMutableFileProvider()
+        public InMemoryFileProvider()
         {
             _directoryLocker = new AsyncLock();
             _fileLocker = new AsyncLock();
             _files = new Dictionary<string, InMemoryFile>();
         }
 
-        private class InMemoryFile : IFileInfo
+        private class InMemoryFile : IFileInfo, IBlobInfo
         {
             private readonly string _subpath;
             private byte[] _content;
@@ -73,10 +73,13 @@ namespace SatelliteSite.Tests
             public string Name => Path.GetFileName(_subpath);
             public DateTimeOffset LastModified { get; set; }
             public bool IsDirectory => false;
+            public bool HasDirectLink => false;
             public Stream CreateReadStream() => new MemoryStream(_content, false);
+            public Task<Uri> CreateDirectLinkAsync(TimeSpan validPeriod) => throw new NotSupportedException();
+            public Task<Stream> CreateReadStreamAsync(bool cached = false) => Task.FromResult(CreateReadStream());
         }
 
-        private class InMemoryDirectory : IFileInfo, IDirectoryContents
+        private class InMemoryDirectory : IFileInfo, IDirectoryContents, IBlobInfo
         {
             private readonly string _subpath;
             private readonly Lazy<IReadOnlyList<IFileInfo>> _kvps;
@@ -106,12 +109,20 @@ namespace SatelliteSite.Tests
             public string Name => Path.GetFileName(_subpath.TrimEnd('/'));
             public DateTimeOffset LastModified { get; }
             public bool IsDirectory => true;
+            public bool HasDirectLink => false;
             public Stream CreateReadStream() => throw new InvalidOperationException();
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
             public IEnumerator<IFileInfo> GetEnumerator() => _kvps.Value.GetEnumerator();
+            public Task<Uri> CreateDirectLinkAsync(TimeSpan validPeriod) => throw new InvalidOperationException();
+            public Task<Stream> CreateReadStreamAsync(bool cached = false) => throw new InvalidOperationException();
         }
 
-        public async Task<IFileInfo> GetFileInfoAsync(string subpath)
+        public IFileInfo GetFileInfo(string subpath)
+        {
+            return (IFileInfo)GetFileInfoAsync(subpath).Result;
+        }
+
+        public async Task<IBlobInfo> GetFileInfoAsync(string subpath)
         {
             subpath = subpath.Replace('\\', '/').TrimStart('/');
             var subpath2 = subpath.TrimEnd('/') + "/";
@@ -133,11 +144,11 @@ namespace SatelliteSite.Tests
                     .ToDictionary(k => k.Key, v => v.Value);
 
                 if (_directoryFiles.Count == 0)
-                    return new NotFoundFileInfo(subpath);
+                    return new NotFoundBlobInfo(subpath);
                 return new InMemoryDirectory(subpath, _directoryFiles);
             }
 
-            return new NotFoundFileInfo(subpath);
+            return new NotFoundBlobInfo(subpath);
         }
 
         public async Task<bool> RemoveFileAsync(string subpath)
@@ -158,7 +169,7 @@ namespace SatelliteSite.Tests
             return true;
         }
 
-        private async Task<IFileInfo> WriteFileAsync(string subpath, Func<InMemoryFile, Task> runner)
+        private async Task<IBlobInfo> WriteFileAsync(string subpath, Func<InMemoryFile, Task> runner)
         {
             subpath = subpath.Replace('\\', '/').TrimStart('/');
             if (subpath.EndsWith('/') || subpath == string.Empty)
@@ -184,15 +195,19 @@ namespace SatelliteSite.Tests
             return fileInfo;
         }
 
-        public Task<IFileInfo> WriteBinaryAsync(string subpath, byte[] content)
+        public Task<IBlobInfo> WriteBinaryAsync(string subpath, byte[] content, string mime)
             => WriteFileAsync(subpath, f => f.WriteBinaryAsync(content));
 
-        public Task<IFileInfo> WriteStreamAsync(string subpath, Stream content)
+        public Task<IBlobInfo> WriteStreamAsync(string subpath, Stream content, string mime)
             => WriteFileAsync(subpath, f => f.WriteStreamAsync(content));
 
-        public Task<IFileInfo> WriteStringAsync(string subpath, string content)
+        public Task<IBlobInfo> WriteStringAsync(string subpath, string content, string mime)
             => WriteFileAsync(subpath, f => f.WriteStringAsync(content));
+
+        public IDirectoryContents GetDirectoryContents(string subpath)
+            => GetFileInfo(subpath) as IDirectoryContents ?? new NotFoundDirectoryContents();
+
+        public IChangeToken Watch(string filter)
+            => NullChangeToken.Singleton;
     }
 }
-
-#pragma warning restore CA1820
