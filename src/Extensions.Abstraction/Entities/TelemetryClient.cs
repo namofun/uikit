@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SatelliteSite.Services
+namespace Microsoft.Extensions.Diagnostics
 {
     /// <summary>
     /// Defines a client for telemetry.

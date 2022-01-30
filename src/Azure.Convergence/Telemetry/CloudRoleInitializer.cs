@@ -1,9 +1,7 @@
-﻿#nullable enable
-
-using Microsoft.ApplicationInsights.Channel;
+﻿using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
 
-namespace SatelliteSite.TelemetryModule.Services
+namespace Microsoft.ApplicationInsights
 {
     public class CloudRoleInitializer : ITelemetryInitializer
     {

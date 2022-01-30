@@ -1,28 +1,29 @@
-﻿#nullable enable
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.AspNetCore;
+﻿using Microsoft.ApplicationInsights.AspNetCore;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.Extensions.Diagnostics;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 
-namespace SatelliteSite.Services
+namespace Microsoft.ApplicationInsights
 {
     /// <inheritdoc cref="ITelemetryClient" />
     public class ApplicationInsightsTelemetryClient : ITelemetryClient
     {
         private readonly TelemetryClient _appInsights;
-        private readonly JavaScriptSnippet _javascript;
+        private readonly JavaScriptSnippet _javaScriptSnippet;
 
         /// <summary>
         /// Initialize the <see cref="ApplicationInsightsTelemetryClient"/>.
         /// </summary>
         /// <param name="telemetryClient">The inner telemetry client.</param>
-        /// <param name="snippet">The javascript snippet.</param>
-        public ApplicationInsightsTelemetryClient(TelemetryClient telemetryClient, JavaScriptSnippet snippet)
+        /// <param name="javaScriptSnippet">The javascript snippet.</param>
+        public ApplicationInsightsTelemetryClient(
+            TelemetryClient telemetryClient,
+            JavaScriptSnippet javaScriptSnippet)
         {
             _appInsights = telemetryClient;
-            _javascript = snippet;
+            _javaScriptSnippet = javaScriptSnippet;
         }
 
         /// <inheritdoc />
@@ -93,7 +94,7 @@ namespace SatelliteSite.Services
         /// <inheritdoc />
         public string GetHeadJavascript()
         {
-            return _javascript.FullScript;
+            return _javaScriptSnippet.FullScript;
         }
     }
 }

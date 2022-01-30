@@ -10,10 +10,13 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="$(AzureStorageBlobVersion)" />
+    <PackageReference Include="Azure.Storage.Files.Shares" Version="$(AzureStorageFileVersion)" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="$(ApplicationInsightsVersion)" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Extensions.Abstraction\SatelliteSite.Abstraction.csproj" />
+    <ProjectReference Include="..\TagHelpers.Bootstrap\SatelliteSite.Substrate.csproj" />
   </ItemGroup>
 
 </Project>

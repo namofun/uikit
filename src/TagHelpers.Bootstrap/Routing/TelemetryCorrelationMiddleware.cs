@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using System.Threading.Tasks;
 
-namespace Microsoft.AspNetCore.Routing
+namespace Microsoft.AspNetCore.Diagnostics
 {
     /// <summary>
     /// Defines middleware that fix the telemetry request for the application's request pipeline.

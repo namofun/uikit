@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics;
 using Microsoft.Extensions.Diagnostics.SmokeTests;
 using Microsoft.Extensions.Options;
 using SatelliteSite.Services;
