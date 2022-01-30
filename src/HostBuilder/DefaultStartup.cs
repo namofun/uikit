@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Diagnostics;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Extensions.Hosting;
@@ -85,7 +87,8 @@ namespace Microsoft.AspNetCore.Mvc
             services.AddSingleton<ReExecuteEndpointMatcher>();
             services.ReplaceSingleton<LinkGenerator, OrderLinkGenerator>();
             services.ReplaceSingleton<IUrlHelperFactory, SubstrateUrlHelperFactory>();
-            services.AddSingleton<TelemetryCorrelationMiddleware>();
+            services.TryAddSingleton<ITelemetryClient, NullTelemetryClient>();
+            services.TryAddSingleton<TelemetryCorrelationMiddleware>();
 
             services.AddSingleton<IEmailSender, SmtpEmailSender>();
             services.AddOptions<SmtpEmailSenderOptions>();

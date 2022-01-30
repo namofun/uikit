@@ -3,6 +3,7 @@ using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -15,11 +16,11 @@ namespace Microsoft.AspNetCore.Hosting
         {
             services.AddApplicationInsightsTelemetry();
 
-            services.EnsureSingleton<ITelemetryClient>();
-            services.ReplaceSingleton<ITelemetryClient, ApplicationInsightsTelemetryClient>();
+            services.RemoveAll<ITelemetryClient>();
+            services.TryAddSingleton<ITelemetryClient, ApplicationInsightsTelemetryClient>();
 
-            services.EnsureSingleton<TelemetryCorrelationMiddleware>();
-            services.ReplaceSingleton<TelemetryCorrelationMiddleware, AppInsightsCorrelationMiddleware>();
+            services.RemoveAll<TelemetryCorrelationMiddleware>();
+            services.TryAddSingleton<TelemetryCorrelationMiddleware, AppInsightsCorrelationMiddleware>();
 
             services.ConfigureTelemetryModule<DependencyTrackingTelemetryModule>((module, o) =>
             {
