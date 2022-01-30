@@ -23,6 +23,7 @@ namespace SatelliteSite
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .MarkDomain<Program>()
+                .AddApplicationInsights()
                 .AddModule<IdentityModule.IdentityModule<User, Role, DefaultContext>>()
                 .AddModule<SampleModule.SampleModule>()
                 .AddModule<TelemetryModule.TelemetryModule>()

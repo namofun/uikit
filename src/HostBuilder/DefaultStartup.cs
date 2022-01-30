@@ -1,6 +1,7 @@
 ﻿using Jobs.Services;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
@@ -10,7 +11,9 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.FileProviders.Physical;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Mailing;
 using Microsoft.Extensions.Options;
 using SatelliteSite.Services;
 using System.Collections.Generic;
@@ -84,6 +87,9 @@ namespace Microsoft.AspNetCore.Mvc
             services.ReplaceSingleton<IUrlHelperFactory, SubstrateUrlHelperFactory>();
             services.AddSingleton<TelemetryCorrelationMiddleware>();
 
+            services.AddSingleton<IEmailSender, SmtpEmailSender>();
+            services.AddOptions<SmtpEmailSenderOptions>();
+
             services.AddControllersWithViews()
                 .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new TimeSpanJsonConverter()))
                 .AddDataAnnotationsLocalization()
@@ -105,7 +111,8 @@ namespace Microsoft.AspNetCore.Mvc
             services.AddSingleton(typeof(IResettableSignal<>), typeof(SemaphoreSlimResettableSignal<>));
 
             if (!string.IsNullOrWhiteSpace(Environment.WebRootPath))
-                services.AddSingleton<IWwwrootFileProvider, WwwrootFileProvider>();
+                services.AddSingleton<IWwwrootFileProvider>(
+                    new PhysicalWwwrootProvider(Environment.WebRootPath));
 
             services.AddSession(options => options.Cookie.IsEssential = true);
 

@@ -87,9 +87,6 @@ namespace SatelliteSite.IdentityModule
             services.AddScopedUpcast<IUserManager, UserManager<TUser, TRole>>();
             services.AddScopedUpcast<ISignInManager, CompatibleSignInManager<TUser>>();
 
-            services.AddSingleton<IEmailSender, SmtpSender>();
-            services.AddOptions<AuthMessageSenderOptions>();
-
             services.AddDbModelSupplier<TContext, IdentityEntityConfiguration<TUser, TRole, TContext>>();
 
             if (services

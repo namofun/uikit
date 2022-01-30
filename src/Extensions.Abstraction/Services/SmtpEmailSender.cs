@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Diagnostics;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
@@ -7,19 +8,19 @@ using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SatelliteSite.Services
+namespace Microsoft.Extensions.Mailing
 {
-    public class SmtpSender : IEmailSender
+    public class SmtpEmailSender : IEmailSender
     {
-        private readonly Action<ILogger, string, Exception> _emailSending;
-        private readonly ILogger<SmtpSender> _logger;
+        private readonly Action<ILogger, string, Exception?> _emailSending;
+        private readonly ILogger<SmtpEmailSender> _logger;
         private readonly ITelemetryClient _telemetry;
-        private readonly AuthMessageSenderOptions _apikey;
+        private readonly SmtpEmailSenderOptions _apikey;
 
-        public SmtpSender(
-            ILogger<SmtpSender> logger,
+        public SmtpEmailSender(
+            ILogger<SmtpEmailSender> logger,
             ITelemetryClient telemetry,
-            IOptions<AuthMessageSenderOptions> options)
+            IOptions<SmtpEmailSenderOptions> options)
         {
             _logger = logger;
             _telemetry = telemetry;
@@ -58,7 +59,7 @@ namespace SatelliteSite.Services
             Task.Run(async () =>
             {
                 var startTime = DateTimeOffset.Now;
-                Exception exception = null;
+                Exception? exception = null;
 
                 try
                 {

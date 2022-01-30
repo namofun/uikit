@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Azure.Convergence\SatelliteSite.AzureCloud.csproj" />
     <ProjectReference Include="..\..\src\Extensions.IdentityModel\SatelliteSite.IdentityModule.csproj" />
     <ProjectReference Include="..\..\src\HostBuilder\SatelliteSite.HostBuilder.csproj" />
     <ProjectReference Include="..\..\src\Jobs.Module\SatelliteSite.JobsModule.csproj" />

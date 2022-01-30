@@ -1,6 +1,7 @@
 ﻿using Jobs.Entities;
 using Jobs.Services;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.FileProviders.Physical;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace SatelliteSite.JobsModule.Services
     /// <summary>
     /// The file provider interface for jobs.
     /// </summary>
-    public class PhysicalJobFileProvider : PhysicalMutableFileProvider, IJobFileProvider
+    public class PhysicalJobFileProvider : PhysicalBlobProvider, IJobFileProvider
     {
         private readonly Func<Job, string, string> _fileNameFormatter;
 
