@@ -48,7 +48,7 @@ namespace SatelliteSite.Substrate.Apis
                     fileName = $"{type}{id}.{guid}{ext}";
                     fileNameFull = "images/problem/" + fileName;
                 }
-                while ((await io.GetFileInfoAsync(fileNameFull)).Exists);
+                while (io.GetFileInfo(fileNameFull).Exists);
 
                 using (var content = formFile.OpenReadStream())
                 {
