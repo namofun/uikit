@@ -9,16 +9,16 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.Identity
 {
-    public class DefaultAzureCredentialProvider : ITokenCredentialProvider
+    public class TokenCredentialProviderBase : ITokenCredentialProvider
     {
-        private readonly DefaultAzureCredential _credential;
+        private readonly TokenCredential _credential;
         private readonly IMemoryCache _memoryCache;
 
-        public DefaultAzureCredentialProvider(
-            IOptions<DefaultAzureCredentialOptions> options,
+        public TokenCredentialProviderBase(
+            TokenCredential credential,
             IMemoryCache memoryCache)
         {
-            _credential = new DefaultAzureCredential(options.Value);
+            _credential = credential;
             _memoryCache = memoryCache;
         }
 
@@ -70,6 +70,16 @@ namespace Microsoft.Extensions.Identity
                 _hashCode = hashCode.ToHashCode();
                 _scope = scope;
             }
+        }
+    }
+
+    public class DefaultAzureCredentialProvider : TokenCredentialProviderBase
+    {
+        public DefaultAzureCredentialProvider(
+            IOptions<DefaultAzureCredentialOptions> options,
+            IMemoryCache memoryCache)
+            : base(new DefaultAzureCredential(options.Value), memoryCache)
+        {
         }
     }
 }
