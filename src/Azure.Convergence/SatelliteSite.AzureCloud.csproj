@@ -9,9 +9,10 @@
   <Import Project="..\..\build\NugetPackage.props" />
 
   <ItemGroup>
-    <PackageReference Include="Azure.Storage.Blobs" Version="$(AzureStorageBlobVersion)" />
-    <PackageReference Include="Azure.Storage.Files.Shares" Version="$(AzureStorageFileVersion)" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="$(ApplicationInsightsVersion)" />
+    <PackageReference Include="Azure.Identity" Version="1.5.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
+    <PackageReference Include="Azure.Storage.Files.Shares" Version="12.8.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
   </ItemGroup>
 
   <ItemGroup>

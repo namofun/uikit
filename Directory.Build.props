@@ -15,10 +15,6 @@
     <XunitVersion>2.4.0</XunitVersion>
     <CoverletVersion>3.1.0</CoverletVersion>
     <MSTestVersion>2.2.7</MSTestVersion>
-
-    <AzureStorageBlobVersion>12.10.0</AzureStorageBlobVersion>
-    <AzureStorageFileVersion>12.8.0</AzureStorageFileVersion>
-    <ApplicationInsightsVersion>2.20.0</ApplicationInsightsVersion>
   </PropertyGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)build\Microsoft.AspNetCore.Hosting.GitVersions.props" />
