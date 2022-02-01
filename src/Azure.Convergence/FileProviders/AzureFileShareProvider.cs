@@ -3,7 +3,6 @@ using Azure.Storage.Files.Shares.Models;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.FileProviders.AzureFileShare
@@ -24,7 +23,7 @@ namespace Microsoft.Extensions.FileProviders.AzureFileShare
 
         public IDirectoryContents GetDirectoryContents(string subpath)
         {
-            if (!IsAllowedDirectory(_allowedRanges, subpath))
+            if (!PermissionControl.IsAllowedDirectory(_allowedRanges, subpath))
             {
                 return NotFoundDirectoryContents.Singleton;
             }
@@ -33,12 +32,12 @@ namespace Microsoft.Extensions.FileProviders.AzureFileShare
             return new AzureFileShareDirectoryContents(
                 directory,
                 directory.Exists().Value ? directory.GetProperties().Value.LastModified : null,
-                GetAllowedSubdirectory(_allowedRanges, subpath));
+                PermissionControl.GetAllowedSubdirectory(_allowedRanges, subpath));
         }
 
         public IFileInfo GetFileInfo(string subpath)
         {
-            if (!IsAllowedFile(_allowedRanges, subpath))
+            if (!PermissionControl.IsAllowedFile(_allowedRanges, subpath))
             {
                 return new NotFoundFileInfo(Path.GetFileName(subpath));
             }
@@ -54,7 +53,7 @@ namespace Microsoft.Extensions.FileProviders.AzureFileShare
 
         public async Task<IFileInfo> WriteStreamAsync(string subpath, Stream content)
         {
-            if (!IsAllowedFile(_allowedRanges, subpath))
+            if (!PermissionControl.IsAllowedFile(_allowedRanges, subpath))
             {
                 throw new InvalidOperationException("Permission denied when writing path.");
             }
@@ -91,37 +90,6 @@ namespace Microsoft.Extensions.FileProviders.AzureFileShare
             {
                 File.Delete(tempFile);
             }
-        }
-
-        public static bool IsAllowedDirectory(string[]? allowedRanges, string path)
-        {
-            path = "/" + path.Trim('/', '\\').Replace('\\', '/') + "/";
-            return allowedRanges == null
-                || allowedRanges.Any(range => path.StartsWith(range) || range.StartsWith(path));
-        }
-
-        public static string[]? GetAllowedSubdirectory(string[]? allowedRanges, string path)
-        {
-            path = "/" + path.Trim('/', '\\').Replace('\\', '/') + "/";
-
-            if (allowedRanges == null
-                || allowedRanges.Any(range => path.StartsWith(range)))
-                return null;
-
-            return allowedRanges
-                .Where(range => range.StartsWith("/" + path + "/"))
-                .Select(range => range.Substring(0, path.Length - 1))
-                .ToArray();
-        }
-
-        public static bool IsAllowedFile(string[]? allowedRanges, string path)
-        {
-            path = "/" + path.TrimStart('/', '\\').Replace('\\', '/');
-            return allowedRanges == null
-                || allowedRanges.Any(range =>
-                    path == range
-                    || (path.StartsWith(range) && range.EndsWith('/'))
-                );
         }
     }
 }

@@ -45,14 +45,14 @@ namespace Microsoft.Extensions.FileProviders.AzureFileShare
         {
             foreach (var item in _directory.GetFilesAndDirectories())
             {
-                if (item.IsDirectory && AzureFileShareProvider.IsAllowedDirectory(_allowedRanges, item.Name))
+                if (item.IsDirectory && PermissionControl.IsAllowedDirectory(_allowedRanges, item.Name))
                 {
                     yield return new AzureFileShareDirectoryContents(
                         _directory.GetSubdirectoryClient(item.Name),
                         item.Properties.LastModified!.Value,
-                        AzureFileShareProvider.GetAllowedSubdirectory(_allowedRanges, item.Name));
+                        PermissionControl.GetAllowedSubdirectory(_allowedRanges, item.Name));
                 }
-                else if (AzureFileShareProvider.IsAllowedFile(_allowedRanges, item.Name))
+                else if (PermissionControl.IsAllowedFile(_allowedRanges, item.Name))
                 {
                     yield return new AzureFileShareFileInfo(
                         _directory.GetFileClient(item.Name),
