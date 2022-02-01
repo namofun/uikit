@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -15,7 +16,17 @@ namespace Microsoft.Extensions.FileProviders
         public StrongPath(string subpath)
         {
             subpath = subpath.TrimStart('/', '\\').Replace('\\', '/');
-            if (subpath.Length == 0)
+
+            EnsureValidPath_Length(subpath, includeZero: false);
+            EnsureValidPath_NotDirectory(subpath);
+            EnsureValidPath_Characters(subpath);
+
+            _path = subpath;
+        }
+
+        public static void EnsureValidPath_Length(string subpath, bool includeZero)
+        {
+            if (!includeZero && subpath.Length == 0)
             {
                 throw new ArgumentException(
                     "Path cannot be empty.",
@@ -28,14 +39,20 @@ namespace Microsoft.Extensions.FileProviders
                     "Path cannot be longer than 100.",
                     nameof(subpath));
             }
+        }
 
+        public static void EnsureValidPath_NotDirectory(string subpath)
+        {
             if (subpath.EndsWith("/"))
             {
                 throw new ArgumentException(
                     "Path cannot be a directory.",
                     nameof(subpath));
             }
+        }
 
+        public static void EnsureValidPath_Characters(string subpath)
+        {
             if (subpath.Contains("//"))
             {
                 throw new ArgumentException(
@@ -49,13 +66,11 @@ namespace Microsoft.Extensions.FileProviders
                     "Path cannot include any characters in  '/'.",
                     nameof(subpath));
             }
-
-            _path = subpath;
         }
 
         public string GetFileName()
         {
-            return System.IO.Path.GetFileName(_path);
+            return Path.GetFileName(_path);
         }
 
         public string Normalize()
@@ -66,6 +81,11 @@ namespace Microsoft.Extensions.FileProviders
         public string GetLiteral()
         {
             return _path;
+        }
+
+        public string GetCachePath(string localCacheRoot, string localCacheGuid)
+        {
+            return Path.Combine(localCacheRoot, Normalize() + "%" + localCacheGuid);
         }
     }
 }

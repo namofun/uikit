@@ -43,12 +43,6 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
             return _client.GetBlobClient(subpath.GetLiteral());
         }
 
-        private string GetLocalCacheFilePath(StrongPath subpath, string localCacheGuid)
-        {
-            _ = localCacheGuid ?? throw new ArgumentNullException(nameof(localCacheGuid));
-            return Path.Combine(_localCachePath, subpath.Normalize() + "%" + localCacheGuid);
-        }
-
         private async ValueTask<IBlobFileInfo> InternalGetFileInfo(string _subpath, bool async)
         {
             StrongPath subpath = new(_subpath);
@@ -66,7 +60,7 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
 
             return new AzureBlobInfo(
                 blob,
-                GetLocalCacheFilePath(subpath, cacheGuid),
+                subpath.GetCachePath(_localCachePath, cacheGuid),
                 _allowAutoCache,
                 properties.ContentLength,
                 subpath.GetFileName(),
@@ -120,7 +114,7 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
 
             return new AzureBlobInfo(
                 blob,
-                GetLocalCacheFilePath(subpath, storageTag),
+                subpath.GetCachePath(_localCachePath, storageTag),
                 _allowAutoCache,
                 content.ToMemory().Length,
                 subpath.GetFileName(),
@@ -164,7 +158,7 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
 
                 return new AzureBlobInfo(
                     blob,
-                    GetLocalCacheFilePath(subpath, storageTag),
+                    subpath.GetCachePath(_localCachePath, storageTag),
                     _allowAutoCache,
                     fileLength,
                     subpath.GetFileName(),
@@ -207,7 +201,20 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
 
         public IDirectoryContents GetDirectoryContents(string subpath)
         {
-            throw new NotImplementedException();
+            subpath = subpath.Replace('\\', '/').Trim('/') + "/";
+
+            StrongPath.EnsureValidPath_Length(subpath, includeZero: true);
+            StrongPath.EnsureValidPath_Characters(subpath);
+
+            if (!_client
+                .GetBlobsByHierarchy(BlobTraits.None, BlobStates.None, "/", subpath)
+                .AsPages(pageSizeHint: 1)
+                .Any())
+            {
+                return new NotFoundDirectoryContents();
+            }
+
+            return new AzureBlobDirectoryContents(_client, subpath, _localCachePath, _allowAutoCache);
         }
 
         public IChangeToken Watch(string filter)
