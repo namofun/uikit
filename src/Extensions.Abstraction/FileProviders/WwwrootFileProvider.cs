@@ -4,9 +4,9 @@ using System.Threading.Tasks;
 namespace Microsoft.Extensions.FileProviders
 {
     /// <summary>
-    /// A read-write file provider for wwwroot contents.
+    /// A read-write file provider.
     /// </summary>
-    public interface IWwwrootFileProvider : IFileProvider
+    public interface IWritableFileProvider : IFileProvider
     {
         /// <summary>
         /// Write a file at the given path.
@@ -15,5 +15,12 @@ namespace Microsoft.Extensions.FileProviders
         /// <param name="content">The stream content to write.</param>
         /// <returns>The file information.</returns>
         Task<IFileInfo> WriteStreamAsync(string subpath, Stream content);
+    }
+
+    /// <summary>
+    /// A read-write file provider for wwwroot contents.
+    /// </summary>
+    public interface IWwwrootFileProvider : IWritableFileProvider
+    {
     }
 }

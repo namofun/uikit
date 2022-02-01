@@ -10,7 +10,7 @@ namespace Microsoft.Extensions.FileProviders.AzureFileShare
     /// <summary>
     /// A read-write file provider over Azure Storage File Share.
     /// </summary>
-    public class AzureFileShareProvider : IFileProvider
+    public class AzureFileShareProvider : IFileProvider, IWritableFileProvider
     {
         private readonly ShareDirectoryClient _rootDirectory;
         private readonly string[]? _allowedRanges;

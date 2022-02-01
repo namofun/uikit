@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.FileProviders.AzureBlob
 {
-    public class AzureBlobProvider : IFileProvider, IBlobProvider
+    public class AzureBlobProvider : IFileProvider, IBlobProvider, IWritableFileProvider
     {
         private readonly string _localCachePath;
         private readonly BlobContainerClient _client;
