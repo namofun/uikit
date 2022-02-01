@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Azure;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -83,9 +84,9 @@ namespace Microsoft.Extensions.FileProviders
             return _path;
         }
 
-        public string GetCachePath(string localCacheRoot, string localCacheGuid)
+        public string GetCachePath(string localCacheRoot, ETag etag)
         {
-            return Path.Combine(localCacheRoot, Normalize() + "%" + localCacheGuid);
+            return Path.Combine(localCacheRoot, Normalize() + "%" + etag);
         }
     }
 }

@@ -92,7 +92,7 @@ namespace SatelliteSite.Tests
         {
             byte[] content = Guid.Parse("78c0fbfd-ca16-499e-aa4a-82ecb63d5d3c").ToByteArray();
 
-            await blobClient.GetBlobClient("/GetFileInfo_AutoCache.bin").UploadAsync(
+            BlobContentInfo info = await blobClient.GetBlobClient("/GetFileInfo_AutoCache.bin").UploadAsync(
                 new MemoryStream(content),
                 new BlobUploadOptions()
                 {
@@ -113,7 +113,7 @@ namespace SatelliteSite.Tests
 
             string cacheFile = Path.Combine(
                 Path.GetFullPath("./BlobContainerTestRoot"),
-                "GetFileInfo_AutoCache.bin%@fvAeBbKnkmqSoLstj1dPA");
+                "GetFileInfo_AutoCache.bin%" + info.ETag);
             Assert.IsFalse(File.Exists(cacheFile));
 
             using (Stream stream = await blobInfo.CreateReadStreamAsync(null))

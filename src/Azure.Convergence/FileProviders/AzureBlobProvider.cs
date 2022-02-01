@@ -3,7 +3,6 @@ using Azure.Storage.Blobs.Models;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Primitives;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -33,11 +32,6 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
             _contentTypeProvider = contentTypeProvider ?? new FileExtensionContentTypeProvider();
         }
 
-        private static string GenerateLocalCacheGuid()
-        {
-            return Convert.ToBase64String(Guid.NewGuid().ToByteArray()).TrimEnd('=').Replace('/', '@');
-        }
-
         private BlobClient GetBlobClient(StrongPath subpath)
         {
             return _client.GetBlobClient(subpath.GetLiteral());
@@ -53,14 +47,9 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
             }
 
             BlobProperties properties = async ? await blob.GetPropertiesAsync().ConfigureAwait(false) : blob.GetProperties();
-            if (!properties.Metadata.TryGetValue("LocalCacheGuid", out string? cacheGuid))
-            {
-                throw new InvalidOperationException("Unknown blob uploaded.");
-            }
-
             return new AzureBlobInfo(
                 blob,
-                subpath.GetCachePath(_localCachePath, cacheGuid),
+                subpath.GetCachePath(_localCachePath, properties.ETag),
                 _allowAutoCache,
                 properties.ContentLength,
                 subpath.GetFileName(),
@@ -99,12 +88,11 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
         private async Task<IBlobInfo> WriteBinaryDataAsync(string _subpath, BinaryData content, string mime)
         {
             StrongPath subpath = new(_subpath);
-            string storageTag = GenerateLocalCacheGuid();
             byte[] contentHash = MD5.HashData(content.ToMemory().Span);
 
             BlobClient blob = this.GetBlobClient(subpath);
             BlobContentInfo contentInfo = await blob
-                .UploadAsync(content, CreateOptions(storageTag, mime))
+                .UploadAsync(content, CreateOptions(mime))
                 .ConfigureAwait(false);
 
             if (!contentInfo.ContentHash.SequenceEqual(contentHash))
@@ -114,7 +102,7 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
 
             return new AzureBlobInfo(
                 blob,
-                subpath.GetCachePath(_localCachePath, storageTag),
+                subpath.GetCachePath(_localCachePath, contentInfo.ETag),
                 _allowAutoCache,
                 content.ToMemory().Length,
                 subpath.GetFileName(),
@@ -124,7 +112,6 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
         private async Task<IBlobFileInfo> InternalWriteStreamAsync(string _subpath, Stream content, string mime = "application/octet-stream")
         {
             StrongPath subpath = new(_subpath);
-            string storageTag = GenerateLocalCacheGuid();
             string tempFile = Path.GetTempFileName();
 
             try
@@ -148,7 +135,7 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
 
                 BlobClient blob = this.GetBlobClient(subpath);
                 BlobContentInfo contentInfo = await blob
-                    .UploadAsync(tempFile, CreateOptions(storageTag, mime))
+                    .UploadAsync(tempFile, CreateOptions(mime))
                     .ConfigureAwait(false);
 
                 if (!contentInfo.ContentHash.SequenceEqual(contentHash))
@@ -158,7 +145,7 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
 
                 return new AzureBlobInfo(
                     blob,
-                    subpath.GetCachePath(_localCachePath, storageTag),
+                    subpath.GetCachePath(_localCachePath, contentInfo.ETag),
                     _allowAutoCache,
                     fileLength,
                     subpath.GetFileName(),
@@ -183,7 +170,7 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
             return await InternalWriteStreamAsync(subpath, content, mime).ConfigureAwait(false);
         }
 
-        private BlobUploadOptions CreateOptions(string storageTag, string mime)
+        private BlobUploadOptions CreateOptions(string mime)
         {
             return new()
             {
@@ -191,10 +178,6 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
                 HttpHeaders = new BlobHttpHeaders()
                 {
                     ContentType = mime,
-                },
-                Metadata = new Dictionary<string, string>()
-                {
-                    ["LocalCacheGuid"] = storageTag,
                 },
             };
         }

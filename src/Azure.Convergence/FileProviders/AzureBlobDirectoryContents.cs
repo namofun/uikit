@@ -57,16 +57,10 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
                 }
                 else if (blobItem.IsBlob)
                 {
-                    if (!blobItem.Blob.Metadata.TryGetValue("LocalCacheGuid", out string? cacheGuid))
-                    {
-                        // This file cannot be accessed from this file provider.
-                        continue;
-                    }
-
                     StrongPath subpath = new(blobItem.Blob.Name);
                     yield return new AzureBlobInfo(
                         _client.GetBlobClient(subpath.GetLiteral()),
-                        subpath.GetCachePath(_localCachePath, cacheGuid),
+                        subpath.GetCachePath(_localCachePath, blobItem.Blob.Properties.ETag!.Value),
                         _allowAutoCache,
                         blobItem.Blob.Properties.ContentLength!.Value,
                         subpath.GetFileName(),
