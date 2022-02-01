@@ -17,7 +17,7 @@ namespace Microsoft.Extensions.FileProviders.Physical
             throw new NotSupportedException("Physical blob does not support direct link.");
         }
 
-        public Task<Stream> CreateReadStreamAsync(bool cached = false)
+        public Task<Stream> CreateReadStreamAsync(bool? cached)
         {
             return Task.FromResult(CreateReadStream());
         }

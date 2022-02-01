@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.FileProviders.AzureBlob
 {
-    public class AzureBlobInfo : IBlobInfo
+    public class AzureBlobInfo : IBlobInfo, IFileInfo, IBlobFileInfo
     {
         public AzureBlobInfo(
             BlobClient blobClient,
             string localCachePath,
+            bool allowAutoCahce,
             long length,
             string name,
             DateTimeOffset lastModified)
@@ -21,6 +22,7 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
             LastModified = lastModified;
             Name = Path.GetFileName(name);
             CachePath = localCachePath;
+            AutoCache = allowAutoCahce;
         }
 
         public BlobClient Client { get; }
@@ -37,7 +39,11 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
 
         public string CachePath { get; }
 
+        public bool AutoCache { get; }
+
         public DateTimeOffset LastModified { get; }
+
+        public bool IsDirectory => false;
 
         public Task<Uri> CreateDirectLinkAsync(TimeSpan validPeriod)
         {
@@ -55,24 +61,40 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
             }
         }
 
-        public async Task<Stream> CreateReadStreamAsync(bool cached = false)
+        private async ValueTask<Stream> InternalCreateReadStream(bool autoCache, bool async)
         {
-            if (File.Exists(CachePath) && File.Exists(CachePath + ".date"))
+            if (File.Exists(CachePath))
             {
                 return new FileStream(CachePath, FileMode.Open, FileAccess.Read, FileShare.Delete);
             }
-            else if (cached)
+            else if (autoCache)
             {
                 string tempFile = Path.GetTempFileName();
-                using Response resp = await Client.DownloadToAsync(tempFile);
-                File.WriteAllText(CachePath + ".date", DateTimeOffset.Now.ToUnixTimeSeconds().ToString());
+                using Response resp = async
+                    ? await Client.DownloadToAsync(tempFile).ConfigureAwait(false)
+                    : Client.DownloadTo(tempFile);
+
                 File.Move(tempFile, CachePath, overwrite: true);
                 return new FileStream(CachePath, FileMode.Open, FileAccess.Read, FileShare.Delete);
             }
             else
             {
-                return await Client.OpenReadAsync(allowBlobModifications: false);
+                return async
+                    ? await Client.OpenReadAsync(allowBlobModifications: false).ConfigureAwait(false)
+                    : Client.OpenRead(allowBlobModifications: false);
             }
+        }
+
+        public Stream CreateReadStream()
+        {
+            ValueTask<Stream> result = InternalCreateReadStream(AutoCache, async: false);
+            System.Diagnostics.Debug.Assert(result.IsCompleted);
+            return result.Result;
+        }
+
+        public async Task<Stream> CreateReadStreamAsync(bool? cached)
+        {
+            return await InternalCreateReadStream(cached ?? AutoCache, async: true).ConfigureAwait(false);
         }
     }
 }

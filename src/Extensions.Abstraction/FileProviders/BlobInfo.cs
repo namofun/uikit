@@ -52,7 +52,7 @@ namespace Microsoft.Extensions.FileProviders
         /// </summary>
         /// <param name="cached">Whether the file should be cached for next access if this is a remote blob.</param>
         /// <returns>The file stream</returns>
-        Task<Stream> CreateReadStreamAsync(bool cached = false);
+        Task<Stream> CreateReadStreamAsync(bool? cached = null);
     }
 
     /// <summary>

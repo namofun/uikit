@@ -1,29 +1,36 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.FileProviders.AzureBlob
 {
-    public class AzureBlobProvider : IBlobProvider
+    public class AzureBlobProvider : IFileProvider, IBlobProvider
     {
         private readonly string _localCachePath;
         private readonly BlobContainerClient _client;
         private readonly AccessTier? _defaultAccessTier;
+        private readonly bool _allowAutoCache;
+        private readonly IContentTypeProvider _contentTypeProvider;
 
         public AzureBlobProvider(
             BlobContainerClient client,
             string localFileCachePath,
-            AccessTier? defaultAccessTier = default)
+            AccessTier? defaultAccessTier = default,
+            bool allowAutoCache = false,
+            IContentTypeProvider? contentTypeProvider = null)
         {
             _client = client;
             _localCachePath = localFileCachePath;
             _defaultAccessTier = defaultAccessTier;
+            _allowAutoCache = allowAutoCache;
+            _contentTypeProvider = contentTypeProvider ?? new FileExtensionContentTypeProvider();
         }
 
         private static string GenerateLocalCacheGuid()
@@ -42,16 +49,16 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
             return Path.Combine(_localCachePath, subpath.Normalize() + "%" + localCacheGuid);
         }
 
-        public async Task<IBlobInfo> GetFileInfoAsync(string _subpath)
+        private async ValueTask<IBlobFileInfo> InternalGetFileInfo(string _subpath, bool async)
         {
             StrongPath subpath = new(_subpath);
             BlobClient blob = this.GetBlobClient(subpath);
-            if (!await blob.ExistsAsync().ConfigureAwait(false))
+            if (!(async ? await blob.ExistsAsync().ConfigureAwait(false) : blob.Exists()))
             {
                 return new NotFoundBlobInfo(subpath.GetFileName());
             }
 
-            BlobProperties properties = await blob.GetPropertiesAsync().ConfigureAwait(false);
+            BlobProperties properties = async ? await blob.GetPropertiesAsync().ConfigureAwait(false) : blob.GetProperties();
             if (!properties.Metadata.TryGetValue("LocalCacheGuid", out string? cacheGuid))
             {
                 throw new InvalidOperationException("Unknown blob uploaded.");
@@ -60,9 +67,22 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
             return new AzureBlobInfo(
                 blob,
                 GetLocalCacheFilePath(subpath, cacheGuid),
+                _allowAutoCache,
                 properties.ContentLength,
                 subpath.GetFileName(),
                 properties.LastModified);
+        }
+
+        public async Task<IBlobInfo> GetFileInfoAsync(string subpath)
+        {
+            return await InternalGetFileInfo(subpath, async: true).ConfigureAwait(false);
+        }
+
+        public IFileInfo GetFileInfo(string _subpath)
+        {
+            ValueTask<IBlobFileInfo> task = InternalGetFileInfo(_subpath, async: false);
+            System.Diagnostics.Debug.Assert(task.IsCompleted);
+            return task.Result;
         }
 
         public async Task<bool> RemoveFileAsync(string subpath)
@@ -101,12 +121,13 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
             return new AzureBlobInfo(
                 blob,
                 GetLocalCacheFilePath(subpath, storageTag),
+                _allowAutoCache,
                 content.ToMemory().Length,
                 subpath.GetFileName(),
                 contentInfo.LastModified);
         }
 
-        public async Task<IBlobInfo> WriteStreamAsync(string _subpath, Stream content, string mime = "application/octet-stream")
+        private async Task<IBlobFileInfo> InternalWriteStreamAsync(string _subpath, Stream content, string mime = "application/octet-stream")
         {
             StrongPath subpath = new(_subpath);
             string storageTag = GenerateLocalCacheGuid();
@@ -144,6 +165,7 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
                 return new AzureBlobInfo(
                     blob,
                     GetLocalCacheFilePath(subpath, storageTag),
+                    _allowAutoCache,
                     fileLength,
                     subpath.GetFileName(),
                     contentInfo.LastModified);
@@ -152,6 +174,19 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
             {
                 File.Delete(tempFile);
             }
+        }
+
+        public async Task<IBlobInfo> WriteStreamAsync(string subpath, Stream content, string mime = "application/octet-stream")
+        {
+            return await InternalWriteStreamAsync(subpath, content, mime).ConfigureAwait(false);
+        }
+
+        public async Task<IFileInfo> WriteStreamAsync(string subpath, Stream content)
+        {
+            if (!_contentTypeProvider.TryGetContentType(subpath, out string? mime))
+                mime = "application/octet-stream";
+
+            return await InternalWriteStreamAsync(subpath, content, mime).ConfigureAwait(false);
         }
 
         private BlobUploadOptions CreateOptions(string storageTag, string mime)
@@ -170,69 +205,14 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
             };
         }
 
-        private readonly struct StrongPath
+        public IDirectoryContents GetDirectoryContents(string subpath)
         {
-            private const string InvalidCharacters = ":?*\"'`#$&<>|%";
-            private static readonly Regex _unusablePathChars =
-                new("(" + string.Join('|', (InvalidCharacters + "/\\").Select(ch => Regex.Escape(ch.ToString()))) + ")");
+            throw new NotImplementedException();
+        }
 
-            private readonly string _path;
-
-            public StrongPath(string subpath)
-            {
-                subpath = subpath.TrimStart('/', '\\').Replace('\\', '/');
-                if (subpath.Length == 0)
-                {
-                    throw new ArgumentException(
-                        "Path cannot be empty.",
-                        nameof(subpath));
-                }
-
-                if (subpath.Length > 100)
-                {
-                    throw new ArgumentException(
-                        "Path cannot be longer than 100.",
-                        nameof(subpath));
-                }
-
-                if (subpath.EndsWith("/"))
-                {
-                    throw new ArgumentException(
-                        "Path cannot be a directory.",
-                        nameof(subpath));
-                }
-
-                if (subpath.Contains("//"))
-                {
-                    throw new ArgumentException(
-                        "Path cannot include consecutive '/'.",
-                        nameof(subpath));
-                }
-
-                if (InvalidCharacters.Any(subpath.Contains))
-                {
-                    throw new ArgumentException(
-                        "Path cannot include any characters in  '/'.",
-                        nameof(subpath));
-                }
-
-                _path = subpath;
-            }
-
-            public string GetFileName()
-            {
-                return System.IO.Path.GetFileName(_path);
-            }
-
-            public string Normalize()
-            {
-                return _unusablePathChars.Replace(_path, "__");
-            }
-
-            public string GetLiteral()
-            {
-                return _path;
-            }
+        public IChangeToken Watch(string filter)
+        {
+            return NullChangeToken.Singleton;
         }
     }
 }

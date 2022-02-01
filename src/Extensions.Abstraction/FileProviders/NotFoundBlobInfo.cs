@@ -17,7 +17,7 @@ namespace Microsoft.Extensions.FileProviders
             throw new FileNotFoundException("Blob does not exist.");
         }
 
-        public Task<Stream> CreateReadStreamAsync(bool cached = false)
+        public Task<Stream> CreateReadStreamAsync(bool? cached)
         {
             return Task.FromResult(base.CreateReadStream());
         }
