@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.FileProviders
 {
-    public class NotFoundBlobInfo : NotFoundFileInfo, IBlobInfo
+    public class NotFoundBlobInfo : NotFoundFileInfo, IBlobInfo, IBlobFileInfo
     {
         public bool HasDirectLink => false;
 

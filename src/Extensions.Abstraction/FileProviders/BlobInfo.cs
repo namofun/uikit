@@ -54,4 +54,11 @@ namespace Microsoft.Extensions.FileProviders
         /// <returns>The file stream</returns>
         Task<Stream> CreateReadStreamAsync(bool cached = false);
     }
+
+    /// <summary>
+    /// Combination interface for <see cref="IBlobInfo"/> and <see cref="IFileInfo"/>.
+    /// </summary>
+    internal interface IBlobFileInfo : IBlobInfo, IFileInfo
+    {
+    }
 }

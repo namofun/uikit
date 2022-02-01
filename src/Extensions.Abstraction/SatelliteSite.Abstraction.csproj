@@ -31,4 +31,10 @@
     <PackageReference Include="System.Net.Http.Json" Version="$(SystemNetHttpJsonVersion)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>SatelliteSite.AzureCloud</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
 </Project>

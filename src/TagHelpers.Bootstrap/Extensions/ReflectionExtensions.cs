@@ -3,8 +3,6 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("SatelliteSite.HostBuilder")]
-
 internal static class ReflectionExtensions
 {
     const BindingFlags FindPrivate = BindingFlags.Instance | BindingFlags.NonPublic;

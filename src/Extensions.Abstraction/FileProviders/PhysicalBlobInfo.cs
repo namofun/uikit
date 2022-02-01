@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.FileProviders.Physical
 {
-    public class PhysicalBlobInfo : PhysicalFileInfo, IBlobInfo
+    public class PhysicalBlobInfo : PhysicalFileInfo, IBlobInfo, IBlobFileInfo
     {
         public bool HasDirectLink => false;
 
