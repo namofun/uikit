@@ -1,10 +1,13 @@
 ﻿using Azure.Storage.Files.Shares;
 using Azure.Storage.Files.Shares.Models;
 using System;
+using System.ComponentModel;
 using System.IO;
 
 namespace Microsoft.Extensions.FileProviders.AzureFileShare
 {
+    [Obsolete("Did not test through")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class AzureFileShareFileInfo : IFileInfo
     {
         private readonly ShareFileClient _fileClient;

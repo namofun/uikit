@@ -2,6 +2,7 @@
 using Azure.Storage.Files.Shares.Models;
 using Microsoft.Extensions.Primitives;
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -10,6 +11,8 @@ namespace Microsoft.Extensions.FileProviders.AzureFileShare
     /// <summary>
     /// A read-write file provider over Azure Storage File Share.
     /// </summary>
+    [Obsolete("Did not test through")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class AzureFileShareProvider : IFileProvider, IWritableFileProvider
     {
         private readonly ShareDirectoryClient _rootDirectory;

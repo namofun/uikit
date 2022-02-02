@@ -2,10 +2,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 
 namespace Microsoft.Extensions.FileProviders.AzureFileShare
 {
+    [Obsolete("Did not test through")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public class AzureFileShareDirectoryContents : IFileInfo, IDirectoryContents
     {
         private readonly ShareDirectoryClient _directory;
