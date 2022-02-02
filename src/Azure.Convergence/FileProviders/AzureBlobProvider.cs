@@ -17,18 +17,21 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
         private readonly AccessTier? _defaultAccessTier;
         private readonly bool _allowAutoCache;
         private readonly IContentTypeProvider _contentTypeProvider;
+        private readonly string[]? _allowedRanges;
 
         public AzureBlobProvider(
             BlobContainerClient client,
             string localFileCachePath,
             AccessTier? defaultAccessTier = default,
             bool allowAutoCache = false,
+            string[]? allowedRanges = null,
             IContentTypeProvider? contentTypeProvider = null)
         {
             _client = client;
             _localCachePath = localFileCachePath;
             _defaultAccessTier = defaultAccessTier;
             _allowAutoCache = allowAutoCache;
+            _allowedRanges = allowedRanges;
             _contentTypeProvider = contentTypeProvider ?? new FileExtensionContentTypeProvider();
         }
 
@@ -40,6 +43,11 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
         private async ValueTask<IBlobFileInfo> InternalGetFileInfo(string _subpath, bool async)
         {
             StrongPath subpath = new(_subpath);
+            if (!PermissionControl.IsAllowedFile(_allowedRanges, subpath.GetLiteral()))
+            {
+                return new NotFoundBlobInfo(subpath.GetFileName());
+            }
+
             BlobClient blob = this.GetBlobClient(subpath);
             if (!(async ? await blob.ExistsAsync().ConfigureAwait(false) : blob.Exists()))
             {
@@ -88,8 +96,12 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
         private async Task<IBlobInfo> WriteBinaryDataAsync(string _subpath, BinaryData content, string mime)
         {
             StrongPath subpath = new(_subpath);
-            byte[] contentHash = MD5.HashData(content.ToMemory().Span);
+            if (!PermissionControl.IsAllowedFile(_allowedRanges, subpath.GetLiteral()))
+            {
+                throw new InvalidOperationException("Permission denied when writing path.");
+            }
 
+            byte[] contentHash = MD5.HashData(content.ToMemory().Span);
             BlobClient blob = this.GetBlobClient(subpath);
             BlobContentInfo contentInfo = await blob
                 .UploadAsync(content, CreateOptions(mime))
@@ -113,6 +125,11 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
         {
             StrongPath subpath = new(_subpath);
             string tempFile = Path.GetTempFileName();
+            
+            if (!PermissionControl.IsAllowedFile(_allowedRanges, subpath.GetLiteral()))
+            {
+                throw new InvalidOperationException("Permission denied when writing path.");
+            }
 
             try
             {
@@ -189,15 +206,26 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
             StrongPath.EnsureValidPath_Length(subpath, includeZero: true);
             StrongPath.EnsureValidPath_Characters(subpath);
 
-            if (!(_client
+            if (!PermissionControl.IsAllowedDirectory(_allowedRanges, subpath))
+            {
+                return NotFoundDirectoryContents.Singleton;
+            }
+            else if (!(_client
                 .GetBlobsByHierarchy(BlobTraits.None, BlobStates.None, "/", subpath.TrimStart('/'))
                 .AsPages(pageSizeHint: 1)
                 .FirstOrDefault()?.Values.Any() ?? false))
             {
                 return new NotFoundDirectoryContents();
             }
-
-            return new AzureBlobDirectoryContents(_client, subpath, _localCachePath, _allowAutoCache);
+            else
+            {
+                return new AzureBlobDirectoryContents(
+                    _client,
+                    subpath,
+                    _localCachePath,
+                    _allowAutoCache,
+                    _allowedRanges);
+            }
         }
 
         public IChangeToken Watch(string filter)

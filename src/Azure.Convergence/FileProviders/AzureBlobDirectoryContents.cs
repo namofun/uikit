@@ -13,17 +13,20 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
         private readonly string _directoryPath;
         private readonly string _localCachePath;
         private readonly bool _allowAutoCache;
+        private readonly string[]? _allowedRanges;
 
         public AzureBlobDirectoryContents(
             BlobContainerClient client,
             string directoryPath,
             string localCachePath,
-            bool allowAutoCache)
+            bool allowAutoCache,
+            string[]? allowedRanges)
         {
             _client = client;
             _directoryPath = directoryPath;
             _localCachePath = localCachePath;
             _allowAutoCache = allowAutoCache;
+            _allowedRanges = allowedRanges;
         }
 
         public bool Exists => true;
@@ -47,15 +50,16 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
                     delimiter: "/",
                     prefix: _directoryPath.TrimStart('/')))
             {
-                if (blobItem.IsPrefix)
+                if (blobItem.IsPrefix && PermissionControl.IsAllowedDirectory(_allowedRanges, blobItem.Prefix))
                 {
                     yield return new AzureBlobDirectoryContents(
                         _client,
                         blobItem.Prefix,
                         _localCachePath,
-                        _allowAutoCache);
+                        _allowAutoCache,
+                        _allowedRanges);
                 }
-                else if (blobItem.IsBlob)
+                else if (blobItem.IsBlob && PermissionControl.IsAllowedFile(_allowedRanges, blobItem.Blob.Name))
                 {
                     StrongPath subpath = new(blobItem.Blob.Name);
                     yield return new AzureBlobInfo(

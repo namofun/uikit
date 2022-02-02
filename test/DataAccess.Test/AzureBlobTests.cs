@@ -17,13 +17,14 @@ namespace SatelliteSite.Tests
     {
         private BlobContainerClient blobClient;
 
-        private AzureBlobProvider Create(bool allowAutoCache = false)
+        private AzureBlobProvider Create(bool allowAutoCache = false, string[] allowedRanges = null)
         {
             return new(
                 blobClient,
                 Path.GetFullPath("./BlobContainerTestRoot"),
                 default,
-                allowAutoCache);
+                allowAutoCache,
+                allowedRanges);
         }
 
         [TestInitialize]
@@ -200,27 +201,10 @@ namespace SatelliteSite.Tests
 
             IFileProvider fileProvider = Create();
             void AssertDirectory(string path, string[] fileNames)
-            {
-                IDirectoryContents directory = fileProvider.GetDirectoryContents(path);
-                List<IFileInfo> files = directory.OrderBy(f => f.Name).ToList();
-                Assert.AreEqual(fileNames.Length, files.Count);
-                for (int i = 0; i < fileNames.Length; i++)
-                {
-                    if (fileNames[i].EndsWith('/'))
-                    {
-                        Assert.IsTrue(files[i].IsDirectory);
-                        Assert.IsTrue(files[i] is IDirectoryContents);
-                        Assert.AreEqual(blobClient.Uri + "/" + fileNames[i], files[i].ToString());
-                    }
-                    else
-                    {
-                        Assert.IsFalse(files[i].IsDirectory);
-                        Assert.AreEqual(Path.GetFileName(fileNames[i]), files[i].Name);
-                        Assert.IsTrue(files[i] is IBlobInfo);
-                        Assert.AreEqual(customBlobs[fileNames[i]].Content.Length, files[i].Length);
-                    }
-                }
-            }
+                => AssertDirectoryContents(
+                    fileProvider.GetDirectoryContents(path),
+                    fileNames,
+                    (file, fileName) => Assert.AreEqual(customBlobs[fileName].Content.Length, file.Length));
 
             AssertDirectory("FolderA/1x/", new[]
             {
@@ -244,6 +228,46 @@ namespace SatelliteSite.Tests
             });
         }
 
+        [TestMethod]
+        public async Task PermissionControl()
+        {
+            await ClearBlobFiles();
+
+            Dictionary<string, (byte[] Content, byte[] Hash)> customBlobs = new();
+            string[] blobNames = new[]
+            {
+                "a/b/c/d/e",
+                "a/b/d/e",
+                "a/c",
+                "b/c/d",
+                "d/e/f",
+                "a/b/c/e/f",
+            };
+
+            for (int i = 0; i < blobNames.Length; i++)
+            {
+                int contentLength = RandomNumberGenerator.GetInt32(100, 400);
+                byte[] content = RandomNumberGenerator.GetBytes(contentLength);
+                byte[] hash = content.ToMD5();
+
+                customBlobs[blobNames[i]] = (content, hash);
+                await blobClient.UploadBlobAsync(blobNames[i], BinaryData.FromBytes(content));
+            }
+
+            AzureBlobProvider blobProvider = Create(false, new[] { "/a/b/d/", "/a/b/c/d/", "/b/c/" });
+            Assert.IsInstanceOfType(blobProvider.GetFileInfo("a/b/c/d/f"), typeof(NotFoundBlobInfo));
+            Assert.IsInstanceOfType(blobProvider.GetFileInfo("/a/b/c/e/f"), typeof(NotFoundBlobInfo));
+            Assert.IsInstanceOfType(blobProvider.GetFileInfo("a/b/d/e"), typeof(AzureBlobInfo));
+            Assert.IsInstanceOfType(blobProvider.GetFileInfo("/a/b/c/d/e"), typeof(AzureBlobInfo));
+
+            AssertDirectoryContents(blobProvider.GetDirectoryContents("/"), new[] { "a/", "b/" });
+            AssertDirectoryContents(blobProvider.GetDirectoryContents("b/"), new[] { "b/c/" });
+            var dirs = AssertDirectoryContents(blobProvider.GetDirectoryContents("/a/b/"), new[] { "a/b/c/", "a/b/d/" });
+            AssertDirectoryContents((IDirectoryContents)dirs[1], new[] { "a/b/d/e" });
+            var dir2 = AssertDirectoryContents((IDirectoryContents)dirs[0], new[] { "a/b/c/d/" });
+            AssertDirectoryContents((IDirectoryContents)dir2[0], new[] { "a/b/c/d/e" });
+        }
+
         private async Task ClearBlobFiles()
         {
             List<string> blobNames = new();
@@ -256,6 +280,35 @@ namespace SatelliteSite.Tests
             {
                 await blobClient.DeleteBlobAsync(blobName);
             }
+        }
+
+        private List<IFileInfo> AssertDirectoryContents(
+            IDirectoryContents directory,
+            string[] fileNames,
+            Action<IFileInfo, string> fileAction = null,
+            Action<IFileInfo, string> directoryAction = null)
+        {
+            List<IFileInfo> files = directory.OrderBy(f => f.Name).ToList();
+            Assert.AreEqual(fileNames.Length, files.Count);
+            for (int i = 0; i < fileNames.Length; i++)
+            {
+                if (fileNames[i].EndsWith('/'))
+                {
+                    Assert.IsTrue(files[i].IsDirectory);
+                    Assert.IsInstanceOfType(files[i], typeof(IDirectoryContents));
+                    Assert.AreEqual(blobClient.Uri + "/" + fileNames[i], files[i].ToString());
+                    directoryAction?.Invoke(files[i], fileNames[i]);
+                }
+                else
+                {
+                    Assert.IsFalse(files[i].IsDirectory);
+                    Assert.AreEqual(Path.GetFileName(fileNames[i]), files[i].Name);
+                    Assert.IsInstanceOfType(files[i], typeof(IBlobInfo));
+                    fileAction?.Invoke(files[i], fileNames[i]);
+                }
+            }
+
+            return files;
         }
     }
 }
