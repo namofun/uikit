@@ -145,6 +145,29 @@ namespace SatelliteSite.Tests
                 Assert.IsTrue(File.Exists(cacheFile));
                 Assert.AreEqual(blobInfo.PhysicalPath, cacheFile);
             }
+
+            byte[] corruptContent = Guid.Parse("87c0fbfd-ca16-499e-aa4a-82ecb63d5d3c").ToByteArray();
+            await File.WriteAllBytesAsync(blobInfo.PhysicalPath, corruptContent);
+
+            using (Stream stream = await blobInfo.CreateReadStreamAsync(true))
+            {
+                byte[] cache = new byte[16];
+                await stream.ReadAsync(cache.AsMemory());
+
+                Assert.IsTrue(corruptContent.SequenceEqual(cache));
+                Assert.IsTrue(File.Exists(cacheFile));
+                Assert.AreEqual(blobInfo.PhysicalPath, cacheFile);
+            }
+
+            using (Stream stream = await blobInfo.CreateReadStreamAsync(false))
+            {
+                byte[] cache = new byte[16];
+                await stream.ReadAsync(cache.AsMemory());
+
+                Assert.IsTrue(content.SequenceEqual(cache));
+                Assert.IsTrue(File.Exists(cacheFile));
+                Assert.AreEqual(blobInfo.PhysicalPath, cacheFile);
+            }
         }
     }
 }

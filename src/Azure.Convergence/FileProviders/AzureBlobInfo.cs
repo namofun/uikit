@@ -63,18 +63,18 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
 
         private async ValueTask<Stream> InternalCreateReadStream(bool autoCache, bool async)
         {
-            if (File.Exists(CachePath))
+            if (autoCache)
             {
-                return new FileStream(CachePath, FileMode.Open, FileAccess.Read, FileShare.Delete);
-            }
-            else if (autoCache)
-            {
-                string tempFile = Path.GetTempFileName();
-                using Response resp = async
-                    ? await Client.DownloadToAsync(tempFile).ConfigureAwait(false)
-                    : Client.DownloadTo(tempFile);
+                if (!File.Exists(CachePath))
+                {
+                    string tempFile = Path.GetTempFileName();
+                    using Response resp = async
+                        ? await Client.DownloadToAsync(tempFile).ConfigureAwait(false)
+                        : Client.DownloadTo(tempFile);
 
-                File.Move(tempFile, CachePath, overwrite: true);
+                    File.Move(tempFile, CachePath, overwrite: true);
+                }
+
                 return new FileStream(CachePath, FileMode.Open, FileAccess.Read, FileShare.Delete);
             }
             else
