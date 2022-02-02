@@ -96,5 +96,10 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
         {
             return await InternalCreateReadStream(cached ?? AutoCache, async: true).ConfigureAwait(false);
         }
+
+        public override string ToString()
+        {
+            return Client.Uri.ToString();
+        }
     }
 }

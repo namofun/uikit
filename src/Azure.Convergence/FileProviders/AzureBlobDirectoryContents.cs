@@ -34,7 +34,7 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
 
         long IFileInfo.Length => -1;
 
-        string IFileInfo.Name => _directoryPath == "/" ? "/" : Path.GetFileName(_directoryPath.TrimEnd('/'));
+        string IFileInfo.Name => string.Empty;
 
         string? IFileInfo.PhysicalPath => null;
 
@@ -42,10 +42,10 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
         {
             foreach (BlobHierarchyItem blobItem in
                 _client.GetBlobsByHierarchy(
-                    BlobTraits.Metadata | BlobTraits.Tags,
+                    BlobTraits.Metadata,
                     BlobStates.None,
                     delimiter: "/",
-                    prefix: _directoryPath))
+                    prefix: _directoryPath.TrimStart('/')))
             {
                 if (blobItem.IsPrefix)
                 {
@@ -77,6 +77,11 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public override string ToString()
+        {
+            return _client.Uri + "/" + _directoryPath;
         }
     }
 }

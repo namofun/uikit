@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 namespace SatelliteSite.Tests
@@ -167,6 +168,93 @@ namespace SatelliteSite.Tests
                 Assert.IsTrue(content.SequenceEqual(cache));
                 Assert.IsTrue(File.Exists(cacheFile));
                 Assert.AreEqual(blobInfo.PhysicalPath, cacheFile);
+            }
+        }
+
+        [TestMethod]
+        public async Task DirectoryContents()
+        {
+            await ClearBlobFiles();
+
+            Dictionary<string, (byte[] Content, byte[] Hash)> customBlobs = new();
+            string[] blobNames = new[]
+            {
+                "FolderA/1x.json",
+                "FolderA/2x.json",
+                "FolderA/1x/json",
+                "root.json",
+                "FolderA/1x/json2",
+                "FolderB/2f.json",
+                "FolderA/1y/2f.json",
+            };
+
+            for (int i = 0; i < blobNames.Length; i++)
+            {
+                int contentLength = RandomNumberGenerator.GetInt32(100, 400);
+                byte[] content = RandomNumberGenerator.GetBytes(contentLength);
+                byte[] hash = content.ToMD5();
+
+                customBlobs[blobNames[i]] = (content, hash);
+                await blobClient.UploadBlobAsync(blobNames[i], BinaryData.FromBytes(content));
+            }
+
+            IFileProvider fileProvider = Create();
+            void AssertDirectory(string path, string[] fileNames)
+            {
+                IDirectoryContents directory = fileProvider.GetDirectoryContents(path);
+                List<IFileInfo> files = directory.OrderBy(f => f.Name).ToList();
+                Assert.AreEqual(fileNames.Length, files.Count);
+                for (int i = 0; i < fileNames.Length; i++)
+                {
+                    if (fileNames[i].EndsWith('/'))
+                    {
+                        Assert.IsTrue(files[i].IsDirectory);
+                        Assert.IsTrue(files[i] is IDirectoryContents);
+                        Assert.AreEqual(blobClient.Uri + "/" + fileNames[i], files[i].ToString());
+                    }
+                    else
+                    {
+                        Assert.IsFalse(files[i].IsDirectory);
+                        Assert.AreEqual(Path.GetFileName(fileNames[i]), files[i].Name);
+                        Assert.IsTrue(files[i] is IBlobInfo);
+                        Assert.AreEqual(customBlobs[fileNames[i]].Content.Length, files[i].Length);
+                    }
+                }
+            }
+
+            AssertDirectory("FolderA/1x/", new[]
+            {
+                "FolderA/1x/json",
+                "FolderA/1x/json2",
+            });
+
+            AssertDirectory("/FolderA/", new[]
+            {
+                "FolderA/1x/",
+                "FolderA/1y/",
+                "FolderA/1x.json",
+                "FolderA/2x.json",
+            });
+
+            AssertDirectory("/", new[]
+            {
+                "FolderA/",
+                "FolderB/",
+                "root.json",
+            });
+        }
+
+        private async Task ClearBlobFiles()
+        {
+            List<string> blobNames = new();
+            await foreach (BlobItem blob in blobClient.GetBlobsAsync())
+            {
+                blobNames.Add(blob.Name);
+            }
+
+            foreach (string blobName in blobNames)
+            {
+                await blobClient.DeleteBlobAsync(blobName);
             }
         }
     }

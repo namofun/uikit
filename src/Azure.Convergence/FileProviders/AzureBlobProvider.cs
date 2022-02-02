@@ -189,10 +189,10 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
             StrongPath.EnsureValidPath_Length(subpath, includeZero: true);
             StrongPath.EnsureValidPath_Characters(subpath);
 
-            if (!_client
-                .GetBlobsByHierarchy(BlobTraits.None, BlobStates.None, "/", subpath)
+            if (!(_client
+                .GetBlobsByHierarchy(BlobTraits.None, BlobStates.None, "/", subpath.TrimStart('/'))
                 .AsPages(pageSizeHint: 1)
-                .Any())
+                .FirstOrDefault()?.Values.Any() ?? false))
             {
                 return new NotFoundDirectoryContents();
             }
