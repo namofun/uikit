@@ -259,6 +259,7 @@ namespace SatelliteSite.Tests
             Assert.IsInstanceOfType(blobProvider.GetFileInfo("/a/b/c/e/f"), typeof(NotFoundBlobInfo));
             Assert.IsInstanceOfType(blobProvider.GetFileInfo("a/b/d/e"), typeof(AzureBlobInfo));
             Assert.IsInstanceOfType(blobProvider.GetFileInfo("/a/b/c/d/e"), typeof(AzureBlobInfo));
+            Assert.ThrowsException<ArgumentException>(() => blobProvider.GetFileInfo("/a/b/c/d/../e/f"), "Path cannot include '/../'.");
 
             AssertDirectoryContents(blobProvider.GetDirectoryContents("/"), new[] { "a/", "b/" });
             AssertDirectoryContents(blobProvider.GetDirectoryContents("b/"), new[] { "b/c/" });

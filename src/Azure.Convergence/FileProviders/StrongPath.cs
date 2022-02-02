@@ -61,6 +61,20 @@ namespace Microsoft.Extensions.FileProviders
                     nameof(subpath));
             }
 
+            if (subpath.Contains("/../"))
+            {
+                throw new ArgumentException(
+                    "Path cannot include '/../'.",
+                    nameof(subpath));
+            }
+
+            if (subpath.Contains("/./"))
+            {
+                throw new ArgumentException(
+                    "Path cannot include '/./'.",
+                    nameof(subpath));
+            }
+
             if (InvalidCharacters.Any(subpath.Contains))
             {
                 throw new ArgumentException(
