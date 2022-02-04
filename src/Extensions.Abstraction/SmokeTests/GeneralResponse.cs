@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace SatelliteSite.Models
+namespace Microsoft.Extensions.Diagnostics.SmokeTests
 {
     /// <summary>
     /// The model class for general response.

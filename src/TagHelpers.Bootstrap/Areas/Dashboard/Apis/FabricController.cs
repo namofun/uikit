@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.SmokeTests;
-using SatelliteSite.Models;
 using SatelliteSite.Services;
 using System;
 using System.Collections.Generic;

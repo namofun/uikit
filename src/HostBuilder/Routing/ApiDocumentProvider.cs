@@ -5,7 +5,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using System.Globalization;
 using System.IO;
 
-namespace SatelliteSite.Services
+namespace Microsoft.AspNetCore.Mvc.ApiExplorer
 {
     public class ApiDocumentProvider : IApiDocumentProvider
     {

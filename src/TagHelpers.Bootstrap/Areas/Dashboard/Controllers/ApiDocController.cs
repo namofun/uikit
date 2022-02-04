@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SatelliteSite.Services;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 namespace SatelliteSite.Substrate.Dashboards
 {

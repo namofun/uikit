@@ -1,4 +1,4 @@
-﻿namespace SatelliteSite.Services
+﻿namespace Microsoft.AspNetCore.Mvc.ApiExplorer
 {
     /// <summary>
     /// Provides the API documents.
