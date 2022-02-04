@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Microsoft.AspNetCore.Authentication.EasyAuth
@@ -52,7 +52,7 @@ namespace Microsoft.AspNetCore.Authentication.EasyAuth
 
             byte[] decodedBytes = Convert.FromBase64String(msClientPrincipalEncoded);
             string msClientPrincipalDecoded = Encoding.Default.GetString(decodedBytes);
-            return JsonConvert.DeserializeObject<EasyAuthClientPrincipal>(msClientPrincipalDecoded);
+            return JsonSerializer.Deserialize<EasyAuthClientPrincipal>(msClientPrincipalDecoded);
         }
 
         private Claim? MapClaims(EasyAuthClientPrincipal.UserClaim claim)

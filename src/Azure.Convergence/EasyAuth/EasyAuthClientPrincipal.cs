@@ -1,29 +1,29 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Microsoft.AspNetCore.Authentication.EasyAuth
 {
     public class EasyAuthClientPrincipal
     {
-        [JsonProperty("auth_typ")]
+        [JsonPropertyName("auth_typ")]
         public string AuthenticationType { get; set; } = null!;
 
-        [JsonProperty("claims")]
+        [JsonPropertyName("claims")]
         public IEnumerable<UserClaim> Claims { get; set; } = Array.Empty<UserClaim>();
 
-        [JsonProperty("name_typ")]
+        [JsonPropertyName("name_typ")]
         public string NameType { get; set; } = null!;
 
-        [JsonProperty("role_typ")]
+        [JsonPropertyName("role_typ")]
         public string RoleType { get; set; } = null!;
 
         public class UserClaim
         {
-            [JsonProperty("typ")]
+            [JsonPropertyName("typ")]
             public string Type { get; set; } = null!;
 
-            [JsonProperty("val")]
+            [JsonPropertyName("val")]
             public string Value { get; set; } = null!;
         }
     }
