@@ -28,8 +28,18 @@ namespace idunno.Authentication.Basic
         /// </remarks>
         public Func<ValidateCredentialsContext, Task> OnValidateCredentials { get; set; } = context => Task.CompletedTask;
 
+        /// <summary>
+        /// Handles the event of authentication failure.
+        /// </summary>
+        /// <param name="context">The failure context.</param>
+        /// <returns>The task for processing.</returns>
         public virtual Task AuthenticationFailed(BasicAuthenticationFailedContext context) => OnAuthenticationFailed(context);
 
+        /// <summary>
+        /// Handles the event of authentication validation.
+        /// </summary>
+        /// <param name="context">The validation context.</param>
+        /// <returns>The task for processing.</returns>
         public virtual Task ValidateCredentials(ValidateCredentialsContext context) => OnValidateCredentials(context);
     }
 }
