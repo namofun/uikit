@@ -33,7 +33,7 @@
 
   <ItemGroup>
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-      <_Parameter1>SatelliteSite.AzureCloud</_Parameter1>
+      <_Parameter1>SatelliteSite.AzureCloud, PublicKey=0024000004800000940000000602000000240000525341310004000001000100352bb290549e679776d8b8bf751410fb72828cde0a1bcc5b49646ee8a9e6a2a449702e2093b4f40c168698dcffc70b181fc711ecf7f8b195cb02c0c4655dfee14540a99e83069e12532d09491022bcba5216b2613f9419b4ba4faabe96ab4d2a8eff5189bc23f7010bf7bff6134dd1c14c0d871d707c3eacc3092413aa2160b0</_Parameter1>
     </AssemblyAttribute>
   </ItemGroup>
 
