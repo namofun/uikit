@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SatelliteSite.IdentityModule.Entities;
-using SatelliteSite.Services;
 
 namespace SatelliteSite
 {
@@ -26,8 +25,6 @@ namespace SatelliteSite
                 .AddApplicationInsights()
                 .AddModule<IdentityModule.IdentityModule<User, Role, DefaultContext>>()
                 .AddModule<SampleModule.SampleModule>()
-                .AddModule<TelemetryModule.TelemetryModule>()
-                .AddModule<JobsModule.JobsModule<User, DefaultContext>>()
                 .AddDatabase<DefaultContext>((c, b) => b.UseSqlServer(c.GetConnectionString("UserDbConnection"), b => b.UseBulk()))
                 .ConfigureSubstrateDefaults<DefaultContext>(builder =>
                 {
@@ -43,12 +40,6 @@ namespace SatelliteSite
                         services.ConfigureApplicationBuilder(options =>
                         {
                             options.GravatarMirror = "//gravatar.zeruns.tech/avatar/";
-                        });
-
-                        services.Configure<ApplicationInsightsDisplayOptions>(options =>
-                        {
-                            options.ApiKey = ctx.Configuration["AppInsights:Key"] ?? "DEMO_KEY";
-                            options.ApplicationId = ctx.Configuration["AppInsights:App"] ?? "DEMO_APP";
                         });
 
                         services.Configure<Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions>(options =>

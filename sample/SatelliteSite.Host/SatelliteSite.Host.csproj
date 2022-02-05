@@ -11,8 +11,6 @@
     <ProjectReference Include="..\..\src\Azure.Convergence\SatelliteSite.AzureCloud.csproj" />
     <ProjectReference Include="..\..\src\Extensions.IdentityModel\SatelliteSite.IdentityModule.csproj" />
     <ProjectReference Include="..\..\src\HostBuilder\SatelliteSite.HostBuilder.csproj" />
-    <ProjectReference Include="..\..\src\Jobs.Module\SatelliteSite.JobsModule.csproj" />
-    <ProjectReference Include="..\..\src\Telemetry\SatelliteSite.TelemetryModule.csproj" />
     <ProjectReference Include="..\SatelliteSite.SampleConnector\SatelliteSite.SampleConnector.csproj" />
     <ProjectReference Include="..\SatelliteSite.SampleModule\SatelliteSite.SampleModule.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="$(AspNetCoreVersion)" />

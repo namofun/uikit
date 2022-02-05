@@ -91,7 +91,6 @@ namespace SatelliteSite.Tests
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Routing.TrackAvailabilityMetadata]::[Default]"] = "Constant Object",
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Routing.TrackAvailabilityMetadata]::[ErrorHandler]"] = "Constant Object",
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Routing.TrackAvailabilityMetadata]::[Fallback]"] = "Constant Object",
-                ["[SatelliteSite.TelemetryModule]::[SatelliteSite.TelemetryModule.Services.TelemetryDataClient]::[_batchRequestFailed]"] = "Logger Definition",
             };
 
             int errorCount = 0;
