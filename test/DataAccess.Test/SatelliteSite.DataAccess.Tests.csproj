@@ -15,6 +15,7 @@
     <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.PostgreSql" Version="$(EFCoreBulkVersion)" />
     <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.Sqlite" Version="$(EFCoreBulkVersion)" />
     <PackageReference Include="XiaoYang.EntityFrameworkCore.Bulk.MySql" Version="$(EFCoreBulkVersion)" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="$(EFCoreVersion)" />
   </ItemGroup>
 
   <ItemGroup>
