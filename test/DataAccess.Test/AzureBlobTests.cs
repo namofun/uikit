@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
@@ -170,6 +171,19 @@ namespace SatelliteSite.Tests
                 Assert.IsTrue(File.Exists(cacheFile));
                 Assert.AreEqual(blobInfo.PhysicalPath, cacheFile);
             }
+        }
+
+        [TestMethod]
+        public async Task DirectLink()
+        {
+            IBlobProvider blobProvider = Create();
+            IBlobInfo file = await blobProvider.WriteStringAsync("/DirectLink.txt", "hello, dl!", "text/plain");
+
+            Assert.IsTrue(file.HasDirectLink);
+
+            Uri url = await file.CreateDirectLinkAsync(TimeSpan.FromMinutes(1));
+            using HttpClient httpClient = new();
+            Assert.AreEqual("hello, dl!", await httpClient.GetStringAsync(url));
         }
 
         [TestMethod]
