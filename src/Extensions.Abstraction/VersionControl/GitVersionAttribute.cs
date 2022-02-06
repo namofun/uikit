@@ -37,6 +37,9 @@ namespace System
         /// <param name="Folder">The input parameter for <c>/some/root/solution/.git</c>.</param>
         /// <param name="Branch">The branch id.</param>
         /// <param name="CommitId">The commit id.</param>
+        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+        [global::System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Delete unused member", Justification = "Keep compiled")]
+        [global::System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0057:Use range operator", Justification = "Keep compiled")]
         private static void MSBuildFunction(string Folder, out string Branch, out string CommitId)
         {
             Branch = "unknown";

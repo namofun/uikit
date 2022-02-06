@@ -176,6 +176,8 @@ namespace SatelliteSite.Tests
                 await interceptor.TransactionFailedAsync(t, new(null, null, t, ctx, t.Id, conId, true, "Rollback", new Exception(), time, span));
 
                 // no-op
+                await interceptor.CreatedSavepointAsync(null, null);
+                await interceptor.CreatingSavepointAsync(null, null, default);
                 await interceptor.ReleasedSavepointAsync(null, null);
                 await interceptor.ReleasingSavepointAsync(null, null, default);
                 await interceptor.RolledBackToSavepointAsync(null, null);
