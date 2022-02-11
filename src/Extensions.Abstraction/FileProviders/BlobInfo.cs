@@ -44,8 +44,15 @@ namespace Microsoft.Extensions.FileProviders
         /// Creates a direct link for two hour access.
         /// </summary>
         /// <param name="validPeriod">The valid time period.</param>
+        /// <param name="desiredDownloadName">Desired file download name. May not apply in some situation.</param>
+        /// <param name="desiredContentType">Desired content type. May not apply in some situation.</param>
+        /// <param name="correlationId">The correlation ID to save logs for audit.</param>
         /// <returns>The link to access file without permission.</returns>
-        Task<Uri> CreateDirectLinkAsync(TimeSpan validPeriod);
+        Task<Uri> CreateDirectLinkAsync(
+            TimeSpan validPeriod,
+            string? desiredDownloadName = null,
+            string? desiredContentType = null,
+            string? correlationId = null);
 
         /// <summary>
         /// Return file contents as readonly stream. Caller should dispose stream when complete.

@@ -75,8 +75,13 @@ namespace SatelliteSite.Tests
             public bool IsDirectory => false;
             public bool HasDirectLink => false;
             public Stream CreateReadStream() => new MemoryStream(_content, false);
-            public Task<Uri> CreateDirectLinkAsync(TimeSpan validPeriod) => throw new NotSupportedException();
             public Task<Stream> CreateReadStreamAsync(bool? cached) => Task.FromResult(CreateReadStream());
+            public Task<Uri> CreateDirectLinkAsync(
+                TimeSpan validPeriod,
+                string? desiredDownloadName = null,
+                string? desiredContentType = null,
+                string? correlationId = null)
+                => throw new NotSupportedException();
         }
 
         private class InMemoryDirectory : IFileInfo, IDirectoryContents, IBlobInfo
@@ -113,8 +118,13 @@ namespace SatelliteSite.Tests
             public Stream CreateReadStream() => throw new InvalidOperationException();
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
             public IEnumerator<IFileInfo> GetEnumerator() => _kvps.Value.GetEnumerator();
-            public Task<Uri> CreateDirectLinkAsync(TimeSpan validPeriod) => throw new InvalidOperationException();
             public Task<Stream> CreateReadStreamAsync(bool? cached) => throw new InvalidOperationException();
+            public Task<Uri> CreateDirectLinkAsync(
+                TimeSpan validPeriod,
+                string? desiredDownloadName = null,
+                string? desiredContentType = null,
+                string? correlationId = null)
+                => throw new NotSupportedException();
         }
 
         public IFileInfo GetFileInfo(string subpath)

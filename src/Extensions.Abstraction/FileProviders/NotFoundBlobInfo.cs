@@ -12,7 +12,11 @@ namespace Microsoft.Extensions.FileProviders
         {
         }
 
-        public Task<Uri> CreateDirectLinkAsync(TimeSpan validPeriod)
+        public Task<Uri> CreateDirectLinkAsync(
+            TimeSpan validPeriod,
+            string? desiredDownloadName = null,
+            string? desiredContentType = null,
+            string? correlationId = null)
         {
             throw new FileNotFoundException("Blob does not exist.");
         }

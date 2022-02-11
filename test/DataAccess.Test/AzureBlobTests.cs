@@ -181,7 +181,7 @@ namespace SatelliteSite.Tests
 
             Assert.IsTrue(file.HasDirectLink);
 
-            Uri url = await file.CreateDirectLinkAsync(TimeSpan.FromMinutes(1));
+            Uri url = await file.CreateDirectLinkAsync(TimeSpan.FromMinutes(1), "my.txt", "application/octet-stream", "aaaabbbbccccdddd");
             using HttpClient httpClient = new();
             Assert.AreEqual("hello, dl!", await httpClient.GetStringAsync(url));
         }

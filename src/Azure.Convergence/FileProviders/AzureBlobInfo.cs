@@ -3,6 +3,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Sas;
 using System;
 using System.IO;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.FileProviders.AzureBlob
@@ -45,14 +46,34 @@ namespace Microsoft.Extensions.FileProviders.AzureBlob
 
         public bool IsDirectory => false;
 
-        public Task<Uri> CreateDirectLinkAsync(TimeSpan validPeriod)
+        public Task<Uri> CreateDirectLinkAsync(
+            TimeSpan validPeriod,
+            string? desiredDownloadName = null,
+            string? desiredContentType = null,
+            string? correlationId = null)
         {
             if (Client.CanGenerateSasUri)
             {
-                return Task.FromResult(
-                    Client.GenerateSasUri(
-                        BlobSasPermissions.Read,
-                        DateTimeOffset.Now + validPeriod));
+                BlobSasBuilder b = new(
+                    BlobSasPermissions.Read,
+                    DateTimeOffset.Now + validPeriod);
+
+                if (!string.IsNullOrEmpty(desiredDownloadName))
+                {
+                    b.ContentDisposition = $"attachment; filename=\"{UrlEncoder.Default.Encode(desiredDownloadName)}\"";
+                }
+
+                if (!string.IsNullOrEmpty(desiredContentType))
+                {
+                    b.ContentType = desiredContentType;
+                }
+
+                if (!string.IsNullOrEmpty(correlationId))
+                {
+                    b.CorrelationId = correlationId;
+                }
+
+                return Task.FromResult(Client.GenerateSasUri(b));
             }
             else
             {
