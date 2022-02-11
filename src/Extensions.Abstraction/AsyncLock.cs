@@ -1,9 +1,21 @@
 ﻿namespace System.Threading.Tasks
 {
     /// <summary>
+    /// The interface for asynchronous locker.
+    /// </summary>
+    public interface IAsyncLock : IDisposable
+    {
+        /// <summary>
+        /// Wait for the critical section.
+        /// </summary>
+        /// <returns>The disposer to release from critical section.</returns>
+        Task<IDisposable> LockAsync();
+    }
+
+    /// <summary>
     /// The locker for asynchronous functions using <see cref="SemaphoreSlim"/>.
     /// </summary>
-    public sealed class AsyncLock : IDisposable
+    public sealed class AsyncLock : IAsyncLock, IDisposable
     {
         /// <summary>
         /// The internal semaphore.
