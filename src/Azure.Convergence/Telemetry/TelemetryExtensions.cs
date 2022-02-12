@@ -12,6 +12,16 @@ namespace Microsoft.AspNetCore.Hosting
 {
     public static class ApplicationInsightsTelemetryExtensions
     {
+        /// <summary>
+        /// Adds Azure Application Insights as telemetry and correlation source.
+        /// </summary>
+        /// <param name="services">The service collection to enable application insights.</param>
+        /// <returns>The service collection to chain configure calls.</returns>
+        /// <remarks>
+        /// Setting up several environment variables would help debugging.
+        /// <list type="bullet"><c>APPINSIGHTS_CLOUDROLE</c> for setting cloud role.</list>
+        /// <list type="bullet"><c>APPINSIGHTS_CLOUDROLEINSTANCE</c> for setting cloud role instance.</list>
+        /// </remarks>
         public static IServiceCollection AddApplicationInsights(this IServiceCollection services)
         {
             services.AddApplicationInsightsTelemetry();
@@ -36,6 +46,16 @@ namespace Microsoft.AspNetCore.Hosting
             return services;
         }
 
+        /// <summary>
+        /// Adds Azure Application Insights as telemetry and correlation source.
+        /// </summary>
+        /// <param name="hostBuilder">The builder of host to enable application insights.</param>
+        /// <returns>The host builder to chain configure calls.</returns>
+        /// <remarks>
+        /// Setting up several environment variables would help debugging.
+        /// <list type="bullet"><c>APPINSIGHTS_CLOUDROLE</c> for setting cloud role.</list>
+        /// <list type="bullet"><c>APPINSIGHTS_CLOUDROLEINSTANCE</c> for setting cloud role instance.</list>
+        /// </remarks>
         public static IHostBuilder AddApplicationInsights(this IHostBuilder hostBuilder)
         {
             return hostBuilder.ConfigureServices(services => services.AddApplicationInsights());

@@ -114,7 +114,7 @@ namespace Microsoft.AspNetCore.Mvc
             services.AddSingleton(typeof(IResettableSignal<>), typeof(SemaphoreSlimResettableSignal<>));
 
             if (!string.IsNullOrWhiteSpace(Environment.WebRootPath))
-                services.AddSingleton<IWwwrootFileProvider>(
+                services.TryAddSingleton<IWwwrootFileProvider>(
                     new PhysicalWwwrootProvider(Environment.WebRootPath));
 
             services.AddSession(options => options.Cookie.IsEssential = true);
