@@ -1,11 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace Microsoft.AspNetCore.Authentication.EasyAuth
+﻿namespace Microsoft.AspNetCore.Authentication.EasyAuth
 {
     public class EasyAuthAuthenticationOptions : AuthenticationSchemeOptions
     {
-        public IReadOnlyList<EasyAuthClientPrincipal.UserClaim>? DeveloperMode { get; set; }
-
         public string? LoginUrl { get; set; }
 
         public string? LogoutUrl { get; set; }

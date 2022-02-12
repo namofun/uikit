@@ -7,34 +7,27 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SatelliteSite;
-using SatelliteSite.Services;
 using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 [assembly: RoleDefinition(1, "Administrator", "admin", "Administrative User")]
 [assembly: RoleDefinition(2, "Blocked", "blocked", "Blocked User")]
 [assembly: ConfigurationBoolean(0, "Identity", "enable_register", true, "Whether to allow user self registration.")]
-[assembly: TypeForwardedTo(typeof(Microsoft.AspNetCore.Authorization.AcceptancePolicyBuilder))]
-[assembly: TypeForwardedTo(typeof(Microsoft.AspNetCore.Authorization.IAuthorizationPolicyContainer))]
-[assembly: TypeForwardedTo(typeof(SatelliteSite.IAuthorizationPolicyRegistry))]
 
 namespace SatelliteSite.IdentityModule
 {
-    public class IdentityModule<TUser, TRole, TContext> : AbstractModule, IAuthorizationPolicyRegistry
+    public class IdentityModule<TUser, TRole, TContext> : BaseAuthModule, IAuthorizationPolicyRegistry
         where TUser : Entities.User, new()
         where TRole : Entities.Role, new()
         where TContext : Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityDbContext<TUser, TRole, int>
     {
         public override string Area => "Account";
 
-        public override bool ProvideIdentity => true;
-
         public override void Initialize()
         {
         }
 
-        public override void RegisterServices(IServiceCollection services)
+        protected override void RegisterOtherServices(IServiceCollection services)
         {
             services.AddIdentity<TUser, TRole>(
                 options =>
@@ -77,9 +70,6 @@ namespace SatelliteSite.IdentityModule
             services.AddSingleton<ISignInSlideExpiration, DefaultSignInSlideExpiration<TUser>>();
             services.TryAddSingleton(typeof(IUserInformationCache<>), typeof(MemoryUserInformationCache<>));
 
-            services.AddAuthentication().AddBasic();
-            services.AddAuthorization();
-            services.ConfigureOptions<AuthorizationPolicyRegistryConfigurator>();
             services.ConfigureOptions<SubstrateSiteNameConfigurator>();
             services.ConfigureOptions<IdentityAdvancedConfigurator>();
             services.ConfigureOptions<AuthenticateSchemeConfigurator>();
@@ -95,6 +85,11 @@ namespace SatelliteSite.IdentityModule
             {
                 services.ReplaceScoped<IUserInformationProvider, DefaultUserInformationProvider>();
             }
+        }
+
+        protected override void BuildAuthentication(AuthenticationBuilder builder)
+        {
+            builder.AddBasic();
         }
 
         public override void RegisterEndpoints(IEndpointBuilder endpoints)

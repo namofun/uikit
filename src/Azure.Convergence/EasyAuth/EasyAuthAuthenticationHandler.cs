@@ -26,22 +26,8 @@ namespace Microsoft.AspNetCore.Authentication.EasyAuth
             string? enabledEnv = Environment.GetEnvironmentVariable("WEBSITE_AUTH_ENABLED", EnvironmentVariableTarget.Process);
             if (!string.Equals(enabledEnv, "True", StringComparison.InvariantCultureIgnoreCase))
             {
-                if (Options.DeveloperMode != null)
-                {
-                    authenticationScheme = "develop";
-                    return new EasyAuthClientPrincipal
-                    {
-                        NameType = "name",
-                        RoleType = "role",
-                        AuthenticationType = authenticationScheme,
-                        Claims = Options.DeveloperMode,
-                    };
-                }
-                else
-                {
-                    authenticationScheme = null;
-                    return null;
-                }
+                authenticationScheme = null;
+                return null;
             }
 
             authenticationScheme = Context.Request.Headers["X-MS-CLIENT-PRINCIPAL-IDP"].FirstOrDefault();
