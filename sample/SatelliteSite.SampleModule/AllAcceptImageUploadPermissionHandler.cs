@@ -9,7 +9,7 @@ namespace SatelliteSite.SampleModule
     {
         public Task Handle(ImageUploadPermission notification, CancellationToken cancellationToken)
         {
-            notification.Handled = true;
+            notification.Accept(null);
             return Task.CompletedTask;
         }
     }

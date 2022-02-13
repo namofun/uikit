@@ -46,7 +46,7 @@ namespace SatelliteSite.Substrate.Apis
                 {
                     var guid = Guid.NewGuid().ToString("N").Substring(0, 16);
                     fileName = $"{type}{id}.{guid}{ext}";
-                    fileNameFull = "images/problem/" + fileName;
+                    fileNameFull = "images/" + (string.IsNullOrEmpty(request.Category) ? string.Empty : request.Category + "/") + fileName;
                 }
                 while (io.GetFileInfo(fileNameFull).Exists);
 

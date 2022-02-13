@@ -35,7 +35,12 @@ namespace SatelliteSite.Substrate.Dashboards
         /// <summary>
         /// The mark for handling this request
         /// </summary>
-        public bool? Handled { get; set; }
+        public bool? Handled { get; private set; }
+
+        /// <summary>
+        /// The category to storage the picture
+        /// </summary>
+        public string? Category { get; private set; }
 
         /// <summary>
         /// Produce the notification.
@@ -50,6 +55,24 @@ namespace SatelliteSite.Substrate.Dashboards
             Id = id;
             Type = type;
             FormFile = formFile;
+        }
+
+        /// <summary>
+        /// Rejects the uploading request.
+        /// </summary>
+        public void Reject()
+        {
+            Handled = false;
+        }
+
+        /// <summary>
+        /// Accepts the uploading request with specified category.
+        /// </summary>
+        /// <param name="category">The sub-directory name of <c>/images/</c> to upload to. Null if upload directly to <c>/images/</c>.</param>
+        public void Accept(string? category)
+        {
+            Handled = true;
+            Category = category;
         }
     }
 }
