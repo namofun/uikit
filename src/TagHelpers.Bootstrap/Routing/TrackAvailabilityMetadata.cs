@@ -30,12 +30,12 @@
         private TrackAvailabilityMetadata(TrackAvailability level) => Track = level;
 
         /// <summary>The default availability</summary>
-        public static readonly TrackAvailabilityMetadata Default = new TrackAvailabilityMetadata(TrackAvailability.Default);
+        public static readonly TrackAvailabilityMetadata Default = new(TrackAvailability.Default);
 
         /// <summary>The error handler availability</summary>
-        public static readonly TrackAvailabilityMetadata ErrorHandler = new TrackAvailabilityMetadata(TrackAvailability.ErrorHandler);
+        public static readonly TrackAvailabilityMetadata ErrorHandler = new(TrackAvailability.ErrorHandler);
 
         /// <summary>The fallback availability</summary>
-        public static readonly TrackAvailabilityMetadata Fallback = new TrackAvailabilityMetadata(TrackAvailability.Fallback);
+        public static readonly TrackAvailabilityMetadata Fallback = new(TrackAvailability.Fallback);
     }
 }

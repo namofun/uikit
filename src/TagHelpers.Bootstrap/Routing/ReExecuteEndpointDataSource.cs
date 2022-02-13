@@ -18,7 +18,7 @@ namespace Microsoft.AspNetCore.Routing
     /// </summary>
     public class ReExecuteEndpointDataSource : EndpointDataSource
     {
-        private static readonly object _locker = new object();
+        private static readonly object _locker = new();
         private readonly List<(string, RoutePattern, ControllerActionDescriptorWrapper)> _fallbacks;
         private readonly IServiceProvider _serviceProvider;
         private readonly CompositeEndpointDataSource _compositeEndpointDataSource;
@@ -44,11 +44,19 @@ namespace Microsoft.AspNetCore.Routing
         public void Add(string pattern, ControllerActionDescriptorWrapper actionDescriptor)
         {
             if (pattern == null)
+            {
                 throw new ArgumentNullException(nameof(pattern));
+            }
+
             if (actionDescriptor == null)
+            {
                 throw new ArgumentNullException(nameof(actionDescriptor));
+            }
+
             if (_discoveredFallbacks != null)
+            {
                 throw new InvalidOperationException("Patterns can't be added after finalizing endpoint building.");
+            }
 
             _fallbacks.Add((pattern, actionDescriptor.GetPattern(pattern), actionDescriptor));
         }
@@ -72,7 +80,9 @@ namespace Microsoft.AspNetCore.Routing
         private List<RouteEndpoint> CreateEndpointsCore()
         {
             if (_discoveredFallbacks == null)
+            {
                 throw new InvalidOperationException("The re-execute endpoints was requested to be got before finishing discover.");
+            }
 
             var actionDescriptiors = _discoveredFallbacks
                 .Select(a => a.ActionDescriptor)
@@ -89,20 +99,31 @@ namespace Microsoft.AspNetCore.Routing
             foreach (var (name, pattern, descriptor) in _discoveredFallbacks)
             {
                 if (!endpoints.TryGetValue(descriptor, out var oldEndpoint))
+                {
                     throw new InvalidOperationException(
                         "The endpoint to re-execute is not found in original builder.");
+                }
 
                 var metadata = oldEndpoint.Metadata
-                    .Where(a => !(a is ISuppressMatchingMetadata))
+                    .Where(a => a is not ISuppressMatchingMetadata)
                     .Append(TrackAvailabilityMetadata.ErrorHandler);
 
                 newEndpoints.Add(new RouteEndpoint(
-                    oldEndpoint.RequestDelegate ?? throw new InvalidOperationException("No request delegate for original endpoint."),
+                    oldEndpoint.RequestDelegate
+                        ?? throw new InvalidOperationException(
+                            "No request delegate for original endpoint."),
                     pattern,
-                    order: -pattern.PathSegments.Count,
+                    order: -pattern.PathSegments.Count * 4,
                     new EndpointMetadataCollection(metadata),
                     displayName: $"Error Handler {name}"));
             }
+
+            newEndpoints.Add(new RouteEndpoint(
+                context => System.Threading.Tasks.Task.CompletedTask,
+                RoutePatternFactory.Parse("/api/{**slug}"),
+                order: -6, // By default `/{**slug}` = -4, `/api/{**slug}` = -8, just between them
+                new EndpointMetadataCollection(),
+                displayName: "Error Handler /api/{**slug} (No-op)"));
 
             return newEndpoints;
         }

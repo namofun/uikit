@@ -107,5 +107,12 @@ namespace SatelliteSite.SampleModule.Apis
         {
             return NoContent();
         }
+
+
+        [HttpGet("-")]
+        public IActionResult Fail()
+        {
+            return StatusCode(406);
+        }
     }
 }
