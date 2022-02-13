@@ -16,6 +16,11 @@ namespace SatelliteSite.Substrate.Dashboards
             IApiDocument document = api.GetDocument(name);
             ApiSpecificationType? type = null;
 
+            if (Request.Headers.Accept.Count == 0)
+            {
+                Request.Headers.Accept = new("*/*");
+            }
+
             foreach (string mime in Request.Headers.GetCommaSeparatedValues("accept"))
             {
                 switch (mime)
