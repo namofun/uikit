@@ -74,6 +74,12 @@ namespace SatelliteSite.IdentityModule
             services.ConfigureOptions<IdentityAdvancedConfigurator>();
             services.ConfigureOptions<AuthenticateSchemeConfigurator>();
 
+            services.Configure<SubstrateOptions>(options =>
+            {
+                options.LoginRouteName = "AccountLogin";
+                options.LogoutRouteName = "AccountLogout";
+            });
+
             services.AddScopedUpcast<IUserManager, UserManager<TUser, TRole>>();
             services.AddScopedUpcast<ISignInManager, CompatibleSignInManager<TUser>>();
 

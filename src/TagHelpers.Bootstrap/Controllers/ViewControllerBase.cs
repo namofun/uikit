@@ -76,6 +76,9 @@ namespace Microsoft.AspNetCore.Mvc
             if (context.Result is RedirectToActionResult rtas)
                 context.Result = new RedirectToAction2Result(rtas, InAjax);
 
+            if (context.Result is RedirectResult rrs)
+                context.Result = new Redirect2Result(rrs, InAjax);
+
             if (context.Result is ForbidResult && InAjax)
             {
                 Response.StatusCode = 403;

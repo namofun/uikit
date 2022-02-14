@@ -1,4 +1,5 @@
 ﻿@inject IMenuProvider Menu
+@inject SubstrateOptions Options 
 @{
     var menuName = (ViewData["NavbarName"] as string) ?? MenuNameDefaults.MainNavbar;
     var suppressUserMenu = ViewData.TryGetValue("SuppressUserMenu", out object? _suppressUserMenu) && _suppressUserMenu is bool __suppressUserMenu && __suppressUserMenu;
@@ -93,7 +94,7 @@
                 }
             </a>
         }
-            <form asp-area="Account" asp-controller="Sign" asp-action="Logout" method="post" id="logoutForm">
+            <form asp-route="@(Options.LogoutRouteName)" method="post" id="logoutForm">
                 <button type="submit" class="dropdown-item">
                     <i class="fas fa-sign-out-alt fa-fw"></i> Logout
                 </button>
@@ -101,7 +102,7 @@
         </div>
     </li>
     <li class="nav-item" asp-show-if="!suppressUserMenu && !User.IsSignedIn()">
-        <a class="nav-link" role="button" data-toggle="ajaxWindow" data-target="login" asp-area="Account" asp-controller="Sign" asp-action="Login" asp-route-returnUrl="@ViewData["RefreshUrl2"]">
+        <a class="nav-link" role="button" data-toggle="ajaxWindow" data-target="login" asp-route="@(Options.LoginRouteName)" asp-route-returnUrl="@ViewData["RefreshUrl2"]">
             <i class="fas fa-sign-in-alt fa-fw"></i> Login
         </a>
     </li>

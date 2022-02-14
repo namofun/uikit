@@ -26,6 +26,16 @@ namespace Microsoft.AspNetCore.Mvc
         public string GravatarMirror { get; set; } = "//www.gravatar.com/avatar/";
 
         /// <summary>
+        /// The route name of logout action
+        /// </summary>
+        public string LogoutRouteName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The route name of login action
+        /// </summary>
+        public string LoginRouteName { get; set; } = string.Empty;
+
+        /// <summary>
         /// Gets or sets the endpoint route builder configure actions.
         /// </summary>
         public List<Action<IEndpointRouteBuilder>> Endpoints { get; } = new List<Action<IEndpointRouteBuilder>>();

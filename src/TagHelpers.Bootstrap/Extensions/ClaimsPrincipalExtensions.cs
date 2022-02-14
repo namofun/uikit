@@ -23,7 +23,9 @@ namespace Microsoft.AspNetCore.Mvc
         public static bool IsSignedIn(this ClaimsPrincipal principal)
         {
             return principal?.Identities != null &&
-                principal.Identities.Any(i => i.AuthenticationType == IdentityConstants.ApplicationScheme);
+                principal.Identities.Any(i
+                    => i.AuthenticationType == IdentityConstants.ApplicationScheme
+                    || i.AuthenticationType == "EasyAuth-aad");
         }
 
         /// <summary>

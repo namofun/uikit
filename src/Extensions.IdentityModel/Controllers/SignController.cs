@@ -86,7 +86,7 @@ namespace SatelliteSite.IdentityModule.Controllers
         }
 
 
-        [HttpPost]
+        [HttpPost(Name = "AccountLogout")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {

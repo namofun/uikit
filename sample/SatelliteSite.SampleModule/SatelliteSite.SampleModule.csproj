@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <ProjectReference Include="..\..\src\Azure.Convergence\SatelliteSite.AzureCloud.csproj" />
     <ProjectReference Include="..\..\src\Extensions.IdentityModel\SatelliteSite.IdentityModule.csproj" />
     <ProjectReference Include="..\..\src\TagHelpers.Bootstrap\SatelliteSite.Substrate.csproj" />
   </ItemGroup>

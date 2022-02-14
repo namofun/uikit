@@ -83,7 +83,7 @@ namespace Microsoft.AspNetCore.Authentication.EasyAuth
                 ClaimsPrincipal principal = new(
                     new ClaimsIdentity(
                         clientPrincipal.Claims.Select(MapClaims).Where(c => c != null).ToList()!,
-                        clientPrincipal.AuthenticationType,
+                        "EasyAuth-" + clientPrincipal.AuthenticationType,
                         "name",
                         "role"));
 

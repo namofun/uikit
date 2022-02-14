@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication.EasyAuth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SatelliteSite.SampleModule.Services;
-using System.Linq;
+using System.Security.Claims;
 
 namespace SatelliteSite.SampleModule.Controllers
 {
@@ -47,7 +48,7 @@ namespace SatelliteSite.SampleModule.Controllers
         [HttpGet]
         public IActionResult ClaimsV2()
         {
-            return Json(User.Claims.Select(c => new { c.Type, c.Value }));
+            return Json(new EasyAuthClientPrincipal((ClaimsIdentity)User.Identity));
         }
 
         [HttpGet]
