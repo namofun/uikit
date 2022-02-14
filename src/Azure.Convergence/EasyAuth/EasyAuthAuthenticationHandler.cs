@@ -107,7 +107,7 @@ namespace Microsoft.AspNetCore.Authentication.EasyAuth
             }
             else
             {
-                Response.Redirect(Options.LoginUrl ?? "No login URL configured.");
+                Response.Redirect(Options.LoginUrl + "?post_login_redirect_uri=" + UrlEncoder.Encode(Request.Path.Value ?? "/"));
                 return Task.CompletedTask;
             }
         }

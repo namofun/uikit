@@ -8,6 +8,7 @@ using SatelliteSite;
 using SatelliteSite.SampleModule.Components.Fake;
 using SatelliteSite.SampleModule.Components.Weather;
 using SatelliteSite.SampleModule.Services;
+using System.Linq;
 using System.Threading.Tasks;
 
 [assembly: ConfigurationInteger(1, "Weather", "random_count", 5, "The count of random weather items.")]
@@ -54,10 +55,14 @@ namespace SatelliteSite.SampleModule
         public override void RegisterServices(IServiceCollection services)
         {
             services.AddScoped<ForecastService>();
-            services.AddScoped<IUserClaimsProvider, RandomClaimsProvider>();
-            services.AddScoped<IUserClaimsProvider, RandomClaimsProvider>();
 
-            services.ReplaceScoped<IUserInformationProvider, UserInformationProviderV2>();
+            if (services.Any(sd => sd.ServiceType == typeof(IUserManager)))
+            {
+                services.AddScoped<IUserClaimsProvider, RandomClaimsProvider>();
+                services.AddScoped<IUserClaimsProvider, RandomClaimsProvider>();
+
+                services.ReplaceScoped<IUserInformationProvider, UserInformationProviderV2>();
+            }
         }
 
         public override void RegisterMenu(IMenuContributor menus)
@@ -89,7 +94,7 @@ namespace SatelliteSite.SampleModule
 
         public void RegisterPolicies(IAuthorizationPolicyContainer container)
         {
-            container.AddPolicy2("HasDashboard", b => b.AcceptClaim("666", "777"));
+            container.AddPolicy2("HasDashboard", b => b.AcceptClaim("666", "777").AcceptClaim("email", "webmaster@90yang.com"));
         }
     }
 }

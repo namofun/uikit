@@ -19,6 +19,21 @@ namespace SatelliteSite
             Current.Run();
         }
 
+        public static IHostBuilder CreateHostBuilderAlt(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .MarkDomain<Program>()
+                .AddApplicationInsights()
+                .AddModule<AzureCloud.EasyAuthModule>()
+                .AddModule<SampleModule.SampleModule>()
+                .AddAzureBlobWebRoot((c, options) => options.With(c.GetConnectionString("AzureStorageBlob"), c.GetConnectionString("AzureStorageBlobContainerName"), System.IO.Path.Combine(c.HostingEnvironment.ContentRootPath, "wwwcache")))
+                .ConfigureSubstrateDefaultsCore(builder =>
+                {
+                    builder.ConfigureServices(services =>
+                    {
+                        services.AddAuthentication("EasyAuth");
+                    });
+                });
+
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .MarkDomain<Program>()
@@ -40,14 +55,6 @@ namespace SatelliteSite
                         services.ConfigureApplicationBuilder(options =>
                         {
                             options.GravatarMirror = "//gravatar.zeruns.tech/avatar/";
-                        });
-
-                        services.Configure<Microsoft.ApplicationInsights.AspNetCore.Extensions.ApplicationInsightsServiceOptions>(options =>
-                        {
-                            if (string.IsNullOrEmpty(options.InstrumentationKey))
-                            {
-                                options.InstrumentationKey = ctx.Configuration["AppInsights:App"] ?? string.Empty;
-                            }
                         });
 
                         if (ctx.Configuration["AzureAD:ClientId"] != null)

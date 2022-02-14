@@ -22,7 +22,7 @@ namespace SatelliteSite.SampleModule.Services
 
         public IEnumerable<WeatherForecast> Forecast()
         {
-            int count = Registry.GetAsync("random_count").Result.Single().Value.AsJson<int>();
+            int count = Registry.GetAsync("random_count").Result.SingleOrDefault()?.Value.AsJson<int>() ?? 5;
             var rng = new Random();
             return Enumerable.Range(1, count).Select(index => new WeatherForecast
             {

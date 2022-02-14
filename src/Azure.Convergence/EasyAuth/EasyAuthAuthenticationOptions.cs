@@ -2,9 +2,9 @@
 {
     public class EasyAuthAuthenticationOptions : AuthenticationSchemeOptions
     {
-        public string? LoginUrl { get; set; }
+        public string LoginUrl { get; set; } = "/.auth/login/aad";
 
-        public string? LogoutUrl { get; set; }
+        public string LogoutUrl { get; set; } = "/.auth/logout";
 
         public bool UseHttp302ForChallenge { get; set; }
 

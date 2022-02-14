@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SatelliteSite.SampleModule.Services;
+using System.Linq;
 
 namespace SatelliteSite.SampleModule.Controllers
 {
@@ -40,6 +41,13 @@ namespace SatelliteSite.SampleModule.Controllers
         public IActionResult Claims(string roleName)
         {
             return Json(User.IsInRole(roleName));
+        }
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult ClaimsV2()
+        {
+            return Json(User.Claims.Select(c => new { c.Type, c.Value }));
         }
 
         [HttpGet]
