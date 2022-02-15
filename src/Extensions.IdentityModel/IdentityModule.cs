@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using idunno.Authentication.Basic;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -16,12 +17,16 @@ using System.Linq;
 
 namespace SatelliteSite.IdentityModule
 {
-    public class IdentityModule<TUser, TRole, TContext> : BaseAuthModule, IAuthorizationPolicyRegistry
+    public class IdentityModule<TUser, TRole, TContext> : BaseAuthModule, IAuthorizationPolicyRegistry, IIdentityModuleOptions
         where TUser : Entities.User, new()
         where TRole : Entities.Role, new()
         where TContext : Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityDbContext<TUser, TRole, int>
     {
         public override string Area => "Account";
+
+        public bool EnableBasicAuthentication { get; set; }
+
+        public bool EnableJwtAuthentication { get; set; }
 
         public override void Initialize()
         {
@@ -65,14 +70,13 @@ namespace SatelliteSite.IdentityModule
 
             services.AddScoped<CompositeUserClaimsProvider>();
 
-            services.AddSingleton<BasicAuthenticationValidator>();
             services.AddSingleton<CookieAuthenticationValidator>();
             services.AddSingleton<ISignInSlideExpiration, DefaultSignInSlideExpiration<TUser>>();
             services.TryAddSingleton(typeof(IUserInformationCache<>), typeof(MemoryUserInformationCache<>));
 
             services.ConfigureOptions<SubstrateSiteNameConfigurator>();
             services.ConfigureOptions<IdentityAdvancedConfigurator>();
-            services.ConfigureOptions<AuthenticateSchemeConfigurator>();
+            services.ConfigureOptions<CookieAuthenticateSchemeConfigurator>();
 
             services.Configure<SubstrateOptions>(options =>
             {
@@ -80,8 +84,14 @@ namespace SatelliteSite.IdentityModule
                 options.LogoutRouteName = "AccountLogout";
             });
 
-            services.AddSingleton(new PublicAuthenticationScheme("Basic"));
             services.AddSingleton(new PublicAuthenticationScheme(IdentityConstants.ApplicationScheme));
+
+            if (EnableBasicAuthentication)
+            {
+                services.AddSingleton<BasicAuthenticationValidator>();
+                services.ConfigureOptions<BasicAuthenticateSchemeConfigurator>();
+                services.AddSingleton(new PublicAuthenticationScheme(BasicAuthenticationDefaults.AuthenticationScheme));
+            }
 
             services.AddScopedUpcast<IUserManager, UserManager<TUser, TRole>>();
             services.AddScopedUpcast<ISignInManager, CompatibleSignInManager<TUser>>();
@@ -98,7 +108,10 @@ namespace SatelliteSite.IdentityModule
 
         protected override void BuildAuthentication(AuthenticationBuilder builder)
         {
-            builder.AddBasic();
+            if (EnableBasicAuthentication)
+            {
+                builder.AddBasic();
+            }
         }
 
         public override void RegisterEndpoints(IEndpointBuilder endpoints)

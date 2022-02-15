@@ -7,22 +7,13 @@ using System;
 
 namespace SatelliteSite.IdentityModule
 {
-    internal class AuthenticateSchemeConfigurator :
-        IConfigureNamedOptions<BasicAuthenticationOptions>,
-        IConfigureNamedOptions<CookieAuthenticationOptions>
+    internal class CookieAuthenticateSchemeConfigurator : IConfigureNamedOptions<CookieAuthenticationOptions>
     {
-        private readonly IdentityAdvancedOptions _options;
         private readonly CookieAuthenticationValidator _cookie;
-        private readonly BasicAuthenticationValidator _basic;
 
-        public AuthenticateSchemeConfigurator(
-            IOptions<IdentityAdvancedOptions> options,
-            CookieAuthenticationValidator cookie,
-            BasicAuthenticationValidator basic)
+        public CookieAuthenticateSchemeConfigurator(CookieAuthenticationValidator cookie)
         {
-            _options = options.Value;
             _cookie = cookie;
-            _basic = basic;
         }
 
         public void Configure(string name, CookieAuthenticationOptions options)
@@ -44,6 +35,18 @@ namespace SatelliteSite.IdentityModule
 
         public void Configure(CookieAuthenticationOptions options)
         {
+        }
+    }
+
+    internal class BasicAuthenticateSchemeConfigurator : IConfigureNamedOptions<BasicAuthenticationOptions>
+    {
+        private readonly IdentityAdvancedOptions _options;
+        private readonly BasicAuthenticationValidator _basic;
+
+        public BasicAuthenticateSchemeConfigurator(IOptions<IdentityAdvancedOptions> options, BasicAuthenticationValidator basic)
+        {
+            _options = options.Value;
+            _basic = basic;
         }
 
         public void Configure(string name, BasicAuthenticationOptions options)

@@ -39,6 +39,7 @@ namespace SatelliteSite
                 .MarkDomain<Program>()
                 .AddApplicationInsights()
                 .AddModule<IdentityModule.IdentityModule<User, Role, DefaultContext>>()
+                .EnableIdentityModuleBasicAuthentication()
                 .AddModule<SampleModule.SampleModule>()
                 .AddDatabase<DefaultContext>((c, b) => b.UseSqlServer(c.GetConnectionString("UserDbConnection"), b => b.UseBulk()))
                 .ConfigureSubstrateDefaults<DefaultContext>(builder =>
