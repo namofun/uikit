@@ -20,6 +20,8 @@ namespace SatelliteSite.AzureCloud
                 options.LoginRouteName = "EasyAuthLogin";
                 options.LogoutRouteName = "EasyAuthLogout";
             });
+
+            services.AddSingleton(new PublicAuthenticationScheme("EasyAuth"));
         }
 
         protected override void BuildAuthentication(AuthenticationBuilder builder)

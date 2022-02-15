@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace SatelliteSite.Substrate.Apis
 {
     [Area("Dashboard")]
-    [Authorize(AuthenticationSchemes = "Basic,Identity.Application")]
+    [AuthenticateWithAllSchemes]
     [Authorize(Policy = "HasDashboard")]
     [Route("api/[controller]/[action]")]
     [Produces("application/json")]

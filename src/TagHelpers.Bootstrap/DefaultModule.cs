@@ -111,7 +111,7 @@ namespace SatelliteSite.Substrate
                 .MapStatusCode("/dashboard/{**slug}");
 
             endpoints.MapApiDocument(
-                name: "static",
+                name: "fabric",
                 title: "Platform Substrate",
                 description: "Project fabric API",
                 version: this.Version);

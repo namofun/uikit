@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -20,7 +22,7 @@ namespace Microsoft.AspNetCore.Routing
 {
     internal abstract class ModuleEndpointDataSource : EndpointDataSource
     {
-        private static readonly object _locker = new object();
+        private static readonly object _locker = new();
         private static readonly Func<object, List<Action<EndpointBuilder>>, ControllerActionEndpointConventionBuilder> _cbFactory;
         private static readonly Type _actionEndpointFactoryType;
         private static readonly Action<object, List<Endpoint>, HashSet<string>, ActionDescriptor, IReadOnlyList<Action<EndpointBuilder>>, bool> AddEndpoints;
@@ -33,6 +35,7 @@ namespace Microsoft.AspNetCore.Routing
         private readonly Type _moduleType;
         private readonly Type _moduleAbstractType;
         private readonly List<DefaultEndpointConventionBuilder> _modelEndpoints;
+        private readonly IEnumerable<PublicAuthenticationScheme> _publicAuthenticationSchemes;
 
         static ModuleEndpointDataSource()
         {
@@ -80,6 +83,7 @@ namespace Microsoft.AspNetCore.Routing
             _moduleType = parentType;
             _moduleAbstractType = parentType.IsConstructedGenericType ? parentType.GetGenericTypeDefinition() : parentType;
             _modelEndpoints = new List<DefaultEndpointConventionBuilder>();
+            _publicAuthenticationSchemes = serviceProvider.GetRequiredService<IEnumerable<PublicAuthenticationScheme>>();
         }
 
         public List<Action<EndpointBuilder>> ControllerRouteConventions { get; }
@@ -126,6 +130,11 @@ namespace Microsoft.AspNetCore.Routing
             List<Endpoint> CreateEndpoints()
             {
                 var endpoints = new List<Endpoint>();
+                string? acceptableSchemes = null;
+                if (_publicAuthenticationSchemes != null)
+                {
+                    acceptableSchemes = string.Join(',', _publicAuthenticationSchemes.Select(s => s.Name));
+                }
 
                 if (EnableController)
                 {
@@ -137,6 +146,14 @@ namespace Microsoft.AspNetCore.Routing
                     {
                         if (CheckEligibility(actions[i], out var action) && action != null)
                         {
+                            if (acceptableSchemes != null)
+                            {
+                                action.EndpointMetadata
+                                    .OfType<AuthenticateWithAllSchemesAttribute>()
+                                    .SingleOrDefault()
+                                    ?.UpdateAuthenticationSchemes(acceptableSchemes);
+                            }
+
                             AddEndpoints(_actionEndpointFactory, endpoints, routeNames, action, conventions, false);
                         }
                     }

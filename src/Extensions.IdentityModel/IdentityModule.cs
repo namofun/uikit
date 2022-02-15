@@ -80,6 +80,9 @@ namespace SatelliteSite.IdentityModule
                 options.LogoutRouteName = "AccountLogout";
             });
 
+            services.AddSingleton(new PublicAuthenticationScheme("Basic"));
+            services.AddSingleton(new PublicAuthenticationScheme(IdentityConstants.ApplicationScheme));
+
             services.AddScopedUpcast<IUserManager, UserManager<TUser, TRole>>();
             services.AddScopedUpcast<ISignInManager, CompatibleSignInManager<TUser>>();
 
