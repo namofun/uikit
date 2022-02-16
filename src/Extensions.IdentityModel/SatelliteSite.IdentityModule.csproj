@@ -11,7 +11,6 @@
   <ItemGroup>
     <PackageReference Include="idunno.Authentication.Basic" Version="2.2.3" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="$(AspNetCoreVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="$(AspNetCoreVersion)" />
   </ItemGroup>
 
   <ItemGroup>

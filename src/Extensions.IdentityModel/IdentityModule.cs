@@ -26,8 +26,6 @@ namespace SatelliteSite.IdentityModule
 
         public bool EnableBasicAuthentication { get; set; }
 
-        public bool EnableJwtAuthentication { get; set; }
-
         public override void Initialize()
         {
         }

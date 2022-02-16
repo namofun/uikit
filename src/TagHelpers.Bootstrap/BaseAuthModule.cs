@@ -42,7 +42,5 @@ namespace Microsoft.AspNetCore.Mvc
     internal interface IIdentityModuleOptions
     {
         bool EnableBasicAuthentication { get; set; }
-
-        bool EnableJwtAuthentication { get; set; }
     }
 }
