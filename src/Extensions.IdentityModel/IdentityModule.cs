@@ -26,6 +26,8 @@ namespace SatelliteSite.IdentityModule
 
         public bool EnableBasicAuthentication { get; set; }
 
+        public bool EnableJwtAuthentication { get; set; }
+
         public override void Initialize()
         {
         }
@@ -91,6 +93,10 @@ namespace SatelliteSite.IdentityModule
                 services.AddSingleton(new PublicAuthenticationScheme(BasicAuthenticationDefaults.AuthenticationScheme));
             }
 
+            if (EnableJwtAuthentication)
+            {
+            }
+
             services.AddScopedUpcast<IUserManager, UserManager<TUser, TRole>>();
             services.AddScopedUpcast<ISignInManager, CompatibleSignInManager<TUser>>();
 
@@ -109,6 +115,11 @@ namespace SatelliteSite.IdentityModule
             if (EnableBasicAuthentication)
             {
                 builder.AddBasic();
+            }
+
+            if (EnableJwtAuthentication)
+            {
+                builder.AddJwtBearer();
             }
         }
 

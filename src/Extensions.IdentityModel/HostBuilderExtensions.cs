@@ -20,5 +20,18 @@ namespace Microsoft.AspNetCore.Hosting
             options.EnableBasicAuthentication = true;
             return builder;
         }
+
+        public static IHostBuilder EnableIdentityModuleJwtAuthentication(this IHostBuilder builder)
+        {
+            var modules = (List<AbstractModule>)builder.Properties["Substrate.Modules"];
+            var options = modules.OfType<IIdentityModuleOptions>().SingleOrDefault();
+            if (options == null)
+            {
+                throw new InvalidOperationException("Identity module not registered.");
+            }
+
+            options.EnableJwtAuthentication = true;
+            return builder;
+        }
     }
 }
