@@ -1,9 +1,11 @@
 ﻿using Microsoft.ApplicationInsights.AspNetCore;
 using Microsoft.ApplicationInsights.DataContracts;
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Extensions.Diagnostics;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Microsoft.ApplicationInsights
 {
@@ -95,6 +97,73 @@ namespace Microsoft.ApplicationInsights
         public string GetHeadJavascript()
         {
             return _javaScriptSnippet.FullScript;
+        }
+
+        private IOperationHolder<DependencyTelemetry> StartInProcOperationScope(string scopeName)
+        {
+            return _appInsights.StartOperation(new DependencyTelemetry()
+            {
+                Name = scopeName,
+                Type = "InProc",
+                Context = { Operation = { Name = scopeName } }
+            });
+        }
+
+        /// <inheritdoc />
+        public void TrackScope(string scopeName, Action scopeFunc)
+        {
+            using var operationHolder = StartInProcOperationScope(scopeName);
+            try
+            {
+                scopeFunc();
+            }
+            catch
+            {
+                operationHolder.Telemetry.Success = false;
+                throw;
+            }
+            finally
+            {
+                _appInsights.StopOperation(operationHolder);
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task TrackScope(string scopeName, Func<Task> scopeFunc)
+        {
+            using var operationHolder = StartInProcOperationScope(scopeName);
+            try
+            {
+                await scopeFunc();
+            }
+            catch
+            {
+                operationHolder.Telemetry.Success = false;
+                throw;
+            }
+            finally
+            {
+                _appInsights.StopOperation(operationHolder);
+            }
+        }
+
+        /// <inheritdoc />
+        public async Task<T> TrackScope<T>(string scopeName, Func<Task<T>> scopeFunc)
+        {
+            using var operationHolder = StartInProcOperationScope(scopeName);
+            try
+            {
+                return await scopeFunc();
+            }
+            catch
+            {
+                operationHolder.Telemetry.Success = false;
+                throw;
+            }
+            finally
+            {
+                _appInsights.StopOperation(operationHolder);
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.Diagnostics
 {
@@ -87,6 +88,27 @@ namespace Microsoft.Extensions.Diagnostics
         void TrackTrace(string message, LogLevel severityLevel, IDictionary<string, string>? properties = null);
 
         /// <summary>
+        /// Track the start, stop, correlation and exception in scope.
+        /// </summary>
+        /// <param name="scopeName">Name of scope.</param>
+        /// <param name="scopeFunc">Actual action of scope.</param>
+        void TrackScope(string scopeName, Action scopeFunc);
+
+        /// <summary>
+        /// Track the start, stop, correlation and exception in scope.
+        /// </summary>
+        /// <param name="scopeName">Name of scope.</param>
+        /// <param name="scopeFunc">Actual action of scope.</param>
+        Task TrackScope(string scopeName, Func<Task> scopeFunc);
+
+        /// <summary>
+        /// Track the start, stop, correlation and exception in scope.
+        /// </summary>
+        /// <param name="scopeName">Name of scope.</param>
+        /// <param name="scopeFunc">Actual action of scope.</param>
+        Task<T> TrackScope<T>(string scopeName, Func<Task<T>> scopeFunc);
+
+        /// <summary>
         /// Gets the javascript segment for rendering in head.
         /// </summary>
         /// <returns>The head javascript.</returns>
@@ -140,6 +162,24 @@ namespace Microsoft.Extensions.Diagnostics
         public string GetHeadJavascript()
         {
             return string.Empty;
+        }
+
+        /// <inheritdoc />
+        public void TrackScope(string scopeName, Action scopeFunc)
+        {
+            scopeFunc();
+        }
+
+        /// <inheritdoc />
+        public Task TrackScope(string scopeName, Func<Task> scopeFunc)
+        {
+            return scopeFunc();
+        }
+
+        /// <inheritdoc />
+        public Task<T> TrackScope<T>(string scopeName, Func<Task<T>> scopeFunc)
+        {
+            return scopeFunc();
         }
     }
 }
