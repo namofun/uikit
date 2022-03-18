@@ -90,7 +90,7 @@ namespace Microsoft.AspNetCore.Mvc
             services.TryAddSingleton<ITelemetryClient, NullTelemetryClient>();
             services.TryAddSingleton<TelemetryCorrelationMiddleware>();
 
-            services.AddSingleton<IEmailSender, SmtpEmailSender>();
+            services.TryAddTransient<IEmailSender, SmtpEmailSender>();
             services.AddOptions<SmtpEmailSenderOptions>();
 
             services.AddControllersWithViews()

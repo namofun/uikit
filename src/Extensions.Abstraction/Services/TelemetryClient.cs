@@ -57,6 +57,12 @@ namespace Microsoft.Extensions.Diagnostics
         IDependencyTracker StartOperation(string dependencyTypeName, string? target, string operationName);
 
         /// <summary>
+        /// Stop tracking the external dependency.
+        /// </summary>
+        /// <param name="tracker">External dependency tracker.</param>
+        void StopOperation(IDependencyTracker tracker);
+
+        /// <summary>
         /// Send an event telemetry for display in Diagnostic Search and in the Analytics Portal.
         /// </summary>
         /// <param name="eventName">A name for the event.</param>
@@ -197,13 +203,18 @@ namespace Microsoft.Extensions.Diagnostics
             return new NullDependencyTracker(dependencyTypeName, target, operationName);
         }
 
+        /// <inheritdoc />
+        public void StopOperation(IDependencyTracker tracker)
+        {
+        }
+
         private sealed class NullDependencyTracker : IDependencyTracker
         {
             private Dictionary<string, double>? _metrics;
             private Dictionary<string, string>? _properties;
 
             public string DependencyType { get; }
-            public string DependencyTarget { get; }
+            public string? DependencyTarget { get; }
             public string OperationName { get; }
             public bool? Success { get; set; }
             public string? Data { get; set; }
@@ -212,7 +223,7 @@ namespace Microsoft.Extensions.Diagnostics
             public IDictionary<string, string> Properties => _properties ??= new();
             public void Dispose() { }
 
-            public NullDependencyTracker(string type, string target, string name)
+            public NullDependencyTracker(string type, string? target, string name)
             {
                 DependencyType = type;
                 DependencyTarget = target;

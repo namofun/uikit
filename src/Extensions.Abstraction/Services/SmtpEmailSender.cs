@@ -12,7 +12,12 @@ namespace Microsoft.Extensions.Mailing
 {
     public class SmtpEmailSender : IEmailSender
     {
-        private readonly Action<ILogger, string, Exception?> _emailSending;
+        private static readonly Action<ILogger, string, Exception?>
+            _emailSending = LoggerMessage.Define<string>(
+                logLevel: LogLevel.Information,
+                eventId: new EventId(17362),
+                formatString: "An email will be sent to {email}");
+
         private readonly ILogger<SmtpEmailSender> _logger;
         private readonly ITelemetryClient _telemetry;
         private readonly SmtpEmailSenderOptions _apikey;
@@ -25,11 +30,6 @@ namespace Microsoft.Extensions.Mailing
             _logger = logger;
             _telemetry = telemetry;
             _apikey = options.Value;
-
-            _emailSending = LoggerMessage.Define<string>(
-                logLevel: LogLevel.Information,
-                eventId: new EventId(17362),
-                formatString: "An email will be sent to {email}");
         }
 
         public Task SendEmailAsync(string email, string subject, string message)
@@ -45,7 +45,7 @@ namespace Microsoft.Extensions.Mailing
             msg.Body = message;
             msg.BodyEncoding = Encoding.UTF8;
 
-            var client = new SmtpClient
+            using SmtpClient client = new()
             {
                 Host = _apikey.Server,
                 Port = _apikey.Port,
@@ -58,27 +58,22 @@ namespace Microsoft.Extensions.Mailing
 
             Task.Run(async () =>
             {
-                var startTime = DateTimeOffset.Now;
-                Exception? exception = null;
-
+                using var tracker = telemetry.StartOperation("Queue Message | Smtp", $"{client.Host}:{client.Port}", "SendMail");
+                tracker.Data = $"From: {msg.From.Address}\r\nTo: {string.Join(';', msg.To.Select(a => a.Address))}\r\n";
                 try
                 {
                     await client.SendMailAsync(msg);
+                    tracker.ResultCode = "OK";
                 }
                 catch (Exception ex)
                 {
-                    exception = ex;
+                    tracker.Success = false;
+                    tracker.ResultCode = ex.Message;
                 }
-
-                telemetry.TrackDependency(
-                    dependencyTypeName: "Smtp",
-                    dependencyName: $"{client.Host}:{client.Port}",
-                    target: msg.From.Address,
-                    data: string.Join(';', msg.To.Select(a => a.Address)),
-                    startTime: startTime,
-                    duration: DateTimeOffset.Now - startTime,
-                    resultCode: exception == null ? "OK" : exception.Message,
-                    success: exception == null);
+                finally
+                {
+                    telemetry.StopOperation(tracker);
+                }
             });
 
             return Task.CompletedTask;
