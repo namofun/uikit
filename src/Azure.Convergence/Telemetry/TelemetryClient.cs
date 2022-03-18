@@ -35,15 +35,15 @@ namespace Microsoft.ApplicationInsights
         }
 
         /// <inheritdoc />
-        public void TrackDependency(string dependencyTypeName, string target, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, string resultCode, bool success)
+        public void TrackDependency(string dependencyTypeName, string target, string operationName, string data, DateTimeOffset startTime, TimeSpan duration, string resultCode, bool success)
         {
-            _appInsights.TrackDependency(dependencyTypeName, target, dependencyName, data, startTime, duration, resultCode, success);
+            _appInsights.TrackDependency(dependencyTypeName, target, operationName, data, startTime, duration, resultCode, success);
         }
 
         /// <inheritdoc />
-        public void TrackDependency(string dependencyTypeName, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
+        public void TrackDependency(string dependencyTypeName, string operationName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
         {
-            _appInsights.TrackDependency(dependencyTypeName, dependencyName, data, startTime, duration, success);
+            _appInsights.TrackDependency(dependencyTypeName, operationName, data, startTime, duration, success);
         }
 
         /// <inheritdoc />
@@ -163,6 +163,21 @@ namespace Microsoft.ApplicationInsights
             finally
             {
                 _appInsights.StopOperation(operationHolder);
+            }
+        }
+
+        /// <inheritdoc />
+        public IDependencyTracker StartOperation(string dependencyTypeName, string? target, string operationName)
+        {
+            return new ApplicationInsightsDependencyTracker(_appInsights, dependencyTypeName, target, operationName);
+        }
+
+        /// <inheritdoc />
+        public void StopOperation(IDependencyTracker tracker)
+        {
+            if (tracker is ApplicationInsightsDependencyTracker tracker1)
+            {
+                _appInsights.StopOperation(tracker1.OperationHolder);
             }
         }
     }

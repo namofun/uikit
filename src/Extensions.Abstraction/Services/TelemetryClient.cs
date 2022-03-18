@@ -28,24 +28,33 @@ namespace Microsoft.Extensions.Diagnostics
         /// </summary>
         /// <param name="dependencyTypeName">External dependency type. Very low cardinality value for logical grouping and interpretation of fields. Examples are SQL, Azure table, and HTTP.</param>
         /// <param name="target">External dependency target.</param>
-        /// <param name="dependencyName">Name of the command initiated with this dependency call. Low cardinality value. Examples are stored procedure name and URL path template.</param>
+        /// <param name="operationName">Name of the command initiated with this dependency call. Low cardinality value. Examples are stored procedure name and URL path template.</param>
         /// <param name="data">Command initiated by this dependency call. Examples are SQL statement and HTTP URL's with all query parameters.</param>
         /// <param name="startTime">The time when the dependency was called.</param>
         /// <param name="duration">The time taken by the external dependency to handle the call.</param>
         /// <param name="resultCode">Result code of dependency call execution.</param>
         /// <param name="success">True if the dependency call was handled successfully.</param>
-        void TrackDependency(string dependencyTypeName, string target, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, string resultCode, bool success);
+        void TrackDependency(string dependencyTypeName, string target, string operationName, string data, DateTimeOffset startTime, TimeSpan duration, string resultCode, bool success);
 
         /// <summary>
         /// Send information about an external dependency (outgoing call) in the application.
         /// </summary>
         /// <param name="dependencyTypeName">External dependency type. Very low cardinality value for logical grouping and interpretation of fields. Examples are SQL, Azure table, and HTTP.</param>
-        /// <param name="dependencyName">Name of the command initiated with this dependency call. Low cardinality value. Examples are stored procedure name and URL path template.</param>
+        /// <param name="operationName">Name of the command initiated with this dependency call. Low cardinality value. Examples are stored procedure name and URL path template.</param>
         /// <param name="data">Command initiated by this dependency call. Examples are SQL statement and HTTP URL's with all query parameters.</param>
         /// <param name="startTime">The time when the dependency was called.</param>
         /// <param name="duration">The time taken by the external dependency to handle the call.</param>
         /// <param name="success">True if the dependency call was handled successfully.</param>
-        void TrackDependency(string dependencyTypeName, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success);
+        void TrackDependency(string dependencyTypeName, string operationName, string data, DateTimeOffset startTime, TimeSpan duration, bool success);
+
+        /// <summary>
+        /// Start tracking an external dependency (outgoing call) in the application.
+        /// </summary>
+        /// <param name="dependencyTypeName">External dependency type. Very low cardinality value for logical grouping and interpretation of fields. Examples are SQL, Azure table, and HTTP.</param>
+        /// <param name="target">External dependency target.</param>
+        /// <param name="operationName">Name of the command initiated with this dependency call. Low cardinality value. Examples are stored procedure name and URL path template.</param>
+        /// <returns>The dependency tracker. Caller must dispose the tracker to stop the operation.</returns>
+        IDependencyTracker StartOperation(string dependencyTypeName, string? target, string operationName);
 
         /// <summary>
         /// Send an event telemetry for display in Diagnostic Search and in the Analytics Portal.
@@ -124,12 +133,12 @@ namespace Microsoft.Extensions.Diagnostics
         }
 
         /// <inheritdoc />
-        public void TrackDependency(string dependencyTypeName, string target, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, string resultCode, bool success)
+        public void TrackDependency(string dependencyTypeName, string target, string operationName, string data, DateTimeOffset startTime, TimeSpan duration, string resultCode, bool success)
         {
         }
 
         /// <inheritdoc />
-        public void TrackDependency(string dependencyTypeName, string dependencyName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
+        public void TrackDependency(string dependencyTypeName, string operationName, string data, DateTimeOffset startTime, TimeSpan duration, bool success)
         {
         }
 
@@ -180,6 +189,35 @@ namespace Microsoft.Extensions.Diagnostics
         public Task<T> TrackScope<T>(string scopeName, Func<Task<T>> scopeFunc)
         {
             return scopeFunc();
+        }
+
+        /// <inheritdoc />
+        public IDependencyTracker StartOperation(string dependencyTypeName, string? target, string operationName)
+        {
+            return new NullDependencyTracker(dependencyTypeName, target, operationName);
+        }
+
+        private sealed class NullDependencyTracker : IDependencyTracker
+        {
+            private Dictionary<string, double>? _metrics;
+            private Dictionary<string, string>? _properties;
+
+            public string DependencyType { get; }
+            public string DependencyTarget { get; }
+            public string OperationName { get; }
+            public bool? Success { get; set; }
+            public string? Data { get; set; }
+            public string? ResultCode { get; set; }
+            public IDictionary<string, double> Metrics => _metrics ??= new();
+            public IDictionary<string, string> Properties => _properties ??= new();
+            public void Dispose() { }
+
+            public NullDependencyTracker(string type, string target, string name)
+            {
+                DependencyType = type;
+                DependencyTarget = target;
+                OperationName = name;
+            }
         }
     }
 }
