@@ -1,7 +1,6 @@
 ﻿using Microsoft.ApplicationInsights.Channel;
-using Microsoft.ApplicationInsights.Extensibility;
 
-namespace Microsoft.ApplicationInsights
+namespace Microsoft.ApplicationInsights.Extensibility
 {
     public class CloudRoleInitializer : ITelemetryInitializer
     {

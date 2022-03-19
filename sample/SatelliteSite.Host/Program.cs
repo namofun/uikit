@@ -1,3 +1,4 @@
+using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -31,6 +32,7 @@ namespace SatelliteSite
                     builder.ConfigureServices(services =>
                     {
                         services.AddAuthentication("EasyAuth");
+                        services.AddSingleton<ITelemetryInitializer, LogicAppsInitializer>();
                     });
                 });
 
@@ -69,6 +71,8 @@ namespace SatelliteSite
                                 options.TenantId = ctx.Configuration["AzureAD:TenantId"];
                             });
                         }
+
+                        services.AddSingleton<ITelemetryInitializer, LogicAppsInitializer>();
                     });
                 });
     }
