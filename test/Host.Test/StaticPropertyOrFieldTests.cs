@@ -91,6 +91,7 @@ namespace SatelliteSite.Tests
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Routing.TrackAvailabilityMetadata]::[Default]"] = "Constant Object",
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Routing.TrackAvailabilityMetadata]::[ErrorHandler]"] = "Constant Object",
                 ["[SatelliteSite.Substrate]::[Microsoft.AspNetCore.Routing.TrackAvailabilityMetadata]::[Fallback]"] = "Constant Object",
+                ["[SatelliteSite.Abstraction]::[Microsoft.Extensions.Mailing.SmtpEmailSender]::[_emailSending]"] = "Constant Object",
             };
 
             int errorCount = 0;
