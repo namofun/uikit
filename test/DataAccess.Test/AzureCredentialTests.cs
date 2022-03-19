@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Identity;
 using Microsoft.Extensions.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using SatelliteSite.SampleConnector.Services;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -156,42 +157,6 @@ namespace SatelliteSite.Tests
             {
                 return Task.FromResult(Handle(request));
             }
-        }
-
-        private class AzureManagementClient
-        {
-            private readonly HttpClient _client;
-
-            public AzureManagementClient(HttpClient httpClient)
-            {
-                _client = httpClient;
-            }
-
-            public Task<SubscriptionResponse> GetSubscriptionsAsync()
-            {
-                return _client.GetFromJsonAsync<SubscriptionResponse>("subscriptions?api-version=2014-04-01");
-            }
-        }
-
-        private class SubscriptionResponse
-        {
-            public Subscription[] Value { get; set; }
-        }
-
-        private class Subscription
-        {
-            public string Id { get; set; }
-            public string SubscriptionId { get; set; }
-            public string DisplayName { get; set; }
-            public string State { get; set; }
-            public SubscriptionPolicies SubscriptionPolicies { get; set; }
-        }
-
-        private class SubscriptionPolicies
-        {
-            public string LocationPlacementId { get; set; }
-            public string QuotaId { get; set; }
-            public string SpendingLimit { get; set; }
         }
     }
 }
